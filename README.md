@@ -1,1 +1,1 @@
-"# into-the-frame-VR (Alicia en el pais de las maravillas Versión marca blanca)"
+"# into-the-frame-VR (Alicia en el País de las Maravillas Versión Marca Blanca)"
