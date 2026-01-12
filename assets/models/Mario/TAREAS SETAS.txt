@@ -1,0 +1,28 @@
+PUZZLE PATRON DE COLORES
+Hay x numero de setas repartidas por la sala/espacio principal en el nivel de las setas. Habra Rojas, Verdes y Azules. El puzzle
+consiste en contar el numero de setas de cala color que hay para determinar el orden en el que hay que colocar los colores para que
+se habra la puerta que nos lleve al siguiente espacio.
+
+PUZZLE CRONOMETRO CON VENENO
+una vez hecho el puzzle de los patrones, pasaremos a esta sala. será como un bosque de setas en el que hay humo venenoso. El jugador
+tiene como fin encontrar dos llaves/piezas para abrir la purta con la llave final del nivel. Para ello debera encontrar estas dos llaves
+antes de que se acabe el tiempo (cuenta atras). Para aumentar el tiempo que tiene, debera encontrar unas setas (colmenillas) en el mapa para 
+"contrarrestrar"el humno venenoso y ganar el tiempo. Las llaves estarán una en un sitio elevado y otra en un sitio bajo, para realizar la 
+mecánica de aumento y disminución de tamaños.
+
+PUZZLE LLAVES
+Una vez conseguidas las dos llaves, se volvera a la sala principal para abrir la puerta, insertando las llaves en su cerradura correspondiente.
+abierta esta puertaa, se entregará la llave final del nivel.
+
+
+============================================================================================================
+
+	COSAS A PROGRAMAR:
+-patron de colores
+-apertura de la puerta
+-trigger para el contador 
+-cuando se acabe el tiempo que se vuelva al principio
+-reseteo del contador cada vez que se coja una seta
+-llaves al recogerse
+-dos cerraduras con dibujos correspondientes a las llaves
+
