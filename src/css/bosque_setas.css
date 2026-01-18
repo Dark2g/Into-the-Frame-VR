@@ -1,0 +1,22 @@
+
+html, body {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: #111;
+}
+
+.floor {
+  color: #8ac;
+}
+
+.door {
+  color: #444;
+}
+
+.red    { color: #e53935; }
+.blue   { color: #1e88e5; }
+.green  { color: #43a047; }
+.yellow { color: #fdd835; }
+
