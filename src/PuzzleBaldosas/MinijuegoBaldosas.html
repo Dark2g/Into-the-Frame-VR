@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ejemplo A-Frame</title>
+    <!-- 1. Incluir la librería de A-Frame -->
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <!-- Lógica del juego externa -->
+    <script src="MinijuegoBaldosas.js"></script>
+  </head>
+  <body>
+    <!-- Overlay 2D (HUD) fijo en la pantalla -->
+    <div id="hud-info" style="
+      position: fixed; 
+      top: 20px; 
+      left: 20px; 
+      z-index: 9999; 
+      background-color: rgba(0, 0, 0, 0.7); 
+      color: white; 
+      padding: 15px; 
+      font-family: sans-serif; 
+      font-size: 24px; 
+      border-radius: 10px;
+      border: 2px solid #fff;">
+      Camina sobre las baldosas...
+    </div>
+
+    <!-- 2. Definir la escena -->
+    <a-scene>
+      <!-- Suelo lejano (negro azulado) para dar sensación de altura -->
+      <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#0B1026"></a-plane>
+
+      <!-- Plataforma de inicio a 2m de altura (Y=2) -->
+      <a-box position="0 2 4.5" width="6" height="0.2" depth="6" color="#555"></a-box>
+
+      <!-- Cámara con cursor (el punto negro) para poder interactuar -->
+      <!-- Cámara ajustada a la nueva altura (2m plataforma + 1.6m ojos = 3.6m) -->
+      <a-camera position="0 3.6 4.5" look-controls="pointerLockEnabled: true" seguridad-plataforma>
+        <!-- Raycaster mirando hacia abajo (0 -1 0) para detectar qué pisamos -->
+        <a-entity raycaster="objects: .baldosa; direction: 0 -1 0; far: 2; interval: 100"></a-entity>
+      </a-camera>
+      
+      <!-- Contenedor de baldosas a 2m de altura (Y=2) -->
+      <a-entity id="grid-container" position="0 2 0"></a-entity>
+      
+      <!-- Un cielo gris claro para el fondo -->
+      <a-sky color="#ECECEC"></a-sky>
+
+    </a-scene>
+
+  </body>
+</html>
