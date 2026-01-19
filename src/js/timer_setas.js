@@ -3,8 +3,7 @@ let gameState = {
     isActive: false, // Si el juego está en marcha
     mushroomsCollected: 0, // Cantidad de setas normales recogidas
     collectedSet: new Set(), // Set para evitar recoger setas duplicadas
-    timerInterval: null, // Referencia al intervalo del timer
-    uiRemoved: false // Si la UI ya fue eliminada
+    timerInterval: null // Referencia al intervalo del timer
 };
 
 let uiElements = {
@@ -78,6 +77,8 @@ function startTimer() {
             // Cambiar a rojo cuando quedan 10 segundos
             if (gameState.timeRemaining <= 10) {
                 uiElements.timer.style.color = '#E74C3C';
+            } else {
+                uiElements.timer.style.color = '#333';
             }
         }
         
@@ -106,7 +107,7 @@ function startProximityCheck() {
         return;
     }
     
-    const COLLECT_DISTANCE = 1.5; // Metros de distancia para recoger
+    const COLLECT_DISTANCE = 1.5;  // Metros de distancia para recoger
     
     // Vectores para cálculos de posición 3D
     const playerWorldPos = new THREE.Vector3();
@@ -151,7 +152,7 @@ function startProximityCheck() {
  * RECOGER SETA
  * Maneja la lógica cuando el jugador recoge una seta
  * - Seta normal: incrementa contador
- * - Seta especial: elimina UI y detiene timer
+ * - Seta especial: resetea el timer a 30 segundos
  */
 function collectMushroom(mushroomEl) {
     // Evitar recoger dos veces la misma seta
@@ -165,21 +166,16 @@ function collectMushroom(mushroomEl) {
     gameState.collectedSet.add(mushroomEl);
     
     if (mushroomType === 'special') {
-        // SETA ESPECIAL: detener timer y eliminar UI
-        console.log('[COLLECT] ¡Seta especial! Timer detenido');
+        // SETA ESPECIAL: resetear timer a 30 segundos
+        console.log('[COLLECT] ¡Seta especial! Timer reseteado a 30s');
         
-        // Detener temporizador
-        if (gameState.timerInterval) {
-            clearInterval(gameState.timerInterval);
-            gameState.timerInterval = null;
-        }
+        // Resetear tiempo a 30
+        gameState.timeRemaining = 30;
         
-        // Eliminar UI completa
-        if (uiElements.container && uiElements.container.parentNode) {
-            uiElements.container.parentNode.removeChild(uiElements.container);
-            uiElements.container = null;
-            uiElements.timer = null;
-            gameState.uiRemoved = true;
+        // Actualizar UI inmediatamente
+        if (uiElements.timer) {
+            uiElements.timer.textContent = 'Tiempo: 30s';
+            uiElements.timer.style.color = '#333'; // Volver a color normal
         }
         
     } else {
