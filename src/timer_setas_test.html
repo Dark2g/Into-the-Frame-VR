@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Timer setas</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="js/timer_setas.js"></script>
+</head>
+<body>
+    <a-scene>
+        <!-- Jugador -->
+        <a-entity id="player" position="0 1.6 8">
+            <a-camera look-controls wasd-controls="acceleration: 15"></a-camera>
+        </a-entity>
+
+        <!-- Suelo -->
+        <a-plane position="0 0 0" rotation="-90 0 0" width="40" height="40" color="#7BC8A4"></a-plane>
+
+        <!-- Luces -->
+        <a-light type="ambient" color="#BBB"></a-light>
+        <a-light type="directional" color="#FFF" intensity="0.6" position="-0.5 1 1"></a-light>
+
+        <!-- Setas normales -->
+        <a-box class="mushroom" data-mushroom-type="normal" position="-8 0.5 -5" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="6 0.5 -8" width="0.5" height="1" depth="0.5" color="#4ECDC4"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="-3 0.5 -12" width="0.5" height="1" depth="0.5" color="#FFE66D"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="10 0.5 -2" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="-12 0.5 -10" width="0.5" height="1" depth="0.5" color="#4ECDC4"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="3 0.5 2" width="0.5" height="1" depth="0.5" color="#FFE66D"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="-5 0.5 5" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="8 0.5 -14" width="0.5" height="1" depth="0.5" color="#4ECDC4"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="-10 0.5 3" width="0.5" height="1" depth="0.5" color="#FFE66D"></a-box>
+        <a-box class="mushroom" data-mushroom-type="normal" position="12 0.5 6" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
+
+        <!-- Seta especial -->
+        <a-box class="mushroom special" 
+               data-mushroom-type="special" 
+               position="0 0.75 -6" 
+               width="1" 
+               height="1.5" 
+               depth="1" 
+               color="#9B59B6"
+               animation__pulse="property: scale; to: 1.2 1.2 1.2; dur: 1000; dir: alternate; loop: true; easing: easeInOutSine"
+               animation__rotate="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-box>
+
+        <!-- Cielo -->
+        <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+</body>
+</html>
