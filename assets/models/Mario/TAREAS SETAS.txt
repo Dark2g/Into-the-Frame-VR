@@ -20,9 +20,10 @@ abierta esta puertaa, se entregará la llave final del nivel.
 	COSAS A PROGRAMAR:
 -patron de colores
 -apertura de la puerta
--trigger para el contador 
--cuando se acabe el tiempo que se vuelva al principio
--reseteo del contador cada vez que se coja una seta
 -llaves al recogerse
 -dos cerraduras con dibujos correspondientes a las llaves
 
+	COSAS HECHAS
+-trigger para el contador 
+-cuando se acabe el tiempo que se vuelva al principio
+-reseteo del contador cada vez que se coja una seta
