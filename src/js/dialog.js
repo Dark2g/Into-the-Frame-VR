@@ -217,12 +217,13 @@ class DialogManager {
 
   hide() {
     if (this.currentDialog) {
-      this.currentDialog.classList.remove("active");
+      const dialogToRemove = this.currentDialog;
+      dialogToRemove.classList.remove("active");
+      this.currentDialog = null;
       setTimeout(() => {
-        if (this.currentDialog && this.currentDialog.parentNode) {
-          this.currentDialog.parentNode.removeChild(this.currentDialog);
+        if (dialogToRemove && dialogToRemove.parentNode) {
+          dialogToRemove.parentNode.removeChild(dialogToRemove);
         }
-        this.currentDialog = null;
       }, 300);
     }
   }
