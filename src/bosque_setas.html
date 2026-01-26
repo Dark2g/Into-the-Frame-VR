@@ -2,8 +2,8 @@
 <html lang="es">
 <head>
   <meta charset="utf-8">
-  <title>Puzzle Puerta</title>
-
+  <title>bosque de setas</title>
+<script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
   <script src="js/bosque_setas.js"></script>
 </head>
@@ -75,6 +75,30 @@
          color="#9B59B6"
          animation__pulse="property: scale; to: 1.2 1.2 1.2; dur: 1000; dir: alternate; loop: true; easing: easeInOutSine"
          animation__rotate="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-box>
+<a-entity id="door2" position="5 0 0">
+  
+  <!-- PUERTA -->
+  <a-box width="1.5"
+         height="2"
+         depth="0.2"
+         position="0 1 0"
+         color="#555">
+  </a-box>
+
+  <!-- CANDADO  -->
+  <a-sphere color="gold"
+            radius="0.15"
+            position="0 1 0.15"
+            candado="llave: llave_roja">
+  </a-sphere>
+
+</a-entity>
+<a-box id="key_red"
+       position="2 0.5 -3"
+       width="0.3" height="0.3" depth="0.1"
+       color="gold"
+       llave="id: llave_roja">
+</a-box>
 
 </a-scene>
 </body>
