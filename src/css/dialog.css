@@ -1,0 +1,321 @@
+/* Overlay para el diálogo - se superpone sobre A-Frame */
+.dialog-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  font-family: "Arial", sans-serif;
+}
+
+.dialog-overlay.active {
+  display: flex;
+}
+
+/* Overlay sin fondo oscuro (opcional) */
+.dialog-overlay.no-background {
+  background-color: transparent;
+  pointer-events: none; /* Permite interactuar con la escena 3D */
+}
+
+.dialog-overlay.no-background .dialog-box {
+  pointer-events: all; /* Pero el diálogo sí es clickeable */
+}
+
+/* Contenedor del diálogo */
+.dialog-box {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 20px;
+  padding: 30px;
+  max-width: 500px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: dialogSlideIn 0.3s ease-out;
+  position: relative;
+}
+
+@keyframes dialogSlideIn {
+  from {
+    transform: translateY(-50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Título del diálogo */
+.dialog-title {
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* Contenido del diálogo */
+.dialog-content {
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/* Contenedor de botones */
+.dialog-buttons {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Estilo de botones */
+.dialog-button {
+  background-color: white;
+  color: #667eea;
+  border: none;
+  border-radius: 10px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.dialog-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+  background-color: #f0f0f0;
+}
+
+.dialog-button:active {
+  transform: translateY(0);
+}
+
+/* Botón secundario */
+.dialog-button.secondary {
+  background-color: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+.dialog-button.secondary:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Botón de cerrar (X) */
+.dialog-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: white;
+  font-size: 24px;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.dialog-close:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: rotate(90deg);
+}
+
+/* ============================================
+   ESTILO DE DIÁLOGO TIPO VIDEOJUEGO
+   ============================================ */
+
+/* Diálogo estilo videojuego - parte inferior */
+.dialog-box.game-style {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  max-width: 100%;
+  width: 100%;
+  border-radius: 0;
+  padding: 0;
+  margin: 0;
+  animation: gameDialogSlideUp 0.4s ease-out;
+  background: linear-gradient(180deg, 
+    rgba(20, 20, 40, 0.95) 0%, 
+    rgba(10, 10, 30, 0.98) 100%);
+  border-top: 4px solid #667eea;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.8);
+}
+
+@keyframes gameDialogSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Contenedor interno del diálogo de videojuego */
+.dialog-box.game-style .dialog-inner {
+  padding: 25px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Nombre del personaje */
+.dialog-box.game-style .dialog-character-name {
+  color: #667eea;
+  font-size: 18px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 5px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Título en estilo videojuego */
+.dialog-box.game-style .dialog-title {
+  color: #fff;
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: left;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* Contenido en estilo videojuego */
+.dialog-box.game-style .dialog-content {
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 18px;
+  line-height: 1.8;
+  text-align: left;
+  margin-bottom: 15px;
+  min-height: 60px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Efecto de escritura tipo máquina de escribir */
+.dialog-box.game-style .dialog-content.typing {
+  overflow: hidden;
+  border-right: 2px solid #667eea;
+  white-space: nowrap;
+  animation: typing 2s steps(40, end), blink-caret 0.75s step-end infinite;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes blink-caret {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: #667eea;
+  }
+}
+
+/* Botones en estilo videojuego */
+.dialog-box.game-style .dialog-buttons {
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.dialog-box.game-style .dialog-button {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 8px;
+  padding: 10px 25px;
+  font-size: 16px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+.dialog-box.game-style .dialog-button:hover {
+  background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+  border-color: rgba(255, 255, 255, 0.6);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(102, 126, 234, 0.5);
+}
+
+.dialog-box.game-style .dialog-button.secondary {
+  background: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 255, 255, 0.4);
+}
+
+.dialog-box.game-style .dialog-button.secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: white;
+  border-color: rgba(255, 255, 255, 0.8);
+}
+
+/* Botón de cerrar en estilo videojuego */
+.dialog-box.game-style .dialog-close {
+  top: 10px;
+  right: 10px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  width: 40px;
+  height: 40px;
+  font-size: 28px;
+}
+
+.dialog-box.game-style .dialog-close:hover {
+  background: rgba(255, 0, 0, 0.3);
+  border-color: rgba(255, 0, 0, 0.6);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* Responsive para pantallas pequeñas */
+@media (max-width: 768px) {
+  .dialog-box.game-style .dialog-inner {
+    padding: 20px 25px;
+  }
+
+  .dialog-box.game-style .dialog-content {
+    font-size: 16px;
+  }
+
+  .dialog-box.game-style .dialog-avatar {
+    width: 60px;
+    height: 60px;
+    top: -50px;
+    left: 20px;
+    font-size: 28px;
+  }
+}
