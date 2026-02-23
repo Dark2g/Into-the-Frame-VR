@@ -3,59 +3,16 @@
 <head>
     <meta charset="utf-8">
     <title>Prueba jugador con f�sicas</title>
-<<<<<<< HEAD
+
 
     <!-- Revisar que estén los archivos -->
     <link rel="stylesheet" href="css/dialog.css" />
     <script src="js/dialog.js"></script>
-=======
->>>>>>> 65ad5291aa866b8a1d480162e2403fd0623e10b5
-
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
     <script src="js/movement.js"></script>
 
-<<<<<<< HEAD
-    <script>
-        AFRAME.registerComponent('player-move', {
-            init() {
-                this.keys = {};
-                window.addEventListener('keydown', e => this.keys[e.code] = true);
-                window.addEventListener('keyup', e => this.keys[e.code] = false);
-            },
-            tick() {
-                const body = this.el.body;
-                if (!body) return; // espera hasta que el cuerpo exista
-
-                const cam = document.querySelector('#cam');
-                if (!cam) return;
-
-                const dir = new THREE.Vector3();
-                cam.object3D.getWorldDirection(dir);
-                dir.y = 0;
-                dir.normalize();
-
-                const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
-
-                const speed = 3;
-                let vx = 0, vz = 0;
-
-                if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
-                if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
-                if (this.keys.KeyA) { vx += right.x; vz += right.z; }
-                if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
-
-                const vel = body.getLinearVelocity();
-                body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
-                body.setCollisionFlags(body.getCollisionFlags() & ~2); // elimina el flag kinem�tico
-                body.activate(); // reactivar cuerpo
-            }
-
-        });
-    </script>
-=======
->>>>>>> 65ad5291aa866b8a1d480162e2403fd0623e10b5
 </head>
 <body>
     <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: true">
@@ -64,11 +21,15 @@
 
         <!-- Jugador -->
         <a-entity>
-            <a-cylinder id="player" radius="0.3" height="20" position="0 10 0"
+            <a-cylinder id="player" radius="0.3" height="2" position="0 1 0"
                         ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
                         ammo-shape="type: box; radius: 0.3; height: 1.4"
                         player-move>
-                <a-entity id="cam" camera look-controls="pointerLockEnabled: true" position="0 0.8 0"></a-entity>
+                <a-entity id="cam" camera look-controls="pointerLockEnabled: false" position="0 0.8 0">
+
+                    <a-entity id="holder" position="0 -0.3 -1"></a-entity>
+                </a-entity>
+
             </a-cylinder>
 
 
@@ -76,6 +37,9 @@
         <a-box color="brown"
                position="-8 0.5 -3"
                animal-interactive="tipo: Gallina; slotIndex: 5"></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Perro; slotIndex: 5"></a-box>
 
         <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
         <a-entity id="mesa" gltf-model="url(../assets/models/Gabi/Mesa.glb)" position="0 0 0"></a-entity>
@@ -157,7 +121,7 @@
                 },
                 tick: function () {
                     if (this.state === "holdable" && window.animalActivo === this.el) {
-                        const cam = document.querySelector("a-camera").object3D;
+                        const cam = document.querySelector("#cam").object3D;
                         const offset = new THREE.Vector3(0, -0.3, -3); // frente y un poco abajo
                         offset.applyQuaternion(cam.quaternion);
                         const camPos = cam.getWorldPosition(new THREE.Vector3());
@@ -243,7 +207,7 @@
 
             function showDialogTakeAnimal(animalTipo, onTake, onLeave) {
                 // Desactivar movimiento al abrir
-                setPlayerMovement(false);
+                //setPlayerMovement(false);
 
                 window.dialogManager.show({
                     title: animalTipo,
@@ -253,14 +217,14 @@
                     darkBackground: true, // Corregido typo
                     onClose: () => {
                         // Reactivar movimiento al cerrar (por X o fondo)
-                        setPlayerMovement(true);
+                        //setPlayerMovement(true);
                     },
                     buttons: [
                         {
                             text: "Coger",
                             callback: () => {
                                 if (onTake) onTake();
-                                setPlayerMovement(true);
+                                //setPlayerMovement(true);
                             },
                         },
                         {
@@ -268,7 +232,7 @@
                             secondary: true,
                             callback: () => {
                                 if (onLeave) onLeave();
-                                setPlayerMovement(true);
+                                //setPlayerMovement(true);
                             },
                         },
                     ],
