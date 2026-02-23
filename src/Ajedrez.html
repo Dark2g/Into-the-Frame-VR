@@ -1,29 +1,57 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8">
-    <title>Ajedrez A-Frame</title>
-    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
-    
-  </head>
-  <body>
-    <a-scene cursor="rayOrigin: mouse">
-	  <a-entity position="0 1.6 4">
-		<a-camera></a-camera>
-	  </a-entity>
-	  
-      <a-entity camera position="0 8 10" rotation="-45 0 0"></a-entity>
-      <a-entity light="type: ambient; intensity: 0.7"></a-entity>
-      <a-entity light="type: directional; intensity: 0.6" position="0 10 5"></a-entity>
 
-      <!-- Tablero -->
-      <a-entity id="board"></a-entity>
+<head>
+  <meta charset="utf-8">
+  <title>Ajedrez A-Frame</title>
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
 
-      <!-- Piezas -->
-      <a-entity id="pieces"></a-entity>
-	  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js"></script>
+</head>
 
-	  <script src="js/chess.js"></script>
-    </a-scene>
-  </body>
+<body>
+  <a-scene cursor="rayOrigin: mouse">
+    <a-entity position="0 1.6 4">
+      <a-camera
+      cursor="rayOrigin: mouse; fuse: false"
+  raycaster="objects: [data-raycastable]" >
+    </a-camera>
+    </a-entity>
+
+    <a-assets>
+        <a-asset-item id="pawn-w" src="../assets/models/Lajara/GLB/PeonBlanco.glb"></a-asset-item>
+        <a-asset-item id="pawn-b" src="../assets/models/Lajara/GLB/PeonNegro.glb"></a-asset-item>
+        <a-asset-item id="rook-w" src="../assets/models/Lajara/GLB/TorreBlanco.glb"></a-asset-item>
+        <a-asset-item id="rook-b" src="../assets/models/Lajara/GLB/TorreNegro.glb"></a-asset-item>
+        <a-asset-item id="knight-w" src="../assets/models/Lajara/GLB/CaballoBlanco.glb"></a-asset-item>
+        <a-asset-item id="knight-b" src="../assets/models/Lajara/GLB/CaballoNegro.glb"></a-asset-item>
+        <a-asset-item id="bishop-w" src="../assets/models/Lajara/GLB/AlfilBlanco.glb"></a-asset-item>
+        <a-asset-item id="bishop-b" src="../assets/models/Lajara/GLB/AlfilNegro.glb"></a-asset-item>
+        <a-asset-item id="queen-w" src="../assets/models/Lajara/GLB/ReinaBlanco.glb"></a-asset-item>
+        <a-asset-item id="queen-b" src="../assets/models/Lajara/GLB/ReinaNegro.glb"></a-asset-item>
+        <a-asset-item id="king-w" src="../assets/models/Lajara/GLB/ReyBlanco.glb"></a-asset-item>
+        <a-asset-item id="king-b" src="../assets/models/Lajara/GLB/ReyNegro.glb"></a-asset-item>
+        <a-asset-item id="board-model" src="../assets/models/Lajara/GLB/Tablero.glb"></a-asset-item>
+       
+      </a-assets>
+
+    <a-entity camera position="0 8 10" rotation="-45 0 0"></a-entity>
+
+    <!-- Tablero -->
+    <a-entity
+      id="board"
+      gltf-model="#board-model"
+      position="0 0.1 0"
+      rotation="0 0 0"
+      raycaster="objects: none"
+      scale="1.1 1.1 1.1">
+    </a-entity>
+
+    <!-- Piezas -->
+    <a-entity id="pieces"></a-entity>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js"></script>
+
+    <script src="js/chess.js"></script>
+  </a-scene>
+</body>
+
 </html>

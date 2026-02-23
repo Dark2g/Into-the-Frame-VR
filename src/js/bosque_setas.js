@@ -1,59 +1,136 @@
-//registro componente gestor patron
+const db = new Dexie("JuegoDB");
+
+db.version(1).stores({
+    inventario: "id, tipo"
+});
+// document.addEventListener("DOMContentLoaded", async () => {
+//   const llave = await db.inventario.get("llave_roja");
+//   if (llave) {
+//     const el = document.querySelector("[llave]");
+//     if (el) el.remove();
+//   }
+// });
+
+//registro componente gestor patron 
 AFRAME.registerComponent('puzzle_patron-manager', {
-  init() {
-    this.order = [0, 1, 2, 3];
-    this.step = 0;
+    init() {
+        this.order = [0, 1, 2, 3];
+        this.step = 0;
 
-    this.el.sceneEl.addEventListener('puzzle-patron-press', (e) => {
-      this.check(e.detail.id);
-    });
-  },
+        this.el.sceneEl.addEventListener('puzzle-patron-press', (e) => {
+            this.check(e.detail.id);
+        });
+    },
 
-  check(id) {
-    if (id === this.order[this.step]) {
-      this.step++;
+    check(id) {
+        if (id === this.order[this.step]) {
+            this.step++;
 
-      if (this.step === this.order.length) {
-        this.openDoor();
-      }
-    } else {
-      this.reset();
+            if (this.step === this.order.length) {
+                this.openDoor();
+            }
+        } else {
+            this.reset();
+        }
+    },
+
+    openDoor() {
+        const door = document.querySelector('#door');
+        door.setAttribute('animation__open', {
+            property: 'position',
+            to: '0 3 0',
+            dur: 1200,
+            easing: 'easeOutQuad'
+        });
+    },
+
+    reset() {
+        this.step = 0;
+        document.querySelectorAll('[puzzle_patron-button]').forEach(btn => {
+            btn.setAttribute('scale', '1 1 1');
+        });
     }
-  },
-
-  openDoor() {
-    const door = document.querySelector('#door');
-    door.setAttribute('animation__open', {
-      property: 'position',
-      to: '0 3 0',
-      dur: 1200,
-      easing: 'easeOutQuad'
-    });
-  },
-
-  reset() {
-    this.step = 0;
-    document.querySelectorAll('[puzzle_patron-button]').forEach(btn => {
-      btn.setAttribute('scale', '1 1 1');
-    });
-  }
 });
 
 //registro boton
 AFRAME.registerComponent('puzzle_patron-button', {
+    schema: {
+        id: { type: 'int' }
+    },
+
+    init() {
+        this.el.addEventListener('click', () => {
+            this.el.sceneEl.emit('puzzle-patron-press', {
+                id: this.data.id
+            });
+        });
+    }
+});
+//recogida de llave
+AFRAME.registerComponent("llave", {
   schema: {
-    id: { type: 'int' }
+    id: { type: "string" }
   },
 
   init() {
-    this.el.addEventListener('click', () => {
-      this.el.sceneEl.emit('puzzle-patron-press', {
-        id: this.data.id
+    this.el.addEventListener("click", async () => {
+      await db.inventario.put({
+        id: this.data.id,
+        tipo: "llave"
       });
+
+      console.log("[LLAVE] Guardada:", this.data.id);
+
+      this.el.remove(); // desaparece del mundo
     });
   }
 });
+document.addEventListener("DOMContentLoaded", async () => {
+  const llave = await db.inventario.get("llave_roja");
+  if (llave) {
+    const el = document.querySelector("[llave]");
+    if (el) el.remove();
+  }
+});
 
+AFRAME.registerComponent("candado", {
+    schema: {
+        llave: { type: "string" }
+    },
+
+    init() {
+        this.el.addEventListener("click", async () => {
+            const tieneLlave = await db.inventario.get(this.data.llave);
+
+            if (!tieneLlave) {
+                console.log(" Candado cerrado. Falta la llave");
+                return;
+            }
+
+            // Consumir llave
+            await db.inventario.delete(this.data.llave);
+            console.log(" Candado abierto");
+
+            // Animar puerta
+            const door = this.el.closest("#door2").querySelector("a-box");
+            door.setAttribute("animation__open", {
+                property: "position",
+                to: "0 3 0",
+                dur: 1200,
+                easing: "easeOutQuad"
+            });
+
+            this.el.setAttribute("animation__break", {
+                property: "scale",
+                to: "0 0 0",
+                dur: 300,
+                easing: "easeInQuad"
+            });
+
+            setTimeout(() => this.el.remove(), 300);
+        });
+    }
+});
 
 
 // CONTADOR DE SETAS
@@ -71,13 +148,13 @@ let uiElements = {
     timer: null
 };
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     const scene = document.querySelector('a-scene');
-    
+
     if (scene.hasLoaded) {
         initGame();
     } else {
-        scene.addEventListener('loaded', function() {
+        scene.addEventListener('loaded', function () {
             initGame();
         });
     }
@@ -87,7 +164,7 @@ function initGame() {
     createUI();
     startTimer();
     startProximityCheck();
-    
+
     gameState.isActive = true;
     console.log('[GAME] Juego iniciado');
 }
@@ -122,18 +199,18 @@ function createUI() {
 }
 
 function startTimer() {
-    gameState.timerInterval = setInterval(function() {
+    gameState.timerInterval = setInterval(function () {
         if (!gameState.isActive) {
             clearInterval(gameState.timerInterval);
             return;
         }
 
         gameState.timeRemaining--;
-        
+
         // Actualizar UI del timer
         if (uiElements.timer) {
             uiElements.timer.textContent = 'Tiempo: ' + gameState.timeRemaining + 's';
-            
+
             // Cambiar a rojo cuando quedan 10 segundos
             if (gameState.timeRemaining <= 10) {
                 uiElements.timer.style.color = '#E74C3C';
@@ -141,7 +218,7 @@ function startTimer() {
                 uiElements.timer.style.color = '#333';
             }
         }
-        
+
         console.log('[TIMER] Tiempo restante:', gameState.timeRemaining);
 
         // Cuando llega a 0, se detiene sin mensaje
@@ -161,49 +238,49 @@ function startTimer() {
 function startProximityCheck() {
     const camera = document.querySelector('a-camera');
     const mushrooms = document.querySelectorAll('.mushroom');
-    
+
     if (!camera) {
         console.error('[ERROR] No se encontró la cámara');
         return;
     }
-    
+
     const COLLECT_DISTANCE = 1.5;  // Metros de distancia para recoger
-    
+
     // Vectores para cálculos de posición 3D
     const playerWorldPos = new THREE.Vector3();
     const mushroomWorldPos = new THREE.Vector3();
-    
+
     /**
      * LOOP PRINCIPAL DE DETECCIÓN
      * Se ejecuta cada frame (60 veces por segundo)
      */
-    const checkProximity = function() {
+    const checkProximity = function () {
         // Obtener posición actual del jugador en el mundo 3D
         camera.object3D.getWorldPosition(playerWorldPos);
-        
+
         // Revisar cada seta del juego
         mushrooms.forEach((mushroom) => {
             // Saltar si ya fue recogida
             if (gameState.collectedSet.has(mushroom)) return;
-            
+
             // Obtener posición de la seta
             mushroom.object3D.getWorldPosition(mushroomWorldPos);
-            
+
             // Calcular distancia HORIZONTAL (ignorando altura Y)
             const dx = playerWorldPos.x - mushroomWorldPos.x;
             const dz = playerWorldPos.z - mushroomWorldPos.z;
             const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
-            
+
             // Si está suficientemente cerca, recogerla
             if (horizontalDistance < COLLECT_DISTANCE) {
                 collectMushroom(mushroom);
             }
         });
-        
+
         // Continuar el loop
         requestAnimationFrame(checkProximity);
     };
-    
+
     // Iniciar el loop
     requestAnimationFrame(checkProximity);
 }
@@ -217,33 +294,33 @@ function startProximityCheck() {
 function collectMushroom(mushroomEl) {
     // Evitar recoger dos veces la misma seta
     if (gameState.collectedSet.has(mushroomEl)) return;
-    
+
     const mushroomType = mushroomEl.getAttribute('data-mushroom-type');
-    
+
     console.log('[COLLECT] Seta recogida -', mushroomType);
-    
+
     // Marcar como recogida
     gameState.collectedSet.add(mushroomEl);
-    
+
     if (mushroomType === 'special') {
         // SETA ESPECIAL: resetear timer a 30 segundos
         console.log('[COLLECT] ¡Seta especial! Timer reseteado a 30s');
-        
+
         // Resetear tiempo a 30
         gameState.timeRemaining = 30;
-        
+
         // Actualizar UI inmediatamente
         if (uiElements.timer) {
             uiElements.timer.textContent = 'Tiempo: 30s';
             uiElements.timer.style.color = '#333'; // Volver a color normal
         }
-        
+
     } else {
         // SETA NORMAL: incrementar contador
         gameState.mushroomsCollected++;
         console.log('[COLLECT] Setas normales recogidas:', gameState.mushroomsCollected);
     }
-    
+
     // Animar y eliminar la seta del mundo
     animateAndRemoveMushroom(mushroomEl);
 }
@@ -260,7 +337,7 @@ function animateAndRemoveMushroom(mushroomEl) {
         dur: 300,
         easing: 'easeInQuad'
     });
-    
+
     // Animación de rotación
     mushroomEl.setAttribute('animation__rotate', {
         property: 'rotation',
@@ -268,7 +345,7 @@ function animateAndRemoveMushroom(mushroomEl) {
         dur: 300,
         easing: 'easeInQuad'
     });
-    
+
     // Eliminar del DOM después de la animación
     setTimeout(() => {
         if (mushroomEl.parentNode) {

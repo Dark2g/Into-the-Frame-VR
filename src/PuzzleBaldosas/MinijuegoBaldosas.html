@@ -6,6 +6,12 @@
     <!-- 1. Incluir la librería de A-Frame -->
     <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
 
+    <!-- Sistema de físicas -->
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+
+    <!-- Eliminamos aframe-extras y physics-extras porque bloqueaban el movimiento -->
+    <!-- Usaremos la cámara estándar con gravedad personalizada -->
+
     <!-- Lógica del juego externa -->
     <script src="MinijuegoBaldosas.js"></script>
   </head>
@@ -26,23 +32,38 @@
       Camina sobre las baldosas...
     </div>
 
+    <!-- Nuevo Overlay para la Chuleta (Derecha) -->
+    <div id="hud-cheat" style="
+      position: fixed; 
+      top: 20px; 
+      right: 20px; 
+      z-index: 9999; 
+      background-color: rgba(0, 0, 0, 0.7); 
+      color: #FFFF00; 
+      padding: 15px; 
+      font-family: monospace; 
+      font-size: 16px; 
+      border-radius: 10px;
+      border: 2px solid #FFFF00;
+      max-width: 250px;">
+      Generando ruta segura...
+    </div>
+
     <!-- 2. Definir la escena -->
-    <a-scene>
+    <a-scene physics="debug: false; gravity: -9.8">
       <!-- Suelo lejano (negro azulado) para dar sensación de altura -->
-      <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#0B1026"></a-plane>
+      <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#263066" static-body></a-plane>
 
-      <!-- Plataforma de inicio a 2m de altura (Y=2) -->
-      <a-box position="0 2 4.5" width="6" height="0.2" depth="6" color="#555"></a-box>
+      <!-- Plataforma de inicio. Añadimos clase 'suelo' para que la gravedad la detecte -->
+      <!-- Hacemos el suelo más grueso (1m) y ajustamos Y para que la superficie siga en 12 -->
+      <a-box class="suelo" position="0 11.5 5.4" width="6" height="1" depth="6" color="#555" static-body></a-box>
 
-      <!-- Cámara con cursor (el punto negro) para poder interactuar -->
-      <!-- Cámara ajustada a la nueva altura (2m plataforma + 1.6m ojos = 3.6m) -->
-      <a-camera position="0 3.6 4.5" look-controls="pointerLockEnabled: true" seguridad-plataforma>
-        <!-- Raycaster mirando hacia abajo (0 -1 0) para detectar qué pisamos -->
-        <a-entity raycaster="objects: .baldosa; direction: 0 -1 0; far: 2; interval: 100"></a-entity>
+      <!-- VOLVEMOS A LA CÁMARA ESTÁNDAR (que sí se mueve) + Gravedad Custom -->
+      <a-camera position="0 13.6 4.5" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 60" gravedad-camara seguridad-plataforma>
       </a-camera>
       
       <!-- Contenedor de baldosas a 2m de altura (Y=2) -->
-      <a-entity id="grid-container" position="0 2 0"></a-entity>
+      <a-entity id="grid-container" position="0 12 0"></a-entity>
       
       <!-- Un cielo gris claro para el fondo -->
       <a-sky color="#ECECEC"></a-sky>
