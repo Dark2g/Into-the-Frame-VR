@@ -4,41 +4,65 @@
     <meta charset="utf-8">
     <title>Prueba jugador con f�sicas</title>
 
-    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+
+    <!-- Revisar que estén los archivos -->
+    <link rel="stylesheet" href="css/dialog.css" />
+    <script src="js/dialog.js"></script>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
     <script src="js/movement.js"></script>
 
 </head>
 <body>
+<<<<<<< HEAD
     <a-scene physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60;">
+=======
+    <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: true">
+>>>>>>> b0ca3978492902fda86ce4a63addafe9d7ea7d67
 
 
 
         <!-- Jugador -->
         <a-entity>
-            <a-cylinder id="player" radius="0.3" height="20" position="0 1 0"
+            <a-cylinder id="player" radius="0.3" height="2" position="0 1 0"
                         ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
                         ammo-shape="type: box; radius: 0.3; height: 1.4"
-                        player-move><a-entity id="cam" camera look-controls="pointerLockEnabled: true" position="0 0.8 0"></a-entity></a-cylinder>
+                        player-move>
+                <a-entity id="cam" camera look-controls="pointerLockEnabled: false" position="0 0.8 0">
+
+                    <a-entity id="holder" position="0 -0.3 -1"></a-entity>
+                </a-entity>
+
+            </a-cylinder>
 
 
         </a-entity>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Gallina; slotIndex: 5"></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Perro; slotIndex: 5"></a-box>
 
         <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
         <a-entity id="mesa" gltf-model="url(../assets/models/Gabi/Mesa.glb)" position="0 0 0"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
-        <a-entity id="pipa" gltf-model="url(../assets/models/Gabi/Pipa.glb)" position="0 0 0"></a-entity>
-        <a-entity id="tarta" gltf-model="url(../assets/models/Gabi/Tarta.glb)" position="0 0 0"></a-entity>
-        <a-entity id="vela" gltf-model="url(../assets/models/Gabi/Vela.glb)" position="0 0 0"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
 
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 6"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 12"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -10"></a-entity>
+        <a-entity id="pipa" gltf-model="url(../assets/models/Gabi/Pipa.glb)" position="-3 0 -11"></a-entity>
+        <a-entity id="tarta" gltf-model="url(../assets/models/Gabi/Tarta.glb)" position="3 0 0"></a-entity>
+        <a-entity id="vela" gltf-model="url(../assets/models/Gabi/Vela.glb)" position="3 0 20"></a-entity>
+
+
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0" class="asiento" asiento="tipo: Buho"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -12"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -6" class="asiento" asiento="tipo: Conejo"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 6" class="asiento" asiento="tipo: Cerdo"></a-entity>
+
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 5"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2" class="asiento" asiento="tipo: Gato"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 11" class="asiento" asiento="tipo: Gallina"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -8" class="asiento" asiento="tipo: Perro"></a-entity>
+
 
 
         <script>
@@ -47,6 +71,179 @@
                 model.setAttribute('ammo-body', 'type: static');
                 model.setAttribute('ammo-shape', 'type: mesh');
             });
+
+            // Slots globales en el centro para evitar superposición
+            const centroSlots = [
+                new THREE.Vector3(-4, 0.5, -3),
+                new THREE.Vector3(-2, 0.5, -3),
+                new THREE.Vector3(0, 0.5, -3),
+                new THREE.Vector3(2, 0.5, -3),
+                new THREE.Vector3(4, 0.5, -3),
+                new THREE.Vector3(6, 0.5, -3),
+            ];
+
+            // Componente unificado para animales
+            AFRAME.registerComponent("animal-interactive", {
+                schema: {
+                    tipo: { type: "string" },
+                    slotIndex: { type: "int", default: 0 },
+                },
+                init: function () {
+                    this.state = "idle"; // idle -> at-center -> holdable
+                    this.originalScale = this.el.getAttribute("scale");
+                    this.centerPos = null;
+
+                    this.el.addEventListener("click", () => {
+                        const centro = document.querySelector("#centro");
+
+                        if (this.state === "idle") {
+                            // Teletransporta al slot del centro
+                            const slot = centroSlots[this.data.slotIndex];
+                            this.el.object3D.position.copy(slot);
+                            this.centerPos = slot.clone();
+                            this.state = "at-center";
+                            console.log(`${this.data.tipo} teletransportado al centro`);
+                        } else if (
+                            this.state === "at-center" &&
+                            window.animalActivo == null
+                        ) {
+                            const animalEl = this.el;
+                            const animalTipo = this.data.tipo;
+                            showDialogTakeAnimal(
+                                animalTipo,
+                                () => {
+                                    window.animalActivo = animalEl;
+                                    this.state = "holdable";
+                                    console.log(`${animalTipo} ahora holdable`);
+                                },
+                                () => {
+                                    console.log(`${animalTipo} se queda en el centro`);
+                                },
+                            );
+                        }
+                    });
+                },
+                tick: function () {
+                    if (this.state === "holdable" && window.animalActivo === this.el) {
+                        const cam = document.querySelector("#cam").object3D;
+                        const offset = new THREE.Vector3(0, -0.3, -3); // frente y un poco abajo
+                        offset.applyQuaternion(cam.quaternion);
+                        const camPos = cam.getWorldPosition(new THREE.Vector3());
+                        this.el.object3D.position.copy(camPos.clone().add(offset));
+                        this.el.object3D.quaternion.copy(cam.quaternion);
+                    }
+                },
+                resetToCenter: function () {
+                    if (this.centerPos) {
+                        this.el.object3D.position.copy(this.centerPos);
+                        this.el.setAttribute("scale", this.originalScale);
+                        this.state = "at-center";
+                        this.el.removeAttribute("placed");
+                        delete this.el.assignedAsiento;
+                        console.log(`${this.data.tipo} reseteado al centro`);
+                    }
+                },
+            });
+
+            // Componente para asientos y los animales sentandose
+            AFRAME.registerComponent("asiento", {
+                schema: { tipo: { type: "string" } },
+                init: function () {
+                    this.el.addEventListener("click", () => {
+                        if (!window.animalActivo) return;
+
+                        const animal = window.animalActivo;
+                        const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
+
+                        // REVISAR por posición relativa de la silla
+                        const asientoPos = this.el.object3D.position.clone();
+
+                        // MODIFICAR altura silla
+                        asientoPos.y += 0.75;
+
+                        // Colocar el animal encima del asiento
+                        animal.object3D.position.copy(asientoPos);
+                        animal.object3D.rotation.copy(this.el.object3D.rotation);
+
+                        animal.setAttribute("placed", "true");
+                        animal.assignedAsiento = this;
+                        window.animalActivo = null;
+
+                        console.log(
+                            `${tipoAnimal} colocado en asiento ${this.data.tipo}`,
+                        );
+
+                        // Comprobar todos los animales
+                        checkAllAnimals();
+                    });
+                },
+            });
+
+            // Función global para validar si los animales están correctos
+            function checkAllAnimals() {
+                const animales = document.querySelectorAll("[animal-interactive]");
+
+                // Solo validar si todos están colocados
+                const todosColocados = Array.from(animales).every(
+                    (a) => a.getAttribute("placed") === "true",
+                );
+                if (!todosColocados) return;
+
+                let todosCorrectos = true;
+                animales.forEach((a) => {
+                    const tipoAnimal = a.getAttribute("animal-interactive").tipo;
+                    const asiento = a.assignedAsiento;
+                    // ACTUALIZAR comprobar que solo se puede sentar un animal en cada asiento
+                    if (!asiento || asiento.data.tipo !== tipoAnimal) {
+                        todosCorrectos = false;
+                    }
+                });
+
+                if (todosCorrectos) {
+                    console.log("✔ Todos correctos. Nada que hacer.");
+                } else {
+                    console.log("✖ Al menos uno está mal, reseteando todos");
+                    animales.forEach((a) => {
+                        a.components["animal-interactive"].resetToCenter();
+                    });
+                }
+            }
+
+            function showDialogTakeAnimal(animalTipo, onTake, onLeave) {
+                // Desactivar movimiento al abrir
+                //setPlayerMovement(false);
+
+                window.dialogManager.show({
+                    title: animalTipo,
+                    content: `¿Quieres coger el ${animalTipo}?`,
+                    showCloseButton: true,
+                    gameStyle: true,
+                    darkBackground: true, // Corregido typo
+                    onClose: () => {
+                        // Reactivar movimiento al cerrar (por X o fondo)
+                        //setPlayerMovement(true);
+                    },
+                    buttons: [
+                        {
+                            text: "Coger",
+                            callback: () => {
+                                if (onTake) onTake();
+                                //setPlayerMovement(true);
+                            },
+                        },
+                        {
+                            text: "No coger",
+                            secondary: true,
+                            callback: () => {
+                                if (onLeave) onLeave();
+                                //setPlayerMovement(true);
+                            },
+                        },
+                    ],
+                });
+            }
+
+
         </script>
 
 

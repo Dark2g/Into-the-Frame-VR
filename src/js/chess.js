@@ -61,37 +61,34 @@ for (let x = 0; x < 8; x++) {
         //Se le añade la funcionalidad a cada casilla
 
         square.addEventListener('click', () => {
-            if (!selectedPiece || !selectedSquare) return;
+            if (!selectedSquare) return; // nada seleccionado
 
             const sqX = Number(square.dataset.x);
             const sqZ = Number(square.dataset.z);
-            const target = toChessSquare(sqX, sqZ);
+            const targetSquare = toChessSquare(sqX, sqZ);
 
-            // Mueve la pieza usando Chess.js
             const move = game.move({
                 from: selectedSquare,
-                to: target,
+                to: targetSquare,
                 promotion: 'q'
             });
 
             if (move) {
                 console.log('Movimiento válido:', move);
 
-                // Si hubo captura, elimina la pieza del DOM
+                // Captura
                 if (move.captured) {
-                    const capturedPiece = document.querySelector(`#pieces [data-square="${target}"]`);
+                    const capturedPiece = document.querySelector(`#pieces [data-square="${targetSquare}"]`);
                     if (capturedPiece) capturedPiece.remove();
                 }
 
-                renderPieces(); // Re-renderiza todas las piezas
+                renderPieces();
                 checkGameState();
             } else {
                 console.log('Movimiento ilegal');
             }
 
-            // Resetea selección
-            selectedPiece = null;
-            selectedSquare = null;
+            selectedSquare = null; // resetea selección
         });
 
         board.appendChild(square);
@@ -141,12 +138,58 @@ function renderPieces() {
             el.dataset.z = z;
             el.dataset.square = toChessSquare(x, z);
 
-            el.addEventListener('click', () => {
-                if (game.turn() !== piece.color) return;
+            // el.addEventListener('click', () => {
+            //     if (game.turn() !== piece.color) return;
 
-                selectedPiece = el;
-                selectedSquare = el.dataset.square;
-                console.log('Seleccionada:', selectedSquare);
+
+
+            //     selectedPiece = el;
+            //     selectedSquare = el.dataset.square;
+            //     console.log('Seleccionada:', selectedSquare);
+            // });
+
+            el.addEventListener('click', () => {
+                const pieceColor = piece.color;
+                const pieceSquare = el.dataset.square;
+
+                // Si no hay pieza seleccionada → selecciona esta pieza si es tu turno
+                if (!selectedSquare) {
+                    if (game.turn() !== pieceColor) return;
+                    selectedSquare = pieceSquare;
+                    console.log('Seleccionada:', selectedSquare);
+                    return;
+                }
+
+                // Si la pieza seleccionada es del mismo color → cambia selección
+                if (pieceColor === game.get(selectedSquare).color) {
+                    selectedSquare = pieceSquare;
+                    console.log('Seleccionada (cambio):', selectedSquare);
+                    return;
+                }
+
+                // Intentar mover a esta pieza (captura)
+                const move = game.move({
+                    from: selectedSquare,
+                    to: pieceSquare,
+                    promotion: 'q'
+                });
+
+                if (move) {
+                    console.log('Movimiento válido:', move);
+
+                    // Captura
+                    if (move.captured) {
+                        const capturedPiece = document.querySelector(`#pieces [data-square="${pieceSquare}"]`);
+                        if (capturedPiece) capturedPiece.remove();
+                    }
+
+                    renderPieces();
+                    checkGameState();
+                } else {
+                    console.log('Movimiento ilegal');
+                }
+
+                selectedSquare = null; // resetea selección
             });
 
             container.appendChild(el);
@@ -192,7 +235,3 @@ function checkGameState() {
     }
 
 }
-
-
-
-
