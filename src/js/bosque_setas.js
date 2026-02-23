@@ -98,11 +98,12 @@ AFRAME.registerComponent("candado", {
 
             // Consumir llave
             await db.inventario.delete(this.data.llave);
+            await db.hitos.put({id:"puerta_roja_abierta"})
             console.log(" Candado abierto");
             const door = this.el.closest("#door2").querySelector("a-box");
             door.setAttribute("animation__open", {
                 property: "position",
-                to: "0 3 0",
+                to: "0 -3 0",
                 dur: 1200,
                 easing: "easeOutQuad"
             });
@@ -148,8 +149,19 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function initGame() {
-    const llave = await db.inventario.get("llave_roja");
-    if (llave) {
+    if(await db.hitos.get("puerta_roja_abierta")){
+        document.querySelector("[candado]").remove();
+const puerta = document.querySelector("#door2");
+const pos = puerta.getAttribute("position");
+puerta.setAttribute("position", {
+    x: pos.x,
+    y: pos.y - 3,
+    z: pos.z
+});
+        const el = document.querySelector("[llave]");
+        if (el) el.remove();
+    }
+    if (await db.inventario.get("llave_roja")) {
         const el = document.querySelector("[llave]");
         if (el) el.remove();
     }
