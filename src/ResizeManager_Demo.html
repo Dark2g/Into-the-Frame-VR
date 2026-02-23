@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Demo de ResizeManager</title>
+    <!-- 1. Cargar A-Frame -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+    <!-- 2. Cargar nuestra clase ResizeManager -->
+    <script src="js/resizeManager.js"></script>
+
+    <style>
+      /* Interfaz de usuario básica */
+      .ui-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999;
+        display: flex;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.7);
+        padding: 15px;
+        border-radius: 8px;
+        font-family: sans-serif;
+      }
+      button {
+        padding: 12px 20px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        border: none;
+        border-radius: 5px;
+        transition:
+          transform 0.1s,
+          filter 0.2s;
+        color: white;
+      }
+      button:hover {
+        filter: brightness(1.1);
+      }
+      button:active {
+        transform: scale(0.95);
+      }
+
+      .btn-small {
+        background: #e74c3c;
+      }
+      .btn-normal {
+        background: #2ecc71;
+        color: #111;
+      }
+      .btn-giant {
+        background: #3498db;
+      }
+      .btn-custom {
+        background: #9b59b6;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- INTERFAZ 2D -->
+    <div class="ui-container">
+      <button
+        class="btn-small"
+        onclick="window.resizeManager.setPlayerSize('small')"
+      >
+        Modo Ratón
+      </button>
+      <button
+        class="btn-normal"
+        onclick="window.resizeManager.setPlayerSize('normal')"
+      >
+        Normal (1x)
+      </button>
+      <button
+        class="btn-giant"
+        onclick="window.resizeManager.setPlayerSize('giant')"
+      >
+        Modo Gigante
+      </button>
+    </div>
+
+    <!-- ESCENA A-FRAME -->
+    <a-scene background="color: #87CEEB">
+      <!-- Luces ambientales y direccionales -->
+      <a-light type="ambient" intensity="0.5"></a-light>
+      <a-light
+        type="directional"
+        position="-1 2 1"
+        intensity="0.6"
+        castShadow="true"
+      ></a-light>
+
+      <!-- Suelo para tener referencia de escala -->
+      <a-plane
+        position="0 0 -4"
+        rotation="-90 0 0"
+        width="30"
+        height="30"
+        color="#2c3e50"
+        shadow
+      ></a-plane>
+
+      <!-- Objetos de referencia para notar el cambio de tamaño -->
+
+      <!-- Un cubo normal (ej: una mesa) -->
+      <a-box
+        position="0 0.5 -3"
+        width="1"
+        height="1"
+        depth="1"
+        color="#f1c40f"
+        shadow
+      ></a-box>
+
+      <!-- Una puerta/arco para intentar pasar por debajo -->
+      <a-box
+        position="-3 1.5 -4"
+        width="0.2"
+        height="3"
+        depth="0.5"
+        color="#e67e22"
+        shadow
+      ></a-box>
+      <a-box
+        position="-1 1.5 -4"
+        width="0.2"
+        height="3"
+        depth="0.5"
+        color="#e67e22"
+        shadow
+      ></a-box>
+      <a-box
+        position="-2 3 -4"
+        width="2.2"
+        height="0.2"
+        depth="0.5"
+        color="#d35400"
+        shadow
+      ></a-box>
+
+      <!-- Un objeto muy pequeño escondido que solo ves bien si eres pequeño -->
+      <a-box
+        position="2 0.1 -2"
+        width="0.2"
+        height="0.2"
+        depth="0.2"
+        color="#1abc9c"
+        shadow
+      ></a-box>
+
+      <!-- RIG DEL JUGADOR (MUY IMPORTANTE EL ID "player-rig") -->
+      <!-- Es aquí a donde apunta por defecto la clase ResizeManager -->
+      <a-entity id="player-rig" position="0 0 0">
+        <!-- Cámara a la altura de un humano promedio (~1.6 metros) -->
+        <a-entity camera look-controls wasd-controls position="0 1.6 0">
+          <a-cursor color="black" scale="0.8 0.8 0.8"></a-cursor>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+
+    <!-- Script inicial para configurar tamaños extra -->
+    <script>
+      // Opcional: Podemos añadir tamaños personalizados antes de usarlo.
+      // Por defecto ya tiene: small (0.1), normal (1) y giant (3)
+      window.onload = () => {
+        window.resizeManager.setSizes({
+          titan: 10, // ¡10 veces más grande que un humano!
+        });
+      };
+    </script>
+  </body>
+</html>
