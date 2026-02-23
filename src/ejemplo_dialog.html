@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <title>Ejemplo de Diálogos - A-Frame</title>
+
+    <!-- A-Frame -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+    <!-- Sistema de diálogos -->
+    <script src="js/dialog.js"></script>
+    <link rel="stylesheet" href="css/dialog.css" />
+
+    <style>
+      body {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      /* Botones de ejemplo en la esquina superior */
+      .demo-controls {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        display: flex;
+        gap: 10px;
+        flex-direction: column;
+      }
+
+      .demo-button {
+        background-color: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        padding: 10px 20px;
+        font-size: 14px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      }
+
+      .demo-button:hover {
+        background-color: #764ba2;
+        transform: translateY(-2px);
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- Controles de demostración -->
+    <div class="demo-controls">
+      <button class="demo-button" onclick="showSimpleDialog()">
+        Diálogo Simple
+      </button>
+      <button class="demo-button" onclick="showConfirmDialog()">
+        Diálogo de Confirmación
+      </button>
+      <button class="demo-button" onclick="showAlertDialog()">
+        Diálogo de Alerta
+      </button>
+      <button class="demo-button" onclick="showCustomDialog()">
+        Diálogo Personalizado
+      </button>
+    </div>
+
+    <!-- Escena A-Frame -->
+    <a-scene cursor="rayOrigin: mouse">
+      <!-- Cámara -->
+      <a-entity position="0 1.6 4">
+        <a-camera></a-camera>
+      </a-entity>
+
+      <!-- Luces -->
+      <a-light type="ambient" intensity="0.6"></a-light>
+      <a-light type="directional" position="1 3 2"></a-light>
+
+      <!-- Suelo -->
+      <a-plane rotation="-90 0 0" width="10" height="10" color="#8AC">
+      </a-plane>
+
+      <!-- Caja con diálogo al hacer clic (usando componente) -->
+      <a-box
+        id="interactive-box"
+        position="-2 1 0"
+        width="1"
+        height="1"
+        depth="1"
+        color="#FF6B6B"
+        dialog-trigger="title: ¡Caja Interactiva!; content: Has hecho clic en la caja roja. Este diálogo se activó usando el componente dialog-trigger.; buttonText: Entendido"
+      >
+      </a-box>
+
+      <!-- Esfera con diálogo personalizado -->
+      <a-sphere
+        id="interactive-sphere"
+        position="0 1.5 0"
+        radius="0.5"
+        color="#4ECDC4"
+      >
+      </a-sphere>
+
+      <!-- Cilindro -->
+      <a-cylinder position="2 1 0" radius="0.5" height="1.5" color="#95E1D3">
+      </a-cylinder>
+
+      <!-- Texto informativo -->
+      <a-text
+        value="Haz clic en los objetos o usa los botones"
+        position="0 2.5 -1"
+        align="center"
+        color="#333"
+        width="6"
+      ></a-text>
+    </a-scene>
+
+    <script>
+      // Ejemplos de uso del sistema de diálogos
+
+      // 1. Diálogo simple
+      function showSimpleDialog() {
+        window.dialogManager.show({
+          title: "Bienvenido",
+          content:
+            "Este es un diálogo simple que se superpone sobre la escena de A-Frame.",
+          buttons: [
+            {
+              text: "OK",
+              callback: () => {
+                console.log("Diálogo cerrado");
+              },
+            },
+          ],
+        });
+      }
+
+      // 2. Diálogo de confirmación
+      function showConfirmDialog() {
+        window.dialogManager.confirm(
+          "¿Estás seguro de que quieres continuar?",
+          () => {
+            console.log("Usuario confirmó");
+            window.dialogManager.alert("¡Acción confirmada!", null);
+          },
+          () => {
+            console.log("Usuario canceló");
+          },
+        );
+      }
+
+      // 3. Diálogo de alerta
+      function showAlertDialog() {
+        window.dialogManager.alert(
+          "Esta es una alerta importante. Por favor, presta atención.",
+          () => {
+            console.log("Alerta cerrada");
+          },
+        );
+      }
+
+      // 4. Diálogo personalizado con múltiples botones
+      function showCustomDialog() {
+        window.dialogManager.show({
+          title: "Opciones Avanzadas",
+          content:
+            "<strong>Selecciona una opción:</strong><br><br>" +
+            "• Opción 1: Hacer algo<br>" +
+            "• Opción 2: Hacer otra cosa<br>" +
+            "• Opción 3: No hacer nada",
+          buttons: [
+            {
+              text: "Opción 1",
+              callback: () => {
+                console.log("Opción 1 seleccionada");
+                window.dialogManager.alert("Has seleccionado la Opción 1");
+              },
+            },
+            {
+              text: "Opción 2",
+              callback: () => {
+                console.log("Opción 2 seleccionada");
+                window.dialogManager.alert("Has seleccionado la Opción 2");
+              },
+            },
+            {
+              text: "Cancelar",
+              secondary: true,
+              callback: () => {
+                console.log("Cancelado");
+              },
+            },
+          ],
+          showCloseButton: true,
+          onClose: () => {
+            console.log("Diálogo cerrado sin seleccionar opción");
+          },
+        });
+      }
+
+      // Agregar evento a la esfera para mostrar diálogo personalizado
+      document.addEventListener("DOMContentLoaded", () => {
+        const sphere = document.querySelector("#interactive-sphere");
+        sphere.addEventListener("click", () => {
+          window.dialogManager.show({
+            title: "🌟 Esfera Mágica",
+            content: "Has descubierto la esfera mágica. ¿Qué deseas hacer?",
+            buttons: [
+              {
+                text: "Explorar",
+                callback: () => {
+                  console.log("Explorando...");
+                  window.dialogManager.alert("¡Comenzando la exploración! 🚀");
+                },
+              },
+              {
+                text: "Ignorar",
+                secondary: true,
+              },
+            ],
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
