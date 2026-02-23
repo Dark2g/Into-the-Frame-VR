@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Prueba jugador con físicas</title>
+
+    <script src="https://aframe.io/releases/1.6.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
+
+    <script>
+    AFRAME.registerComponent('player-move', {
+      init() {
+        this.keys = {};
+        window.addEventListener('keydown', e => this.keys[e.code] = true);
+        window.addEventListener('keyup', e => this.keys[e.code] = false);
+      },
+        tick() {
+            const body = this.el.body;
+            if (!body) return; // espera hasta que el cuerpo exista
+
+            const cam = document.querySelector('#cam');
+            if (!cam) return;
+
+            const dir = new THREE.Vector3();
+            cam.object3D.getWorldDirection(dir);
+            dir.y = 0;
+            dir.normalize();
+
+            const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+
+            const speed = 3;
+            let vx = 0, vz = 0;
+
+            if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
+            if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
+            if (this.keys.KeyA) { vx += right.x; vz += right.z; }
+            if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
+
+            const vel = body.getLinearVelocity();
+            body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
+            body.setCollisionFlags(body.getCollisionFlags() & ~2); // elimina el flag kinemático
+            body.activate(); // reactivar cuerpo
+        }
+
+    });
+    </script>
+</head>
+<body>
+    <a-scene physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: true">
+
+
+
+        <!-- Jugador -->
+        <a-entity>
+            <a-cylinder id="player" radius="0.3" height="20" position="0 1 0"
+                        ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
+                        ammo-shape="type: box; radius: 0.3; height: 1.4"
+                        player-move><a-entity id="cam" camera look-controls="pointerLockEnabled: true" position="0 0.8 0"></a-entity></a-cylinder>
+
+
+        </a-entity>
+
+        <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
+        <a-entity id="mesa" gltf-model="url(../assets/models/Gabi/Mesa.glb)" position="0 0 0"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
+        <a-entity id="pipa" gltf-model="url(../assets/models/Gabi/Pipa.glb)" position="0 0 0"></a-entity>
+        <a-entity id="tarta" gltf-model="url(../assets/models/Gabi/Tarta.glb)" position="0 0 0"></a-entity>
+        <a-entity id="vela" gltf-model="url(../assets/models/Gabi/Vela.glb)" position="0 0 0"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0"></a-entity>
+
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 6"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 12"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -10"></a-entity>
+
+
+        <script>
+            const model = document.querySelector('#miModelo');
+            model.addEventListener('model-loaded', () => {
+                model.setAttribute('ammo-body', 'type: static');
+                model.setAttribute('ammo-shape', 'type: mesh');
+            });
+        </script>
+
+
+
+
+
+        <a-sky color="#ECECEC"></a-sky>
+    </a-scene>
+</body>
+</html>
