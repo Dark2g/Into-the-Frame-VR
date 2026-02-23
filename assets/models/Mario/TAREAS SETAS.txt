@@ -18,12 +18,13 @@ abierta esta puertaa, se entregará la llave final del nivel.
 ============================================================================================================
 
 	COSAS A PROGRAMAR:
--apertura de la puerta
--llaves al recogerse
+
 -dos cerraduras con dibujos correspondientes a las llaves
 
 	COSAS HECHAS
 -patron de colores
+-apertura de la puerta
+-llaves al recogerse
 -trigger para el contador 
 -cuando se acabe el tiempo que se vuelva al principio
 -reseteo del contador cada vez que se coja una seta
