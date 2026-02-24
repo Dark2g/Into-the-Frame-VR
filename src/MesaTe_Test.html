@@ -1,166 +1,302 @@
-﻿<!DOCTYPE html>
+﻿<!doctype html>
 <html>
-<head>
+  <head>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-</head>
-<body>
+    <link rel="stylesheet" href="css/dialog.css" />
+    <script src="js/dialog.js"></script>
+  </head>
+  <body>
+      <a-scene cursor="rayOrigin: mouse">
+          <!-- Cámara y holder -->
+          <a-entity position="0 1.6 5">
+              <a-camera>
+                  <a-entity id="holder" position="0 -0.3 -1"> </a-entity>
+              </a-camera>
+          </a-entity>
 
-    <a-scene cursor="rayOrigin: mouse">
+          <!-- Luz -->
+          <a-light type="ambient" intensity="0.6"></a-light>
+          <a-light type="directional" position="1 3 2"></a-light>
 
-        <!-- Cámara y holder -->
-        <a-entity position="0 1.6 5">
-            <a-camera>
-                <a-entity id="holder" position="0 -0.3 -1">
-                    
-                </a-entity>
-            </a-camera>
-        </a-entity>
+          <!-- Suelo -->
+          <a-plane rotation="-90 0 0"
+                   width="20"
+                   height="20"
+                   color="#7BC8A4"></a-plane>
 
-        <!-- Luz -->
-        <a-light type="ambient" intensity="0.6"></a-light>
-        <a-light type="directional" position="1 3 2"></a-light>
+          <!-- Centro del laberinto -->
+          <!-- <a-entity id="centro" position="0 0.5 -3"></a-entity> --->
 
-        <!-- Suelo -->
-        <a-plane rotation="-90 0 0" width="20" height="20" color="#7BC8A4"></a-plane>
+    <!-- LABERINTO SIMPLE -->
+          <a-box position="0 1 -5"
+                 width="10"
+                 height="2"
+                 depth="0.5"
+                 color="#444"></a-box>
+          <a-box position="-5 1 0"
+                 width="0.5"
+                 height="2"
+                 depth="10"
+                 color="#444"></a-box>
 
-        <!-- Centro del laberinto -->
-        <a-entity id="centro" position="0 0.5 -3"></a-entity>
+          <!-- ANIMALES -->
+          <a-box color="blue"
+                 position="4 0.5 -8"
+                 animal-interactive="tipo: Conejo; slotIndex: 0"></a-box>
 
-        <!-- LABERINTO SIMPLE -->
-        <a-box position="0 1 -5" width="10" height="2" depth="0.5" color="#444"></a-box>
-        <a-box position="-5 1 0" width="0.5" height="2" depth="10" color="#444"></a-box>
+          <a-box color="yellow"
+                 position="-8 0.5 -3"
+                 animal-interactive="tipo: Buho; slotIndex: 1"></a-box>
 
-        <!-- ANIMALES -->
-        <a-box color="red" position="4 0.5 -8" animal-interactive="tipo: carnivoro; slotIndex: 0"></a-box>
-        <a-box color="green" position="-8 0.5 -3" animal-interactive="tipo: herbivoro; slotIndex: 1"></a-box>
+          <a-box color="green"
+                 position="-8 0.5 -6"
+                 animal-interactive="tipo: Gato; slotIndex: 2"></a-box>
 
-        <!-- MESA -->
-        <a-box position="0 0.4 0" width="2" height="0.2" depth="2" color="#8B5A2B"></a-box>
+          <a-box color="red"
+                 position="-8 0.5 -9"
+                 animal-interactive="tipo: Perro; slotIndex: 3"></a-box>
 
-        <!-- ASIENTOS -->
-        <a-box class="asiento" position="2 0 0" color="blue" asiento="tipo: carnivoro" height="0.5"></a-box>
-        <a-box class="asiento" position="-2 0 0" color="yellow" asiento="tipo: herbivoro" height="0.5"></a-box>
+          <a-box color="purple"
+                 position="-8 0.5 -3"
+                 animal-interactive="tipo: Cerdo; slotIndex: 4"></a-box>
 
-        <!-- COMPONENTES -->
-        <script>
-            window.animalActivo = null;
+          <a-box color="brown"
+                 position="-8 0.5 -3"
+                 animal-interactive="tipo: Gallina; slotIndex: 5"></a-box>
 
-            // Slots globales en el centro para evitar superposición
-            const centroSlots = [
-                new THREE.Vector3(-0.5, 0.5, -3),
-                new THREE.Vector3(0.5, 0.5, -3)
-            ];
+          <!-- MESA -->
+          <a-box position="0 0.4 0"
+                 width="2"
+                 height="0.2"
+                 depth="6"
+                 color="#8B5A2B"></a-box>
 
-            // Componente unificado para animales
-            AFRAME.registerComponent('animal-interactive', {
-                schema: { tipo: { type: 'string' }, slotIndex: { type: 'int', default: 0 } },
-                init: function () {
-                    this.state = 'idle'; // idle -> at-center -> holdable
-                    this.originalScale = this.el.getAttribute('scale');
-                    this.centerPos = null;
+          <!-- ASIENTOS -->
+          <a-box class="asiento"
+                 position="2 0 0"
+                 color="blue"
+                 asiento="tipo: Conejo"
+                 height="0.5"></a-box>
 
-                    this.el.addEventListener('click', () => {
-                        const centro = document.querySelector('#centro');
+          <a-box class="asiento"
+                 position="-2 0 0"
+                 color="yellow"
+                 asiento="tipo: Buho"
+                 height="0.5"></a-box>
 
-                        if (this.state === 'idle') {
-                            // Teletransporta al slot del centro
-                            const slot = centroSlots[this.data.slotIndex];
-                            this.el.object3D.position.copy(slot);
-                            this.centerPos = slot.clone();
-                            this.state = 'at-center';
-                            console.log(`${this.data.tipo} teletransportado al centro`);
+          <a-box class="asiento"
+                 position="2 0 -2"
+                 color="green"
+                 asiento="tipo: Gato"
+                 height="0.5"></a-box>
 
-                        } else if (this.state === 'at-center') {
-                            // Lo hacemos holdable
-                            window.animalActivo = this.el;
-                            this.state = 'holdable';
-                            console.log(`${this.data.tipo} ahora holdable`);
-                        }
-                    });
-                },
-                tick: function () {
-                    if (this.state === 'holdable' && window.animalActivo === this.el) {
-                        const cam = document.querySelector('a-camera').object3D;
-                        const offset = new THREE.Vector3(0, -0.3, -3); // frente y un poco abajo
-                        offset.applyQuaternion(cam.quaternion);
-                        const camPos = cam.getWorldPosition(new THREE.Vector3());
-                        this.el.object3D.position.copy(camPos.clone().add(offset));
-                        this.el.object3D.quaternion.copy(cam.quaternion);
-                    }
-                },
-                resetToCenter: function () {
-                    if (this.centerPos) {
-                        this.el.object3D.position.copy(this.centerPos);
-                        this.el.setAttribute('scale', this.originalScale);
-                        this.state = 'at-center';
-                        this.el.removeAttribute('placed');
-                        delete this.el.assignedAsiento;
-                        console.log(`${this.data.tipo} reseteado al centro`);
-                    }
-                }
-            });
+          <a-box class="asiento"
+                 position="-2 0 -2"
+                 color="red"
+                 asiento="tipo: Perro"
+                 height="0.5"></a-box>
 
-            // Componente para asientos
-            AFRAME.registerComponent('asiento', {
-                schema: { tipo: { type: 'string' } },
-                init: function () {
-                    this.el.addEventListener('click', () => {
-                        if (!window.animalActivo) return;
+          <a-box class="asiento"
+                 position="2 0 2"
+                 color="purple"
+                 asiento="tipo: Cerdo"
+                 height="0.5"></a-box>
 
-                        const animal = window.animalActivo;
-                        const tipoAnimal = animal.getAttribute('animal-interactive').tipo;
+          <a-box class="asiento"
+                 position="-2 0 2"
+                 color="brown"
+                 asiento="tipo: Gallina"
+                 height="0.5"></a-box>
 
-                        // Copiar posición del asiento
-                        const asientoPos = this.el.object3D.position.clone();
+          <!-- COMPONENTES -->
+          <script>
+              window.animalActivo = null;
 
-                        // 🔑 Subir 0.5 en el eje Y
-                        asientoPos.y += 0.75;
+              // Slots globales en el centro para evitar superposición
+              const centroSlots = [
+                  new THREE.Vector3(-4, 0.5, -3),
+                  new THREE.Vector3(-2, 0.5, -3),
+                  new THREE.Vector3(0, 0.5, -3),
+                  new THREE.Vector3(2, 0.5, -3),
+                  new THREE.Vector3(4, 0.5, -3),
+                  new THREE.Vector3(6, 0.5, -3),
+              ];
 
-                        // Colocar el animal encima del asiento
-                        animal.object3D.position.copy(asientoPos);
-                        animal.object3D.rotation.copy(this.el.object3D.rotation);
+              // Componente unificado para animales
+              AFRAME.registerComponent("animal-interactive", {
+                  schema: {
+                      tipo: { type: "string" },
+                      slotIndex: { type: "int", default: 0 },
+                  },
+                  init: function () {
+                      this.state = "idle"; // idle -> at-center -> holdable
+                      this.originalScale = this.el.getAttribute("scale");
+                      this.centerPos = null;
 
-                        animal.setAttribute('placed', 'true');
-                        animal.assignedAsiento = this;
-                        window.animalActivo = null;
+                      this.el.addEventListener("click", () => {
+                          const centro = document.querySelector("#centro");
 
-                        console.log(`${tipoAnimal} colocado en asiento ${this.data.tipo}`);
+                          if (this.state === "idle") {
+                              // Teletransporta al slot del centro
+                              const slot = centroSlots[this.data.slotIndex];
+                              this.el.object3D.position.copy(slot);
+                              this.centerPos = slot.clone();
+                              this.state = "at-center";
+                              console.log(`${this.data.tipo} teletransportado al centro`);
+                          } else if (
+                              this.state === "at-center" &&
+                              window.animalActivo == null
+                          ) {
+                              const animalEl = this.el;
+                              const animalTipo = this.data.tipo;
+                              showDialogTakeAnimal(
+                                  animalTipo,
+                                  () => {
+                                      window.animalActivo = animalEl;
+                                      this.state = "holdable";
+                                      console.log(`${animalTipo} ahora holdable`);
+                                  },
+                                  () => {
+                                      console.log(`${animalTipo} se queda en el centro`);
+                                  },
+                              );
+                          }
+                      });
+                  },
+                  tick: function () {
+                      if (this.state === "holdable" && window.animalActivo === this.el) {
+                          const cam = document.querySelector("a-camera").object3D;
+                          const offset = new THREE.Vector3(0, -0.3, -3); // frente y un poco abajo
+                          offset.applyQuaternion(cam.quaternion);
+                          const camPos = cam.getWorldPosition(new THREE.Vector3());
+                          this.el.object3D.position.copy(camPos.clone().add(offset));
+                          this.el.object3D.quaternion.copy(cam.quaternion);
+                      }
+                  },
+                  resetToCenter: function () {
+                      if (this.centerPos) {
+                          this.el.object3D.position.copy(this.centerPos);
+                          this.el.setAttribute("scale", this.originalScale);
+                          this.state = "at-center";
+                          this.el.removeAttribute("placed");
+                          delete this.el.assignedAsiento;
+                          console.log(`${this.data.tipo} reseteado al centro`);
+                      }
+                  },
+              });
 
-                        // Comprobar todos los animales
-                        checkAllAnimals();
-                    });
-                }
-            });
+              //TODO
+              // Componente para asientos
+              AFRAME.registerComponent("asiento", {
+                  schema: { tipo: { type: "string" } },
+                  init: function () {
+                      this.el.addEventListener("click", () => {
+                          if (!window.animalActivo) return;
 
+                          const animal = window.animalActivo;
+                          const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
 
-            // Función global para validar si los animales están correctos
-            function checkAllAnimals() {
-                const animales = document.querySelectorAll('[animal-interactive]');
+                          // Copiar posición del asiento
+                          const asientoPos = this.el.object3D.position.clone();
 
-                // Solo validar si todos están colocados
-                const todosColocados = Array.from(animales).every(a => a.getAttribute('placed') === 'true');
-                if (!todosColocados) return;
+                          // Subir 0.5 en el eje Y
+                          asientoPos.y += 0.75;
 
-                let todosCorrectos = true;
-                animales.forEach(a => {
-                    const tipoAnimal = a.getAttribute('animal-interactive').tipo;
-                    const asiento = a.assignedAsiento;
-                    if (!asiento || asiento.data.tipo !== tipoAnimal) {
-                        todosCorrectos = false;
-                    }
-                });
+                          // Colocar el animal encima del asiento
+                          animal.object3D.position.copy(asientoPos);
+                          animal.object3D.rotation.copy(this.el.object3D.rotation);
 
-                if (todosCorrectos) {
-                    console.log('✔ Todos correctos. Nada que hacer.');
-                } else {
-                    console.log('✖ Al menos uno está mal, reseteando todos');
-                    animales.forEach(a => {
-                        a.components['animal-interactive'].resetToCenter();
-                    });
-                }
-            }
-        </script>
+                          animal.setAttribute("placed", "true");
+                          animal.assignedAsiento = this;
+                          window.animalActivo = null;
 
-    </a-scene>
-</body>
+                          console.log(
+                              `${tipoAnimal} colocado en asiento ${this.data.tipo}`,
+                          );
+
+                          // Comprobar todos los animales
+                          checkAllAnimals();
+                      });
+                  },
+              });
+
+              // Función global para validar si los animales están correctos
+              function checkAllAnimals() {
+                  const animales = document.querySelectorAll("[animal-interactive]");
+
+                  // Solo validar si todos están colocados
+                  const todosColocados = Array.from(animales).every(
+                      (a) => a.getAttribute("placed") === "true",
+                  );
+                  if (!todosColocados) return;
+
+                  let todosCorrectos = true;
+                  animales.forEach((a) => {
+                      const tipoAnimal = a.getAttribute("animal-interactive").tipo;
+                      const asiento = a.assignedAsiento;
+                      // ACTUALIZAR comprobar que solo se puede sentar un animal en cada asiento
+                      if (!asiento || asiento.data.tipo !== tipoAnimal) {
+                          todosCorrectos = false;
+                      }
+                  });
+
+                  if (todosCorrectos) {
+                      console.log("✔ Todos correctos. Nada que hacer.");
+                  } else {
+                      console.log("✖ Al menos uno está mal, reseteando todos");
+                      animales.forEach((a) => {
+                          a.components["animal-interactive"].resetToCenter();
+                      });
+                  }
+              }
+
+              // Función para controlar el movimiento del jugador
+              function setPlayerMovement(enabled) {
+                  const camera = document.querySelector("a-camera");
+                  if (enabled) {
+                      camera.setAttribute("look-controls", "enabled: true");
+                      camera.setAttribute("wasd-controls", "enabled: true");
+                  } else {
+                      camera.setAttribute("look-controls", "enabled: false");
+                      camera.setAttribute("wasd-controls", "enabled: false");
+                  }
+              }
+              a;
+
+              function showDialogTakeAnimal(animalTipo, onTake, onLeave) {
+                  // Desactivar movimiento al abrir
+                  setPlayerMovement(false);
+
+                  window.dialogManager.show({
+                      title: animalTipo,
+                      content: `¿Quieres coger el ${animalTipo}?`,
+                      showCloseButton: true,
+                      gameStyle: true,
+                      darkBackground: true, // Corregido typo
+                      onClose: () => {
+                          // Reactivar movimiento al cerrar (por X o fondo)
+                          setPlayerMovement(true);
+                      },
+                      buttons: [
+                          {
+                              text: "Coger",
+                              callback: () => {
+                                  if (onTake) onTake();
+                                  setPlayerMovement(true);
+                              },
+                          },
+                          {
+                              text: "No coger",
+                              secondary: true,
+                              callback: () => {
+                                  if (onLeave) onLeave();
+                                  setPlayerMovement(true);
+                              },
+                          },
+                      ],
+                  });
+              }
+          </script>
+      </a-scene>
+  </body>
 </html>

@@ -1,0 +1,139 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Prueba de Cambio de Tamaño</title>
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+    <script src="js/resizeManager.js"></script>
+    <style>
+      /* Estilos para la interfaz de prueba */
+      .ui-container {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 999;
+        display: flex;
+        gap: 10px;
+        background: rgba(0, 0, 0, 0.5);
+        padding: 15px;
+        border-radius: 10px;
+      }
+
+      button {
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        background: #fff;
+        border: none;
+        border-radius: 5px;
+        font-weight: bold;
+        transition: transform 0.1s;
+      }
+
+      button:active {
+        transform: scale(0.95);
+      }
+
+      button.small {
+        background: #ffcccc;
+        color: #550000;
+      }
+      button.normal {
+        background: #ccffcc;
+        color: #005500;
+      }
+      button.giant {
+        background: #ccccff;
+        color: #000055;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- INTERFAZ 2D -->
+    <div class="ui-container">
+      <button
+        class="small"
+        onclick="window.resizeManager.setPlayerSize('small')"
+      >
+        Hacerse Pequeño (Ratón)
+      </button>
+      <button
+        class="normal"
+        onclick="window.resizeManager.setPlayerSize('normal')"
+      >
+        Tamaño Normal
+      </button>
+      <button
+        class="giant"
+        onclick="window.resizeManager.setPlayerSize('giant')"
+      >
+        Hacerse Gigante
+      </button>
+    </div>
+
+    <a-scene background="color: #ECECEC">
+      <!-- LUZ -->
+      <a-light type="ambient" intensity="0.5"></a-light>
+      <a-light type="directional" position="-1 1 1" intensity="0.5"></a-light>
+
+      <!-- ENTORNO DE REFERENCIA -->
+      <!-- Es importante tener objetos de tamaño conocido para notar el efecto -->
+
+      <!-- Suelo -->
+      <a-plane
+        position="0 0 -4"
+        rotation="-90 0 0"
+        width="20"
+        height="20"
+        color="#7BC8A4"
+        shadow
+      ></a-plane>
+
+      <!-- Mesa (altura 1m aprox) -->
+      <a-box
+        position="0 0.5 -3"
+        width="2"
+        height="1"
+        depth="1"
+        color="#4CC3D9"
+        shadow
+      ></a-box>
+      <a-text
+        value="Mesa (1m)"
+        position="0 1.2 -3"
+        align="center"
+        color="black"
+        scale="0.5 0.5 0.5"
+      ></a-text>
+
+      <!-- Silla pequeña -->
+      <a-box
+        position="-1.5 0.25 -2.5"
+        width="0.5"
+        height="0.5"
+        depth="0.5"
+        color="#FFC65D"
+        shadow
+      ></a-box>
+
+      <!-- Edificio/Caja grande -->
+      <a-box
+        position="3 2.5 -5"
+        width="2"
+        height="5"
+        depth="2"
+        color="#EF2D5E"
+        shadow
+      ></a-box>
+
+      <!-- RIG DEL JUGADOR -->
+      <!-- Para cambiar el tamaño del jugador, escalamos el RIG, no la cámara directamente -->
+      <a-entity id="player-rig" position="0 0 0">
+        <!-- La cámara está dentro del rig. Por defecto a 1.6m de altura (nivel ojos humano promedio) -->
+        <a-entity camera look-controls wasd-controls position="0 1.6 0">
+          <a-cursor></a-cursor>
+        </a-entity>
+      </a-entity>
+    </a-scene>
+  </body>
+</html>

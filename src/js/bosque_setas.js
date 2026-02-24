@@ -1,15 +1,11 @@
+//crear cargar la base de datos y la tabla
 const db = new Dexie("JuegoDB");
 
 db.version(1).stores({
-    inventario: "id, tipo"
+    inventario: "id, tipo",
+    hitos:"id"
 });
-// document.addEventListener("DOMContentLoaded", async () => {
-//   const llave = await db.inventario.get("llave_roja");
-//   if (llave) {
-//     const el = document.querySelector("[llave]");
-//     if (el) el.remove();
-//   }
-// });
+
 
 //registro componente gestor patron 
 AFRAME.registerComponent('puzzle_patron-manager', {
@@ -68,29 +64,22 @@ AFRAME.registerComponent('puzzle_patron-button', {
 });
 //recogida de llave
 AFRAME.registerComponent("llave", {
-  schema: {
-    id: { type: "string" }
-  },
+    schema: {
+        id: { type: "string" }
+    },
 
-  init() {
-    this.el.addEventListener("click", async () => {
-      await db.inventario.put({
-        id: this.data.id,
-        tipo: "llave"
-      });
+    init() {
+        this.el.addEventListener("click", async () => {
+            await db.inventario.put({
+                id: this.data.id,
+                tipo: "llave"
+            });
 
-      console.log("[LLAVE] Guardada:", this.data.id);
+            console.log("[LLAVE] Guardada:", this.data.id);
 
-      this.el.remove(); // desaparece del mundo
-    });
-  }
-});
-document.addEventListener("DOMContentLoaded", async () => {
-  const llave = await db.inventario.get("llave_roja");
-  if (llave) {
-    const el = document.querySelector("[llave]");
-    if (el) el.remove();
-  }
+            this.el.remove(); // desaparece del mundo
+        });
+    }
 });
 
 AFRAME.registerComponent("candado", {
@@ -109,13 +98,12 @@ AFRAME.registerComponent("candado", {
 
             // Consumir llave
             await db.inventario.delete(this.data.llave);
+            await db.hitos.put({id:"puerta_roja_abierta"})
             console.log(" Candado abierto");
-
-            // Animar puerta
             const door = this.el.closest("#door2").querySelector("a-box");
             door.setAttribute("animation__open", {
                 property: "position",
-                to: "0 3 0",
+                to: "0 -3 0",
                 dur: 1200,
                 easing: "easeOutQuad"
             });
@@ -160,13 +148,30 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-function initGame() {
+async function initGame() {
+    if(await db.hitos.get("puerta_roja_abierta")){
+        document.querySelector("[candado]").remove();
+const puerta = document.querySelector("#door2");
+const pos = puerta.getAttribute("position");
+puerta.setAttribute("position", {
+    x: pos.x,
+    y: pos.y - 3,
+    z: pos.z
+});
+        const el = document.querySelector("[llave]");
+        if (el) el.remove();
+    }
+    if (await db.inventario.get("llave_roja")) {
+        const el = document.querySelector("[llave]");
+        if (el) el.remove();
+    }
     createUI();
     startTimer();
     startProximityCheck();
 
     gameState.isActive = true;
     console.log('[GAME] Juego iniciado');
+
 }
 
 function createUI() {
