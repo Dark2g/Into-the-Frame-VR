@@ -371,10 +371,12 @@ function animateAndRemoveMushroom(mushroomEl) {
 AFRAME.registerComponent('colision-ammo', {
     init: function () {
         this.el.addEventListener('model-loaded', () => {
-            // Ammo.js lee el modelo complejo y le aplica la física estática en 1 segundo
-            this.el.setAttribute('ammo-body', 'type: static');
-            this.el.setAttribute('ammo-shape', 'type: mesh');
-            console.log("✅ [AMMO] Físicas del mapa cargadas correctamente.");
+            // Esperar un frame para que Three.js aplique las matrices de transformación
+            setTimeout(() => {
+                this.el.setAttribute('ammo-body', 'type: static');
+                this.el.setAttribute('ammo-shape', 'type: mesh; fit: all; includeInvisible: true');
+                console.log("✅ [AMMO] Físicas del mapa cargadas correctamente.");
+            }, 100);
         });
     }
 });
