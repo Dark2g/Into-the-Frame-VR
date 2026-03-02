@@ -358,3 +358,54 @@ function animateAndRemoveMushroom(mushroomEl) {
         }
     }, 300);
 }
+
+AFRAME.registerComponent('colision-ammo', {
+    init: function () {
+        this.el.addEventListener('model-loaded', () => {
+            // Ammo.js lee el modelo complejo y le aplica la física estática en 1 segundo
+            this.el.setAttribute('ammo-body', 'type: static');
+            this.el.setAttribute('ammo-shape', 'type: mesh');
+            console.log("✅ [AMMO] Físicas del mapa cargadas correctamente.");
+        });
+    }
+});
+
+AFRAME.registerComponent('player-move', {
+    init() {
+        this.keys = {};
+        window.addEventListener('keydown', e => this.keys[e.code] = true);
+        window.addEventListener('keyup', e => this.keys[e.code] = false);
+    },
+    tick() {
+        const body = this.el.body;
+        if (!body) return; // Espera a que nazca el cuerpo físico
+
+        const cam = document.querySelector('#cam');
+        if (!cam) return;
+
+        // Calculamos hacia dónde mira la cámara
+        const dir = new THREE.Vector3();
+        cam.object3D.getWorldDirection(dir);
+        dir.y = 0;
+        dir.normalize();
+
+        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+
+        const speed = 4; // Velocidad del jugador
+        let vx = 0, vz = 0;
+
+        // Controles WASD
+        if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
+        if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
+        if (this.keys.KeyA) { vx += right.x; vz += right.z; }
+        if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
+
+        // Aplicamos la velocidad usando Ammo.js
+        const vel = body.getLinearVelocity();
+        body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
+        
+        // Magia negra de Ammo para evitar que el jugador se "duerma" (kinematic flag)
+        body.setCollisionFlags(body.getCollisionFlags() & ~2); 
+        body.activate(); 
+    }
+});
