@@ -143,6 +143,8 @@ Escena de exploración en primera persona donde el jugador se mueve por un bosqu
 
 ##### A) Sistema de recogida de setas con temporizador
 
+Realizado por: Enrique Sequí Hernández
+
 - **10 setas normales** (clase `.mushroom`, `data-mushroom-type="normal"`) repartidas por el mapa.
 - **1 seta especial** (clase `.mushroom.special`, `data-mushroom-type="special"`) que resetea el temporizador a 30s.
 - **Temporizador descendente** de 30 segundos mostrado como overlay HTML (`createUI()`).
@@ -190,12 +192,16 @@ db.version(1).stores({
 
 ##### D) Jugador con físicas Ammo.js
 
+Realizado por: Enrique Sequí Hernández
+
 - Cilindro dinámico (`ammo-body="type: dynamic"`) con masa 5.
 - Movimiento WASD relativo a la dirección de la cámara.
 - Gravedad 9.8 m/s², amortiguación lineal 0.9, rotación bloqueada (angularFactor: 0 0 0).
 - La cámra está anidada dentro del cilindro del jugador.
 
 ##### E) Colisión de mapa
+
+Realizado por: Enrique Sequí Hernández
 
 - Componente `colision-ammo`: espera a que el modelo GLTF cargue y aplica `ammo-body: static` + `ammo-shape: mesh`.
 
