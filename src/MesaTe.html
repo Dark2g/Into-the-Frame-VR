@@ -49,15 +49,32 @@
         <a-entity id="vela" gltf-model="url(../assets/models/Gabi/Vela.glb)" position="3 0 20"></a-entity>
 
 
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0" class="asiento" asiento="tipo: Buho"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -12"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -6" class="asiento" asiento="tipo: Conejo"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 6" class="asiento" asiento="tipo: Cerdo"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0" class="asiento" asiento="tipo: Buho">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
 
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 5"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2" class="asiento" asiento="tipo: Gato"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 11" class="asiento" asiento="tipo: Gallina"></a-entity>
-        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -8" class="asiento" asiento="tipo: Perro"></a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -12" class="asiento" asiento="tipo: null">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -6" class="asiento" asiento="tipo: Conejo">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 6" class="asiento" asiento="tipo: Cerdo">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 5" class="asiento" asiento="tipo: null">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2" class="asiento" asiento="tipo: Gato">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 11" class="asiento" asiento="tipo: Gallina">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
+        <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -8" class="asiento" asiento="tipo: Perro">
+            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+        </a-entity>
 
 
 
@@ -151,15 +168,20 @@
                         const animal = window.animalActivo;
                         const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
 
-                        // REVISAR por posición relativa de la silla
-                        const asientoPos = this.el.object3D.position.clone();
+                        const seatPoint = this.el.querySelector(".seat-point");
 
-                        // MODIFICAR altura silla
-                        asientoPos.y += 0.75;
+                        if (!seatPoint) {
+                            console.warn("Asiento sin seat-point");
+                            return;
+                        }
 
-                        // Colocar el animal encima del asiento
-                        animal.object3D.position.copy(asientoPos);
-                        animal.object3D.rotation.copy(this.el.object3D.rotation);
+                        const worldPos = seatPoint.object3D.getWorldPosition(new THREE.Vector3());
+                        const worldRot = seatPoint.object3D.getWorldQuaternion(new THREE.Quaternion());
+
+                        animal.object3D.position.copy(worldPos);
+                        animal.object3D.quaternion.copy(worldRot);
+
+
 
                         animal.setAttribute("placed", "true");
                         animal.assignedAsiento = this;
