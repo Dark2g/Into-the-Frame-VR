@@ -14,6 +14,16 @@
 
     <!-- Lógica del juego externa -->
     <script src="MinijuegoBaldosas.js"></script>
+    
+    <style>
+      /* Animación para simular que el personaje habla/se mueve */
+      @keyframes hablar {
+        0% { transform: rotate(0deg); }
+        25% { transform: rotate(-10deg); }
+        75% { transform: rotate(10deg); }
+        100% { transform: rotate(0deg); }
+      }
+    </style>
   </head>
   <body>
     <!-- Overlay 2D (HUD) fijo en la pantalla -->
@@ -32,10 +42,56 @@
       Camina sobre las baldosas...
     </div>
 
-    <!-- Nuevo Overlay para la Chuleta (Derecha) -->
-    <div id="hud-cheat" style="
+    <!-- Nuevo Overlay con Imagen y Texto (Centro Arriba - Estilo Persona Hablando) -->
+    <div id="hud-level" style="
       position: fixed; 
       top: 20px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      z-index: 9999; 
+      display: flex; 
+      align-items: flex-start;">
+      <!-- Usamos una de las imágenes existentes como icono -->
+      <img id="hud-img" src="Pngs/reinaminiatura.png" style="
+        width: 300px; 
+        height: 300px; 
+        object-fit: contain;
+        animation: hablar 1s infinite ease-in-out;">
+      
+      <!-- Bocadillo de texto -->
+      <div style="
+        position: relative;
+        margin-left: 20px; 
+        margin-top: 20px; 
+        background-color: white; 
+        color: black; 
+        padding: 15px 25px; 
+        border-radius: 20px;
+        border: 3px solid black;
+        font-family: sans-serif; 
+        font-size: 35px; 
+        font-weight: bold;">
+        <span id="row-display">Inicio</span>
+        
+        <!-- Triángulo del bocadillo (apuntando a la imagen) -->
+        <div style="
+          position: absolute;
+          left: -10px;
+          bottom: 15px;
+          width: 0; 
+          height: 0; 
+          border-top: 10px solid transparent;
+          border-bottom: 10px solid transparent; 
+          border-right: 10px solid white;">
+        </div>
+      </div>
+    </div>
+
+    <!-- Nuevo Overlay para la Chuleta (Derecha) -->
+    <!-- Lo bajamos a top: 100px para que no tape el nuevo HUD de imagen -->
+    <div id="hud-cheat" style="
+      position: fixed; 
+      top: 100px; 
       right: 20px; 
       z-index: 9999; 
       background-color: rgba(0, 0, 0, 0.7); 
@@ -56,7 +112,7 @@
 
       <!-- Plataforma de inicio. Añadimos clase 'suelo' para que la gravedad la detecte -->
       <!-- Hacemos el suelo más grueso (1m) y ajustamos Y para que la superficie siga en 12 -->
-      <a-box class="suelo" position="0 11.5 5.4" width="6" height="1" depth="6" color="#555" static-body></a-box>
+      <a-box class="suelo" position="0 11.5 5.4" width="30" height="1" depth="6" color="#555" static-body></a-box>
 
       <!-- VOLVEMOS A LA CÁMARA ESTÁNDAR (que sí se mueve) + Gravedad Custom -->
       <a-camera position="0 13.6 4.5" look-controls="pointerLockEnabled: true" wasd-controls="acceleration: 60" gravedad-camara seguridad-plataforma>
