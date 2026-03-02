@@ -13,8 +13,12 @@
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
     <script src="js/movement.js"></script>
 
+  <style>
+    #btn-hub{position:fixed;top:14px;left:14px;z-index:999;padding:8px 18px;background:rgba(15,10,25,.85);border:1px solid rgba(201,168,76,.4);border-radius:10px;color:#f0e6d3;font-family:Georgia,serif;font-size:.85rem;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:1px;transition:background .3s,border-color .3s,transform .2s}#btn-hub:hover{background:rgba(30,20,50,.95);border-color:#c9a84c;transform:scale(1.05)}
+  </style>
 </head>
 <body>
+    <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
 
     <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: true">
 

@@ -1,0 +1,430 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Into the Frame VR — Alicia en el País de las Maravillas</title>
+
+  <!-- A-Frame -->
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <!-- Ammo.js physics -->
+  <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+
+  <style>
+    body { margin: 0; overflow: hidden; }
+
+    /* ── Overlay: título de bienvenida ── */
+    #hud-title {
+      position: fixed;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      text-align: center;
+      font-family: 'Georgia', serif;
+      animation: fadeTitle 6s ease forwards;
+    }
+    #hud-title h1 {
+      font-size: clamp(1.4rem, 4vw, 2.6rem);
+      color: #f7e7a0;
+      text-shadow: 0 0 20px rgba(201,168,76,0.6), 0 2px 8px rgba(0,0,0,0.8);
+      letter-spacing: 3px;
+      margin: 0;
+    }
+    #hud-title p {
+      font-size: clamp(0.8rem, 1.8vw, 1rem);
+      color: #c9a84c;
+      margin-top: 4px;
+      font-style: italic;
+      letter-spacing: 2px;
+    }
+    @keyframes fadeTitle {
+      0%   { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+      15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
+      80%  { opacity: 1; }
+      100% { opacity: 0; }
+    }
+
+    /* ── Indicador de puerta cercana ── */
+    #hud-door {
+      position: fixed;
+      bottom: 30px; left: 50%;
+      transform: translateX(-50%);
+      z-index: 10;
+      pointer-events: none;
+      font-family: 'Georgia', serif;
+      font-size: clamp(1rem, 2.5vw, 1.4rem);
+      color: #fff;
+      text-shadow: 0 0 15px rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.9);
+      letter-spacing: 2px;
+      opacity: 0;
+      transition: opacity 0.4s ease;
+      text-align: center;
+      background: rgba(0,0,0,0.35);
+      padding: 10px 28px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+    #hud-door.visible { opacity: 1; }
+
+    /* ── Pantalla de carga al cruzar ── */
+    #loading-screen {
+      position: fixed; inset: 0;
+      z-index: 100;
+      background: #000;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.6s ease;
+      font-family: 'Georgia', serif;
+    }
+    #loading-screen.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+    #loading-screen h2 {
+      color: #f7e7a0;
+      font-size: 1.6rem;
+      letter-spacing: 3px;
+      margin-bottom: 14px;
+    }
+    #loading-screen .spinner {
+      width: 40px; height: 40px;
+      border: 3px solid rgba(201,168,76,0.2);
+      border-top-color: #c9a84c;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+  <!-- ── HUD ── -->
+  <div id="hud-title">
+    <h1>Into the Frame VR</h1>
+    <p>Cruza una puerta para comenzar...</p>
+  </div>
+  <div id="hud-door"></div>
+  <div id="loading-screen">
+    <h2>Entrando...</h2>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       ESCENA 3D — HUB CON 4 PUERTAS
+       ══════════════════════════════════════════════════════ -->
+  <a-scene
+    cursor="rayOrigin: mouse"
+    physics="driver: ammo; gravity: 0 -9.8 0; debug: false"
+    fog="type: exponential; color: #0a0a18; density: 0.035"
+    vr-mode-ui="enabled: true"
+  >
+
+    <!-- ── Assets ── -->
+    <a-assets>
+      <img id="floor-tex"   src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Crect width='64' height='64' fill='%23222'/%3E%3Crect x='0' y='0' width='32' height='32' fill='%23282828'/%3E%3Crect x='32' y='32' width='32' height='32' fill='%23282828'/%3E%3C/svg%3E" crossorigin="anonymous">
+    </a-assets>
+
+    <!-- ── Cielo nocturno ── -->
+    <a-sky color="#070712"></a-sky>
+
+    <!-- ── Luces ── -->
+    <a-light type="ambient" color="#334" intensity="0.35"></a-light>
+    <a-light type="point" color="#c9a84c" intensity="0.6" position="0 8 0" decay="1.5"></a-light>
+    <!-- Luces de cada puerta -->
+    <a-light type="point" color="#4CAF50" intensity="0.5" position="0 4 -12" decay="2"></a-light>
+    <a-light type="point" color="#9C27B0" intensity="0.5" position="12 4 0"  decay="2"></a-light>
+    <a-light type="point" color="#E91E63" intensity="0.5" position="0 4 12"  decay="2"></a-light>
+    <a-light type="point" color="#2196F3" intensity="0.5" position="-12 4 0" decay="2"></a-light>
+
+    <!-- ══ SUELO ══ -->
+    <a-plane
+      width="40" height="40"
+      rotation="-90 0 0"
+      position="0 0 0"
+      color="#1a1a2e"
+      material="src: #floor-tex; repeat: 20 20; roughness: 0.9"
+      ammo-body="type: static"
+      ammo-shape="type: box"
+    ></a-plane>
+
+    <!-- Borde luminoso central -->
+    <a-ring position="0 0.02 0" rotation="-90 0 0"
+            radius-inner="3" radius-outer="3.15"
+            color="#c9a84c" material="emissive: #c9a84c; emissiveIntensity: 0.5; opacity: 0.5; transparent: true">
+    </a-ring>
+
+    <!-- ═══════════════════════════════════════════════
+         PUERTA 1 — BOSQUE DE SETAS (Norte, verde)
+         ═══════════════════════════════════════════════ -->
+    <a-entity id="door-bosque" position="0 0 -12" door-portal="scene: bosque_setas.html; label: Bosque de Setas">
+      <!-- Marco -->
+      <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#2E7D32" material="emissive: #1B5E20; emissiveIntensity: 0.3"></a-box>
+      <a-box width="0.3" height="4" depth="0.3" position="1.5 2 0"  color="#2E7D32" material="emissive: #1B5E20; emissiveIntensity: 0.3"></a-box>
+      <a-box width="3.3" height="0.3" depth="0.3" position="0 4 0"  color="#388E3C" material="emissive: #2E7D32; emissiveIntensity: 0.4"></a-box>
+      <!-- Portal interior (plano brillante) -->
+      <a-plane width="2.7" height="3.85" position="0 2.05 0"
+               color="#4CAF50"
+               material="emissive: #4CAF50; emissiveIntensity: 0.4; opacity: 0.3; transparent: true; side: double"
+               animation="property: material.emissiveIntensity; from: 0.2; to: 0.6; dur: 2000; dir: alternate; loop: true">
+      </a-plane>
+      <!-- Cartel -->
+      <a-plane width="2.4" height="0.5" position="0 4.6 0" color="#1B5E20"
+               material="emissive: #1B5E20; emissiveIntensity: 0.2">
+        <a-text value="Bosque de Setas" align="center" color="#A5D6A7" width="4" position="0 0 0.01"></a-text>
+      </a-plane>
+      <!-- Icono -->
+      <a-text value="*" align="center" color="#81C784" width="8" position="0 2.8 0.05"
+              font="mozillavr" opacity="0.7"></a-text>
+      <!-- Zona de paso (invisible, para detección) -->
+      <a-box class="door-trigger" width="2.7" height="3.85" depth="1.2" position="0 2 0"
+             visible="false"></a-box>
+    </a-entity>
+
+    <!-- ═══════════════════════════════════════════════
+         PUERTA 2 — MESA DE TÉ (Este, púrpura)
+         ═══════════════════════════════════════════════ -->
+    <a-entity id="door-mesa" position="12 0 0" rotation="0 -90 0" door-portal="scene: MesaTe.html; label: Mesa de Te">
+      <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#6A1B9A" material="emissive: #4A148C; emissiveIntensity: 0.3"></a-box>
+      <a-box width="0.3" height="4" depth="0.3" position="1.5 2 0"  color="#6A1B9A" material="emissive: #4A148C; emissiveIntensity: 0.3"></a-box>
+      <a-box width="3.3" height="0.3" depth="0.3" position="0 4 0"  color="#7B1FA2" material="emissive: #6A1B9A; emissiveIntensity: 0.4"></a-box>
+      <a-plane width="2.7" height="3.85" position="0 2.05 0"
+               color="#9C27B0"
+               material="emissive: #9C27B0; emissiveIntensity: 0.4; opacity: 0.3; transparent: true; side: double"
+               animation="property: material.emissiveIntensity; from: 0.2; to: 0.6; dur: 2200; dir: alternate; loop: true">
+      </a-plane>
+      <a-plane width="2.4" height="0.5" position="0 4.6 0" color="#4A148C"
+               material="emissive: #4A148C; emissiveIntensity: 0.2">
+        <a-text value="Mesa de Te" align="center" color="#CE93D8" width="4" position="0 0 0.01"></a-text>
+      </a-plane>
+      <a-box class="door-trigger" width="2.7" height="3.85" depth="1.2" position="0 2 0"
+             visible="false"></a-box>
+    </a-entity>
+
+    <!-- ═══════════════════════════════════════════════
+         PUERTA 3 — AJEDREZ (Sur, rosa/rojo)
+         ═══════════════════════════════════════════════ -->
+    <a-entity id="door-ajedrez" position="0 0 12" rotation="0 180 0" door-portal="scene: Ajedrez.html; label: Partida de Ajedrez">
+      <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#AD1457" material="emissive: #880E4F; emissiveIntensity: 0.3"></a-box>
+      <a-box width="0.3" height="4" depth="0.3" position="1.5 2 0"  color="#AD1457" material="emissive: #880E4F; emissiveIntensity: 0.3"></a-box>
+      <a-box width="3.3" height="0.3" depth="0.3" position="0 4 0"  color="#C2185B" material="emissive: #AD1457; emissiveIntensity: 0.4"></a-box>
+      <a-plane width="2.7" height="3.85" position="0 2.05 0"
+               color="#E91E63"
+               material="emissive: #E91E63; emissiveIntensity: 0.4; opacity: 0.3; transparent: true; side: double"
+               animation="property: material.emissiveIntensity; from: 0.2; to: 0.6; dur: 1800; dir: alternate; loop: true">
+      </a-plane>
+      <a-plane width="2.4" height="0.5" position="0 4.6 0" color="#880E4F"
+               material="emissive: #880E4F; emissiveIntensity: 0.2">
+        <a-text value="Ajedrez" align="center" color="#F48FB1" width="4" position="0 0 0.01"></a-text>
+      </a-plane>
+      <a-box class="door-trigger" width="2.7" height="3.85" depth="1.2" position="0 2 0"
+             visible="false"></a-box>
+    </a-entity>
+
+    <!-- ═══════════════════════════════════════════════
+         PUERTA 4 — PUZZLE BALDOSAS (Oeste, azul)
+         ═══════════════════════════════════════════════ -->
+    <a-entity id="door-baldosas" position="-12 0 0" rotation="0 90 0" door-portal="scene: PuzzleBaldosas/MinijuegoBaldosas.html; label: Puzzle de Baldosas">
+      <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#1565C0" material="emissive: #0D47A1; emissiveIntensity: 0.3"></a-box>
+      <a-box width="0.3" height="4" depth="0.3" position="1.5 2 0"  color="#1565C0" material="emissive: #0D47A1; emissiveIntensity: 0.3"></a-box>
+      <a-box width="3.3" height="0.3" depth="0.3" position="0 4 0"  color="#1976D2" material="emissive: #1565C0; emissiveIntensity: 0.4"></a-box>
+      <a-plane width="2.7" height="3.85" position="0 2.05 0"
+               color="#2196F3"
+               material="emissive: #2196F3; emissiveIntensity: 0.4; opacity: 0.3; transparent: true; side: double"
+               animation="property: material.emissiveIntensity; from: 0.2; to: 0.6; dur: 2400; dir: alternate; loop: true">
+      </a-plane>
+      <a-plane width="2.4" height="0.5" position="0 4.6 0" color="#0D47A1"
+               material="emissive: #0D47A1; emissiveIntensity: 0.2">
+        <a-text value="Puzzle Baldosas" align="center" color="#90CAF9" width="4" position="0 0 0.01"></a-text>
+      </a-plane>
+      <a-box class="door-trigger" width="2.7" height="3.85" depth="1.2" position="0 2 0"
+             visible="false"></a-box>
+    </a-entity>
+
+    <!-- ══ Decoración: pilares en las esquinas ══ -->
+    <a-cylinder radius="0.4" height="5" position="8 2.5 -8"  color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
+    <a-cylinder radius="0.4" height="5" position="-8 2.5 -8" color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
+    <a-cylinder radius="0.4" height="5" position="8 2.5 8"   color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
+    <a-cylinder radius="0.4" height="5" position="-8 2.5 8"  color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
+
+    <!-- ══ Partículas flotantes 3D ══ -->
+    <a-entity id="particles-3d"></a-entity>
+
+    <!-- ══ JUGADOR ══ -->
+    <a-entity>
+      <a-cylinder
+        id="player"
+        radius="0.3" height="1.6"
+        position="0 1 0"
+        visible="false"
+        ammo-body="type: dynamic; mass: 5; linearDamping: 0.9; angularFactor: 0 0 0"
+        ammo-shape="type: cylinder"
+        player-move
+        door-detector
+      >
+        <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false" look-controls="pointerLockEnabled: true"></a-camera>
+      </a-cylinder>
+    </a-entity>
+
+  </a-scene>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCRIPTS
+       ══════════════════════════════════════════════════════ -->
+  <script>
+    /* ─────────────────────────────────────────────
+       Componente: player-move (movimiento FPS)
+       ───────────────────────────────────────────── */
+    AFRAME.registerComponent('player-move', {
+      init() {
+        this.keys = {};
+        this.onKeyDown = (e) => { this.keys[e.code] = true; };
+        this.onKeyUp   = (e) => { this.keys[e.code] = false; };
+        window.addEventListener('keydown', this.onKeyDown);
+        window.addEventListener('keyup',   this.onKeyUp);
+      },
+      tick() {
+        const body = this.el.body;
+        if (!body) return;
+
+        const cam = document.querySelector('#cam');
+        if (!cam) return;
+
+        const dir = new THREE.Vector3();
+        cam.object3D.getWorldDirection(dir);
+        dir.y = 0;
+        dir.normalize();
+
+        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+
+        const speed = 4;
+        let vx = 0, vz = 0;
+
+        if (this.keys.KeyW) { vx -= dir.x;   vz -= dir.z;   }
+        if (this.keys.KeyS) { vx += dir.x;   vz += dir.z;   }
+        if (this.keys.KeyA) { vx += right.x; vz += right.z; }
+        if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
+
+        const vel = body.getLinearVelocity();
+        body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
+        body.setCollisionFlags(body.getCollisionFlags() & ~2);
+        body.activate();
+      },
+      remove() {
+        window.removeEventListener('keydown', this.onKeyDown);
+        window.removeEventListener('keyup',   this.onKeyUp);
+      }
+    });
+
+    /* ─────────────────────────────────────────────
+       Componente: door-portal (datos de cada puerta)
+       ───────────────────────────────────────────── */
+    AFRAME.registerComponent('door-portal', {
+      schema: {
+        scene: { type: 'string' },
+        label: { type: 'string', default: '' }
+      }
+    });
+
+    /* ─────────────────────────────────────────────
+       Componente: door-detector (en el jugador)
+       Detecta proximidad y cruce de puertas
+       ───────────────────────────────────────────── */
+    AFRAME.registerComponent('door-detector', {
+      init() {
+        this.doorEntities = [];
+        this.hudDoor = document.getElementById('hud-door');
+        this.loadingScreen = document.getElementById('loading-screen');
+        this.isTransitioning = false;
+        this.playerPos = new THREE.Vector3();
+        this.doorPos   = new THREE.Vector3();
+
+        // Collect doors after scene loads
+        this.el.sceneEl.addEventListener('loaded', () => {
+          this.doorEntities = Array.from(document.querySelectorAll('[door-portal]'));
+        });
+      },
+
+      tick() {
+        if (this.isTransitioning) return;
+        if (this.doorEntities.length === 0) return;
+
+        this.el.object3D.getWorldPosition(this.playerPos);
+
+        let closestDoor = null;
+        let closestDist = Infinity;
+
+        for (const doorEl of this.doorEntities) {
+          doorEl.object3D.getWorldPosition(this.doorPos);
+
+          const dx = this.playerPos.x - this.doorPos.x;
+          const dz = this.playerPos.z - this.doorPos.z;
+          const dist = Math.sqrt(dx * dx + dz * dz);
+
+          if (dist < closestDist) {
+            closestDist = dist;
+            closestDoor = doorEl;
+          }
+        }
+
+        // Show label when close (< 6m)
+        if (closestDoor && closestDist < 6) {
+          const data = closestDoor.getAttribute('door-portal');
+          this.hudDoor.textContent = '[ ' + data.label + ' ] — Acercate para entrar';
+          this.hudDoor.classList.add('visible');
+        } else {
+          this.hudDoor.classList.remove('visible');
+        }
+
+        // Cross threshold (< 1.8m) → navigate
+        if (closestDoor && closestDist < 1.8) {
+          this.enterDoor(closestDoor);
+        }
+      },
+
+      enterDoor(doorEl) {
+        this.isTransitioning = true;
+        const data = doorEl.getAttribute('door-portal');
+
+        // Show loading screen
+        this.loadingScreen.querySelector('h2').textContent = data.label;
+        this.loadingScreen.classList.add('active');
+        this.hudDoor.classList.remove('visible');
+
+        // Navigate after brief transition
+        setTimeout(() => {
+          window.location.href = data.scene;
+        }, 800);
+      }
+    });
+
+    /* ─────────────────────────────────────────────
+       Partículas 3D flotantes
+       ───────────────────────────────────────────── */
+    document.querySelector('a-scene').addEventListener('loaded', () => {
+      const container = document.getElementById('particles-3d');
+      const colors = ['#c9a84c', '#4CAF50', '#9C27B0', '#E91E63', '#2196F3', '#FFF'];
+
+      for (let i = 0; i < 40; i++) {
+        const p = document.createElement('a-sphere');
+        const x = (Math.random() - 0.5) * 30;
+        const y = Math.random() * 6 + 0.5;
+        const z = (Math.random() - 0.5) * 30;
+        const size = Math.random() * 0.06 + 0.03;
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        const dur = Math.floor(Math.random() * 4000 + 3000);
+
+        p.setAttribute('radius', size);
+        p.setAttribute('position', `${x} ${y} ${z}`);
+        p.setAttribute('color', color);
+        p.setAttribute('material', `emissive: ${color}; emissiveIntensity: 0.8; opacity: 0.6; transparent: true`);
+        p.setAttribute('animation', `property: position; to: ${x + (Math.random()-0.5)*2} ${y + Math.random()*2} ${z + (Math.random()-0.5)*2}; dur: ${dur}; dir: alternate; loop: true; easing: easeInOutSine`);
+        container.appendChild(p);
+      }
+    });
+  </script>
+</body>
+</html>

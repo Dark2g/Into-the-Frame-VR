@@ -12,6 +12,7 @@ Juego WebVR/WebXR construido con [A-Frame](https://aframe.io/) que recrea escena
 2. [Estructura del Proyecto](#2-estructura-del-proyecto)
 3. [Arquitectura General](#3-arquitectura-general)
 4. [Escenas del Juego](#4-escenas-del-juego)
+   - 4.0 [Hub Central — Sala de Puertas (`index.html`)](#40-hub-central--sala-de-puertas)
    - 4.1 [Bosque de Setas (`bosque_setas.html`)](#41-bosque-de-setas)
    - 4.2 [Mesa de Té (`MesaTe.html`)](#42-mesa-de-té)
    - 4.3 [Ajedrez (`Ajedrez.html`)](#43-ajedrez)
@@ -70,6 +71,7 @@ Into-the-Frame-VR/
 │   ├── scenes/                        ← (Reservado para futuras escenas)
 │   └── sounds/                        ← (Reservado para audio)
 ├── src/
+│   ├── index.html                     ← Hub central: sala 3D con 4 puertas (punto de entrada)
 │   ├── Ajedrez.html                   ← Escena: Minijuego de Ajedrez
 │   ├── bosque_setas.html              ← Escena: Bosque de Setas (escena principal)
 │   ├── MesaTe.html                    ← Escena: Mesa de Té (con modelos 3D)
@@ -130,6 +132,69 @@ El proyecto sigue una arquitectura basada en **componentes de A-Frame** (`AFRAME
 ---
 
 ## 4. Escenas del Juego
+
+### 4.0 Hub Central — Sala de Puertas
+
+Realizado por: Enrique Sequí Hernández
+
+**Archivo**: `src/index.html`
+
+#### Descripción
+
+Punto de entrada del juego. El jugador aparece en el centro de una sala oscura con niebla y puede moverse libremente con WASD + ratón. La sala contiene **4 puertas** orientadas a los puntos cardinales, cada una conduciendo a una escena diferente. Al cruzar una puerta, se navega automáticamente a la escena correspondiente.
+
+#### Distribución de las puertas
+
+| Dirección | Color | Escena destino | Archivo |
+|---|---|---|---|
+| Norte | Verde | Bosque de Setas | `bosque_setas.html` |
+| Este | Púrpura | Mesa de Té | `MesaTe.html` |
+| Sur | Rosa | Partida de Ajedrez | `Ajedrez.html` |
+| Oeste | Azul | Puzzle de Baldosas | `PuzzleBaldosas/MinijuegoBaldosas.html` |
+
+#### Elementos de la escena
+
+- **Plano de suelo** (40×40) con físicas Ammo.js estáticas y textura de cuadrícula.
+- **Anillo luminoso central** dorado como referencia visual.
+- **4 portales**: cada uno con marco de cajas (`<a-box>`), plano translúcido con brillo pulsante (`animation` en `emissiveIntensity`), cartel con nombre de la escena (`<a-text>`), y una **zona de paso invisible** (`door-trigger`) para detección de proximidad.
+- **Iluminación**: luz ambiental tenue + luz puntual dorada central + 4 luces puntuales de color en cada puerta.
+- **Pilares decorativos** en las 4 esquinas.
+- **Partículas 3D flotantes**: 40 esferas pequeñas con animación de movimiento suave.
+- **Niebla exponencial** para efecto de profundidad.
+
+#### Componentes A-Frame registrados
+
+| Componente | Adjunto a | Función |
+|---|---|---|
+| `player-move` | `#player` | Movimiento FPS con Ammo.js (velocidad 4 m/s) |
+| `door-portal` | Cada puerta | Almacena `scene` (URL destino) y `label` (nombre visible) |
+| `door-detector` | `#player` | Cada frame calcula la distancia a las 4 puertas. Si < 6m muestra indicador HUD; si < 1.8m navega a la escena |
+
+#### HUD (overlays HTML)
+
+- **Título de bienvenida** (`#hud-title`): "Into the Frame VR" con animación fade-in/fade-out de 6 segundos.
+- **Indicador de puerta** (`#hud-door`): aparece al acercarse a < 6m de una puerta, muestra el nombre de la escena.
+- **Pantalla de carga** (`#loading-screen`): se activa al cruzar una puerta, muestra el nombre de la escena + spinner antes de navegar (`window.location.href`).
+
+#### Flujo de navegación
+
+```
+Jugador se mueve por la sala
+       ↓
+Se acerca a una puerta (< 6m)
+       ↓
+HUD muestra: "[ Bosque de Setas ] — Acercate para entrar"
+       ↓
+Cruza la puerta (< 1.8m)
+       ↓
+Pantalla de carga (0.8s) → window.location.href = "bosque_setas.html"
+```
+
+#### Botón de vuelta al hub
+
+Todas las escenas incluyen un botón fijo **"← Menú"** en la esquina superior izquierda (`#btn-hub`) que navega de vuelta a `index.html`. En la escena de Baldosas la ruta es `../index.html` (por estar en subdirectorio). El estilo es consistente en todas las escenas: fondo semitransparente oscuro, borde dorado, `backdrop-filter: blur`.
+
+---
 
 ### 4.1 Bosque de Setas
 
@@ -963,7 +1028,7 @@ async function initGame() {
 | Carácter corrupto | movement.js | Contiene un carácter no-UTF8 en un comentario (`kinem�tico`). |
 | A-Frame inconsistente | Ajedrez vs Bosque | Ajedrez usa A-Frame 1.5.0; el resto usa 1.7.0. Puede haber incompatibilidades. |
 | Variable `a` suelta | MesaTe_Test | Hay una `a;` suelta (línea ~273 de MesaTe_Test.html) que provocará un `ReferenceError`. |
-| Sin sistema de navegación entre escenas | General | No existe un menú principal ni transiciones entre escenas. |
+| ~~Sin sistema de navegación entre escenas~~ | ~~General~~ | ~~Resuelto: `index.html` actúa como hub central con 4 puertas que navegan a cada escena.~~ |
 
 ---
 
