@@ -149,29 +149,38 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 
 async function initGame() {
-    if(await db.hitos.get("puerta_roja_abierta")){
-        document.querySelector("[candado]").remove();
-const puerta = document.querySelector("#door2");
-const pos = puerta.getAttribute("position");
-puerta.setAttribute("position", {
-    x: pos.x,
-    y: pos.y - 3,
-    z: pos.z
-});
-        const el = document.querySelector("[llave]");
-        if (el) el.remove();
+    // Restaurar estado guardado en Dexie (llave/candado)
+    try {
+        if (await db.hitos.get("puerta_roja_abierta")) {
+            const candadoEl = document.querySelector("[candado]");
+            if (candadoEl) candadoEl.remove();
+            const puerta = document.querySelector("#door2");
+            if (puerta) {
+                const pos = puerta.getAttribute("position");
+                puerta.setAttribute("position", {
+                    x: pos.x,
+                    y: pos.y - 3,
+                    z: pos.z
+                });
+            }
+            const el = document.querySelector("[llave]");
+            if (el) el.remove();
+        }
+        if (await db.inventario.get("llave_roja")) {
+            const el = document.querySelector("[llave]");
+            if (el) el.remove();
+        }
+    } catch (err) {
+        console.warn('[GAME] Error al restaurar estado de Dexie:', err);
     }
-    if (await db.inventario.get("llave_roja")) {
-        const el = document.querySelector("[llave]");
-        if (el) el.remove();
-    }
+
+    // Siempre iniciar el contador y el sistema de recogida de setas
     createUI();
     startTimer();
     startProximityCheck();
 
     gameState.isActive = true;
     console.log('[GAME] Juego iniciado');
-
 }
 
 function createUI() {
