@@ -135,7 +135,7 @@ El proyecto sigue una arquitectura basada en **componentes de A-Frame** (`AFRAME
 
 ### 4.0 Hub Central — Sala de Puertas
 
-Realizado por: Enrique Sequí Hernández
+#### Realizado por: Enrique Sequí Hernández
 
 **Archivo**: `src/index.html`
 
@@ -208,10 +208,8 @@ Escena de exploración en primera persona donde el jugador se mueve por un bosqu
 
 ##### A) Sistema de recogida de setas con temporizador
 
-Realizado por: Enrique Sequí Hernández
-
 - **10 setas normales** (clase `.mushroom`, `data-mushroom-type="normal"`) repartidas por el mapa.
-- **1 seta especial** (clase `.mushroom.special`, `data-mushroom-type="special"`) que resetea el temporizador a 30s.
+- **1 seta especial** (clase `.mushroom.special`, `data-mushroom-type="special"`) que resetea el temporizador a 30s. Representada mediante el modelo 3D `assets/models/Mario/gbl/Colmenilla.glb` con animación de rotación continua (`animation__rotate`).
 - **Temporizador descendente** de 30 segundos mostrado como overlay HTML (`createUI()`).
 - **Detección por proximidad**: un loop en `requestAnimationFrame` calcula la distancia horizontal (XZ) entre el jugador y cada seta. Si la distancia < 1.5m, se recoge.
 - Al recogerse, la seta se anima (encogimiento + rotación) y se elimina del DOM.
@@ -257,16 +255,12 @@ db.version(1).stores({
 
 ##### D) Jugador con físicas Ammo.js
 
-Realizado por: Enrique Sequí Hernández
-
 - Cilindro dinámico (`ammo-body="type: dynamic"`) con masa 5.
 - Movimiento WASD relativo a la dirección de la cámara.
 - Gravedad 9.8 m/s², amortiguación lineal 0.9, rotación bloqueada (angularFactor: 0 0 0).
 - La cámra está anidada dentro del cilindro del jugador.
 
 ##### E) Colisión de mapa
-
-Realizado por: Enrique Sequí Hernández
 
 - Componente `colision-ammo`: espera a que el modelo GLTF cargue y aplica `ammo-body: static` + `ammo-shape: mesh`.
 
