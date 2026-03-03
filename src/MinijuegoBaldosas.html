@@ -7,7 +7,7 @@
 
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
 
-    <script src="MinijuegoBaldosas.js"></script>
+    <script src="js/MinijuegoBaldosas.js"></script>
     
     <style>
       /* Animación para simular que el personaje habla/se mueve */
@@ -26,36 +26,43 @@
 
     <div id="hud-level" style="
       position: fixed; 
-      top: 20px; 
+      top: 3vh; 
       left: 50%; 
       transform: translateX(-50%);
       z-index: 9999; 
       display: flex; 
-      align-items: flex-start;">
-      <img id="hud-img" src="Pngs/reinaminiatura.png" style="
-        width: 300px; 
-        height: 300px; 
+      align-items: flex-start;
+      width: 90vw;
+      max-width: 1200px;
+      justify-content: center;
+      pointer-events: none;">
+      <img id="hud-img" src="../assets/2D/reinaminiatura.png" style="
+        width: clamp(120px, 15vw, 300px); 
+        height: clamp(120px, 15vw, 300px); 
         object-fit: contain;
+        flex-shrink: 0;
         animation: hablar 1s infinite ease-in-out;">
       
       <div style="
         position: relative;
-        margin-left: 20px; 
-        margin-top: 20px; 
+        margin-left: clamp(10px, 2vw, 20px); 
+        margin-top: clamp(10px, 2vw, 20px); 
         background-color: white; 
         color: black; 
-        padding: 15px 25px; 
+        padding: clamp(12px, 1.5vw, 25px) clamp(15px, 2vw, 30px); 
         border-radius: 20px;
-        border: 3px solid black;
+        border: clamp(2px, 0.3vw, 4px) solid black;
         font-family: sans-serif; 
-        font-size: 35px; 
-        font-weight: bold;">
+        font-size: clamp(16px, 1.8vw, 35px); 
+        font-weight: bold;
+        max-width: 60vw;
+        pointer-events: auto;">
         <span id="row-display">Inicio</span>
         
         <div style="
           position: absolute;
           left: -10px;
-          bottom: 15px;
+          top: clamp(15px, 2.5vw, 30px);
           width: 0; 
           height: 0; 
           border-top: 10px solid transparent;
@@ -64,7 +71,6 @@
         </div>
       </div>
     </div>
-
     <a-scene physics="debug: false; gravity: -9.8">
       <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#263066" static-body></a-plane>
 
