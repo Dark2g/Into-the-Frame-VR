@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '[14,2]', '[15,2]', '[15,1]', '[16,1]', '[16,2]', '[17,2]'
       ],
       frases: [
-        "Un buen sombrero impone respeto… incluso cuando no hay cabeza debajo.", // 0: Sombrero
+        "Un buen sombrero impone respeto… incluso cuando no hay cabeza debajo en el centro.", // 0: Sombrero
         "Las flores del jardín saben encogerse cuando paso.", // 1: Flor
         "La pica no es un símbolo; es una advertencia.", // 2: Pica
         "Mi gato sonríe incluso cuando el resto del reino tiembla.", // 3: Gato
@@ -270,7 +270,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '[15,3]', '[15,4]', '[16,4]', '[17,4]'
       ],
       frases: [
-        "A las cinco en punto tomo decisiones irrevocables.", // 0: Reloj
+        "A las cinco en punto tomo decisiones irrevocables en mi lado más izquierdo.", // 0: Reloj
         "Las puertas cerradas son sólo invitaciones para mi llave.", // 1: Llave
         "Una cucharada de gelatina y el castillo me queda pequeño.", // 2: Gelatina
         "Mi gato sonríe incluso cuando el resto del reino tiembla.", // 3: Gato
@@ -311,7 +311,7 @@ document.addEventListener('DOMContentLoaded', function() {
         '[15,5]', '[15,4]', '[16,4]', '[17,4]'
       ],
       frases: [
-        "Las puertas cerradas son sólo invitaciones para mi llave.", // 0: Llave
+        "Las puertas cerradas son sólo invitaciones para mi llave en el bolsillo derecho.", // 0: Llave
         "Una cucharada de gelatina y el castillo me queda pequeño.", // 1: Gelatina
         "Mi gato sonríe incluso cuando el resto del reino tiembla.", // 2: Gato
         "Tomar tres tazas de té. Ni dos, ni cuatro. El equilibrio del imperio depende de ello.", // 3: Tazas
