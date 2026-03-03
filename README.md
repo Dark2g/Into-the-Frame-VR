@@ -16,7 +16,7 @@ Juego WebVR/WebXR construido con [A-Frame](https://aframe.io/) que recrea escena
    - 4.1 [Bosque de Setas (`bosque_setas.html`)](#41-bosque-de-setas)
    - 4.2 [Mesa de Té (`MesaTe.html`)](#42-mesa-de-té)
    - 4.3 [Ajedrez (`Ajedrez.html`)](#43-ajedrez)
-   - 4.4 [Puzzle de Baldosas (`PuzzleBaldosas/`)](#44-puzzle-de-baldosas)
+   - 4.4 [Puzzle de Baldosas (`MinijuegoBaldosas.html`)](#44-puzzle-de-baldosas)
 5. [Sistemas Reutilizables](#5-sistemas-reutilizables)
    - 5.1 [Sistema de Diálogos (`dialog.js` + `dialog.css`)](#51-sistema-de-diálogos)
    - 5.2 [ResizeManager (`resizeManager.js`)](#52-resizemanager)
@@ -41,7 +41,7 @@ Juego WebVR/WebXR construido con [A-Frame](https://aframe.io/) que recrea escena
 
 | Tecnología | Versión | Uso |
 |---|---|---|
-| **A-Frame** | 1.7.0 (escenas principales) / 1.5.0–1.6.0 (ajedrez / baldosas) | Framework WebVR/WebXR |
+| **A-Frame** | 1.7.0 (escenas principales) / 1.5.0 (ajedrez) | Framework WebVR/WebXR |
 | **Ammo.js** (WASM) | `8bbc0ea` | Motor de físicas (driver Ammo para `aframe-physics-system`) |
 | **aframe-physics-system** | v4.2.1 / v4.2.2 | Componentes de física para A-Frame (`ammo-body`, `ammo-shape`, `static-body`) |
 | **chess.js** | 0.12.1 | Motor de lógica de ajedrez (validación de movimientos, FEN, jaque mate) |
@@ -59,22 +59,33 @@ Into-the-Frame-VR/
 ├── README.md                          ← Este documento
 ├── assets/
 │   ├── 2d/                            ← Sprites e iconos 2D
-│   │   └── Individual symbols/
+│   │   ├── Individual symbols/        ← Símbolos individuales para baldosas (Clock, Card, Cups…)
+│   │   ├── Empress-tiles.png / .ai    ← Tileset de la Reina (fuente + rasterizado)
+│   │   ├── reinaminiatura.png         ← Retrato HUD de la Reina (normal)
+│   │   ├── reinaenfadada.png          ← Retrato HUD de la Reina (enfadada / jumpscare)
+│   │   └── way-1.png, way-2.png, way-3.png ← Mapas de referencia de las 3 rutas
+│   ├── Addons Anarquistas/            ← Addons de Blender (Node Preview v1.21)
 │   ├── models/                        ← Modelos 3D (.glb, .blend)
 │   │   ├── Gabi/                      ← Modelos de la Mesa de Té (laberinto, mesa, sillas, tarta, pipa, vela)
 │   │   │   └── Mapa/                  ← Blender sources + materiales PBR
 │   │   ├── Lajara/                    ← Modelos del Ajedrez (piezas, tablero, castillo)
 │   │   │   ├── GLB/                   ← Modelos exportados (.glb) listos para uso
+│   │   │   ├── Ajedrez.blend          ← Fuente Blender del tablero/piezas
+│   │   │   ├── Cartas.blend           ← Fuente Blender de las cartas
 │   │   │   └── PixelCardsByAndrox_free/  ← Assets de cartas pixel art
 │   │   └── Mario/                     ← Modelos del Bosque de Setas
-│   │       └── gbl/                   ← Claro_de_Setas.glb
+│   │       ├── gbl/                   ← GLB exportados (Claro_de_Setas.glb, Colmenilla.glb)
+│   │       └── .BLENDS/               ← Fuentes Blender (Amanita, Cardo, Colmenilla, Parasol…)
+│   │           └── Fbx/               ← Exportaciones FBX alternativas
 │   ├── scenes/                        ← (Reservado para futuras escenas)
-│   └── sounds/                        ← (Reservado para audio)
+│   └── sounds/                        ← Efectos de audio (Chicken, cat, dog, owl, pig, RabbitEat…)
 ├── src/
 │   ├── index.html                     ← Hub central: sala 3D con 4 puertas (punto de entrada)
 │   ├── Ajedrez.html                   ← Escena: Minijuego de Ajedrez
 │   ├── bosque_setas.html              ← Escena: Bosque de Setas (escena principal)
 │   ├── MesaTe.html                    ← Escena: Mesa de Té (con modelos 3D)
+│   ├── MinijuegoBaldosas.html         ← Escena: Puzzle de baldosas tipo "camino seguro"
+│   ├── Frases por casilla.txt         ← Guión de frases por casilla (referencia de diseño)
 │   ├── MesaTe_Test.html               ← Test simplificado de la Mesa de Té
 │   ├── Resize_Test.html               ← Test del sistema de cambio de tamaño
 │   ├── ResizeManager_Demo.html         ← Demo completa del ResizeManager
@@ -87,12 +98,11 @@ Into-the-Frame-VR/
 │   │   ├── bosque_setas.js            ← Lógica: Setas, puzle patrón, llave/candado, timer, físicas
 │   │   ├── chess.js                   ← Lógica: Tablero de ajedrez con chess.js
 │   │   ├── dialog.js                  ← Sistema reutilizable: DialogManager
+│   │   ├── MinijuegoBaldosas.js       ← Lógica: Rutas predefinidas, gravedad, jumpscare, HUD narrativo
 │   │   ├── movement.js                ← Sistema reutilizable: Movimiento FPS con Ammo.js
 │   │   └── resizeManager.js           ← Sistema reutilizable: Cambio de escala del jugador
 │   ├── PuzzleBaldosas/
-│   │   ├── MinijuegoBaldosas.html     ← Escena: Puzzle de baldosas tipo "camino seguro"
-│   │   ├── MinijuegoBaldosas.js       ← Lógica: Generación procedural, gravedad, jumpscare
-│   │   └── Pngs/                      ← Imágenes de las baldosas y personaje
+│   │   └── Frases por casilla.txt     ← Borrador original de frases (archivo de referencia)
 │   ├── DIALOG_README.md               ← Documentación del sistema de diálogos
 │   ├── DIALOG_QUICKSTART.md           ← Guía rápida del sistema de diálogos
 │   └── DIALOG_COLORS.md              ← Guía de personalización de colores
@@ -150,7 +160,7 @@ Punto de entrada del juego. El jugador aparece en el centro de una sala oscura c
 | Norte | Verde | Bosque de Setas | `bosque_setas.html` |
 | Este | Púrpura | Mesa de Té | `MesaTe.html` |
 | Sur | Rosa | Partida de Ajedrez | `Ajedrez.html` |
-| Oeste | Azul | Puzzle de Baldosas | `PuzzleBaldosas/MinijuegoBaldosas.html` |
+| Oeste | Azul | Puzzle de Baldosas | `MinijuegoBaldosas.html` |
 
 #### Elementos de la escena
 
@@ -192,7 +202,7 @@ Pantalla de carga (0.8s) → window.location.href = "bosque_setas.html"
 
 #### Botón de vuelta al hub
 
-Todas las escenas incluyen un botón fijo **"← Menú"** en la esquina superior izquierda (`#btn-hub`) que navega de vuelta a `index.html`. En la escena de Baldosas la ruta es `../index.html` (por estar en subdirectorio). El estilo es consistente en todas las escenas: fondo semitransparente oscuro, borde dorado, `backdrop-filter: blur`.
+Todas las escenas incluyen un botón fijo **"← Menú"** en la esquina superior izquierda (`#btn-hub`) que navega de vuelta a `index.html`. El estilo es consistente en todas las escenas: fondo semitransparente oscuro, borde dorado, `backdrop-filter: blur`.
 
 ---
 
@@ -393,7 +403,7 @@ const MODEL_MAP = {
 
 ### 4.4 Puzzle de Baldosas
 
-**Archivo**: `src/PuzzleBaldosas/MinijuegoBaldosas.html` + `src/PuzzleBaldosas/MinijuegoBaldosas.js`
+**Archivo**: `src/MinijuegoBaldosas.html` + `src/js/MinijuegoBaldosas.js`
 
 #### Descripción
 
@@ -401,40 +411,60 @@ Minijuego de plataformas donde el jugador camina sobre una cuadrícula de baldos
 
 #### Mecánicas
 
-##### A) Generación procedural del camino seguro
+##### A) Sistema de rutas predefinidas con frases narrativas
 
-- Al cargar la página, se genera un camino aleatorio de baldosas seguras usando un algoritmo de recorrido lateral.
-- Desde una posición X aleatoria, en cada fila se extiende lateralmente (max ±2 columnas) generando un camino ortogonal (sin diagonales).
+- Al cargar la página, se selecciona aleatoriamente una de **3 rutas predefinidas** (Ruta 1 «Azul», Ruta 2 «Roja», Ruta 3 «Verde»), cada una con coordenadas exactas y una frase temática por casilla.
+- Cada ruta tiene entre 30–32 pasos; las coordenadas se expresan como `[fila,columna]`.
 - Las baldosas seguras se marcan con `data-safe="true"`.
-- La ruta se muestra en un panel "chuleta" (`#hud-cheat`) a la derecha de la pantalla.
+- Las frases las pronuncia la Reina de Corazones y aluden a símbolos del universo de Alicia (sombreros, gatos, picas, tazas de té, relojes, llaves, gelatina, flores, cartas).
 
-##### B) Sistema de gravedad personalizado
+**Estructura de cada ruta** (objeto `rutasPosibles`):
+```javascript
+{
+    nombre: "Ruta 1",                  // Identificador
+    coordenadas: ['[0,2]', '[1,2]', ...], // Casillas seguras (fila,columna)
+    frases: [                          // Una frase por casilla (mismo índice)
+        "Un buen sombrero impone respeto…",
+        "Las flores del jardín saben encogerse cuando paso.",
+        // ...
+    ]
+}
+```
+
+##### B) Texturas de símbolos individuales en baldosas
+
+- Cada baldosa muestra un símbolo de `assets/2d/Individual symbols/` como overlay (`<a-image>` sobre `<a-box>`).
+- Se asignan en patrón cíclico de 3 filas × 6 columnas:
+  | Fila mod 3 | Símbolos |
+  |---|---|
+  | 0 | Clock, Hole and Key, Hat (×2) |
+  | 1 | Card, Jelly, Flower (×2) |
+  | 2 | Cups, Chessire, Spade (×2) |
+- El componente `mejora-textura` aplica filtrado anisotrópico máximo (`texture.anisotropy`) para nitidez.
+
+##### C) Sistema de gravedad personalizado
 
 - Componente `gravedad-camara`: simula gravedad (9.8 m/s²) en la cámara usando un `THREE.Raycaster` manual apuntando hacia abajo.
 - Si el rayo toca suelo firme, la velocidad se resetea a 0.
 - Si la baldosa pisada está cayendo (`data-falling="true"`), el jugador cae con ella.
-- Al caer debajo de Y=10, se activa un **jumpscare** (imagen de un personaje enfadado que se agranda).
-- Al caer debajo de Y=-5, se produce un **respawn** en la posición inicial.
+- Al caer debajo de Y=10, se activa un **jumpscare**: el retrato HUD de la reina cambia a `reinaenfadada.png` y se agranda, con texto "¡TE EQUIVOCASTE!" en rojo.
+- Al caer debajo de Y=-5, se produce un **respawn** en la posición inicial, restaurando el HUD.
 
-##### C) Sistema de baldosas interactivas
+##### D) Sistema de baldosas interactivas
 
 - Componente `baldosa-interactiva`: al ser activada (pisada), si `data-safe="false"`, la baldosa entra en caída libre.
 - Componente `seguridad-plataforma`: barreras invisibles para que el jugador no salga de la plataforma de inicio.
 
-##### D) HUD narrativo
+##### E) HUD narrativo con seguimiento por casilla
 
-- Panel izquierdo: muestra coordenadas de la baldosa pisada.
-- Panel central: personaje animado (imagen con animación CSS `hablar`) con bocadillo de texto.
-- Por cada fila hay una **frase/acertijo** distinta que se muestra al avanzar:
-  ```
-  Fila 0: "El camino comienza con un solo paso..."
-  Fila 5: "La mitad del camino, no te rindas."
-  Fila 12: "No mires abajo..."
-  Fila 17: "¡La meta está frente a ti!"
-  ```
+- Panel superior central: personaje animado (`reinaminiatura.png` con animación CSS `hablar`) con bocadillo de texto.
+- El componente `gravedad-camara` rastrea las coordenadas de la última baldosa pisada (`this.lastCoords`).
+- Al pisar una baldosa segura distinta a la anterior, se muestra la frase de la **siguiente** casilla a pisar (look-ahead).
+- Al pisar la última casilla de la ruta, se muestra: *"Hecho. Has cruzado mi dominio."*
 
-**Imágenes de baldosas** (en `Pngs/ImagesBaldosas/`):
-- `Corazon.png`, `Piqueta.png`, `Rombo.png`, `Trebol.png` — se asignan aleatoriamente a cada baldosa.
+**Imágenes HUD utilizadas**:
+- `assets/2d/reinaminiatura.png` — Retrato normal de la Reina (estado por defecto).
+- `assets/2d/reinaenfadada.png` — Retrato enfadado (jumpscare al caer).
 
 ---
 
@@ -952,12 +982,17 @@ async function initGame() {
 
 | Carpeta | Escena | Contenido |
 |---|---|---|
-| `assets/models/Mario/gbl/` | Bosque de Setas | `Claro_de_Setas.glb` |
+| `assets/models/Mario/gbl/` | Bosque de Setas | `Claro_de_Setas.glb`, `Colmenilla.glb` |
+| `assets/models/Mario/.BLENDS/` | Bosque de Setas | Fuentes Blender (Amanita, Cardo, Colmenilla, Parasol, Claro_de_Setas) |
+| `assets/models/Mario/.BLENDS/Fbx/` | Bosque de Setas | Exportaciones FBX (Amanita, Cardo, Colmenilla, Parasol) |
 | `assets/models/Gabi/` | Mesa de Té | Laberinto, mesa, sillas, tarta, pipa, vela |
 | `assets/models/Lajara/GLB/` | Ajedrez | Piezas (peón, torre, caballo, alfil, reina, rey) + tablero |
+| `assets/models/Lajara/` | Ajedrez | Fuentes Blender (`Ajedrez.blend`, `Cartas.blend`, `CastilloAlicia4-2.blend`) |
 | `assets/models/Lajara/Empress/` | (Reservado) | — |
-| `assets/2d/` | General | Sprites e iconos 2D |
-| `src/PuzzleBaldosas/Pngs/` | Baldosas | Imágenes de las baldosas + personaje HUD |
+| `assets/2d/` | General | Sprites HUD (reina), tilesets, mapas de rutas |
+| `assets/2d/Individual symbols/` | Baldosas | 9 símbolos de baldosas (Clock, Card, Cups, Chessire, Flower, Hat, Hole and Key, Jelly, Spade) |
+| `assets/sounds/` | General | 8 efectos de audio de animales (Chicken, RabbitEat, cat, dog1–3, owl, pig) |
+| `assets/Addons Anarquistas/` | Herramientas | Addon de Blender (Node Preview v1.21) |
 
 ### Formatos utilizados
 
@@ -1020,7 +1055,7 @@ async function initGame() {
 | Validación de asientos | MesaTe | TODO marcado en código: comprobar que solo un animal puede sentarse en cada asiento. |
 | `checkGameState` en Ajedrez | Ajedrez | Usa `game.in_check()` (jaque) en lugar de `game.in_checkmate()` (jaque mate). El mensaje dice "JAQUE MATE" pero la condición es solo "jaque". |
 | Carácter corrupto | movement.js | Contiene un carácter no-UTF8 en un comentario (`kinem�tico`). |
-| A-Frame inconsistente | Ajedrez vs Bosque | Ajedrez usa A-Frame 1.5.0; el resto usa 1.7.0. Puede haber incompatibilidades. |
+| A-Frame inconsistente | Ajedrez | Ajedrez usa A-Frame 1.5.0; el resto usa 1.7.0. Puede haber incompatibilidades. |
 | Variable `a` suelta | MesaTe_Test | Hay una `a;` suelta (línea ~273 de MesaTe_Test.html) que provocará un `ReferenceError`. |
 | ~~Sin sistema de navegación entre escenas~~ | ~~General~~ | ~~Resuelto: `index.html` actúa como hub central con 4 puertas que navegan a cada escena.~~ |
 
