@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Prueba jugador con f�sicas</title>
+    <title>Laberinto</title>
 
 
     <!-- Revisar que estén los archivos -->
@@ -42,10 +42,22 @@
         </a-entity>
         <a-box color="brown"
                position="-8 0.5 -3"
-               animal-interactive="tipo: Conejo; slotIndex: 5"></a-box>
+               animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"></a-box>
         <a-box color="brown"
                position="-8 0.5 -3"
-               animal-interactive="tipo: Buho; slotIndex: 5"></a-box>
+               animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva."></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? "></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio."></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada"></a-box>
+        <a-box color="brown"
+               position="-8 0.5 -3"
+               animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida"></a-box>
 
         <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
         <a-entity id="mesa" gltf-model="url(../assets/models/Gabi/Mesa.glb)" position="0 0 0"></a-entity>
@@ -93,12 +105,12 @@
 
             // Slots globales en el centro para evitar superposición
             const centroSlots = [
-                new THREE.Vector3(-4, 0.5, -3),
-                new THREE.Vector3(-2, 0.5, -3),
-                new THREE.Vector3(0, 0.5, -3),
-                new THREE.Vector3(2, 0.5, -3),
-                new THREE.Vector3(4, 0.5, -3),
-                new THREE.Vector3(6, 0.5, -3),
+                new THREE.Vector3(10, 0.5, -16),
+                new THREE.Vector3(8, 0.5, -16),
+                new THREE.Vector3(12, 0.5, -16),
+                new THREE.Vector3(14, 0.5, -16),
+                new THREE.Vector3(16, 0.5, -16),
+                new THREE.Vector3(18, 0.5, -16),
             ];
 
             // Componente unificado para animales
@@ -106,6 +118,7 @@
                 schema: {
                     tipo: { type: "string" },
                     slotIndex: { type: "int", default: 0 },
+                    texto: { type: "string", default: "" },
                 },
                 init: function () {
                     this.state = "idle"; // idle -> at-center -> holdable
@@ -128,13 +141,17 @@
                         ) {
                             const animalEl = this.el;
                             const animalTipo = this.data.tipo;
+                            const animalText = this.data.texto;
                             showDialogTakeAnimal(
                                 animalTipo,
+                                animalText,
                                 () => {
                                     window.animalActivo = animalEl;
                                     this.state = "holdable";
                                     console.log(`${animalTipo} ahora holdable`);
                                 },
+                                animalText
+                                ,
                                 () => {
                                     console.log(`${animalTipo} se queda en el centro`);
                                 },
@@ -166,8 +183,8 @@
 
             // Componente para asientos y los animales sentandose
             AFRAME.registerComponent("asiento", {
-                schema: { tipo: { type: "string" } },
-                init: function () {
+                schema: { tipo: { type: "string" } }
+                , init: function () {
                     this.el.addEventListener("click", () => {
                         if (!window.animalActivo) return;
 
@@ -233,13 +250,13 @@
                 }
             }
 
-            function showDialogTakeAnimal(animalTipo, onTake, onLeave) {
+            function showDialogTakeAnimal(animalTipo, animalText, onTake, onLeave) {
                 // Desactivar movimiento al abrir
                 //setPlayerMovement(false);
 
                 window.dialogManager.show({
                     title: animalTipo,
-                    content: `¿Quieres coger el ${animalTipo}?`,
+                    content: `¿Quieres coger el ${animalTipo}?<br>${animalText}`,
                     showCloseButton: true,
                     gameStyle: true,
                     darkBackground: true, // Corregido typo
@@ -259,7 +276,7 @@
                             text: "No coger",
                             secondary: true,
                             callback: () => {
-                                if (onLeave) onLeave();
+                                if (onLeave) window.dialogManager.hide(() => onLeave());
                                 //setPlayerMovement(true);
                             },
                         },
