@@ -175,28 +175,36 @@
                         this.el.setAttribute("scale", this.originalScale);
                         this.state = "at-center";
                         this.el.removeAttribute("placed");
+
+                        if (this.el.assignedAsiento) {
+                            this.el.assignedAsiento.ocupado = false;
+                        }
+
                         delete this.el.assignedAsiento;
-                        console.log(`${this.data.tipo} reseteado al centro`);
                     }
                 },
             });
 
             // Componente para asientos y los animales sentandose
             AFRAME.registerComponent("asiento", {
-                schema: { tipo: { type: "string" } }
-                , init: function () {
+                schema: { tipo: { type: "string" } },
+
+                init: function () {
+                    this.ocupado = false;
+
                     this.el.addEventListener("click", () => {
                         if (!window.animalActivo) return;
+
+                        if (this.ocupado) {
+                            console.log("Este asiento ya está ocupado");
+                            return;
+                        }
 
                         const animal = window.animalActivo;
                         const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
 
                         const seatPoint = this.el.querySelector(".seat-point");
-
-                        if (!seatPoint) {
-                            console.warn("Asiento sin seat-point");
-                            return;
-                        }
+                        if (!seatPoint) return;
 
                         const worldPos = seatPoint.object3D.getWorldPosition(new THREE.Vector3());
                         const worldRot = seatPoint.object3D.getWorldQuaternion(new THREE.Quaternion());
@@ -204,17 +212,13 @@
                         animal.object3D.position.copy(worldPos);
                         animal.object3D.quaternion.copy(worldRot);
 
-
-
                         animal.setAttribute("placed", "true");
                         animal.assignedAsiento = this;
+
+                        this.ocupado = true;
+
                         window.animalActivo = null;
 
-                        console.log(
-                            `${tipoAnimal} colocado en asiento ${this.data.tipo}`,
-                        );
-
-                        // Comprobar todos los animales
                         checkAllAnimals();
                     });
                 },
