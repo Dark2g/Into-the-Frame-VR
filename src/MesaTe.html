@@ -11,6 +11,7 @@
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
     <script src="js/movement.js"></script>
 
   <style>
@@ -20,14 +21,14 @@
 <body>
     <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
 
-    <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: true">
+    <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false">
 
 
 
 
         <!-- Jugador -->
         <a-entity>
-            <a-cylinder id="player" radius="0.3" height="2" position="0 1 0"
+            <a-cylinder id="player" radius="0.3" height="10" position="5 10 0"
                         ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
                         ammo-shape="type: box; radius: 0.3; height: 1.4"
                         player-move>
@@ -41,22 +42,22 @@
 
         </a-entity>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="-38.430 0.5 -0.270"
                animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"></a-box>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="-4.954 0.5 -46.216"
                animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva."></a-box>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="-38.408 0.5 42.696"
                animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? "></a-box>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="0 0.5 47"
                animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio."></a-box>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="45.210 0.5 -28.792"
                animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada"></a-box>
         <a-box color="brown"
-               position="-8 0.5 -3"
+               position="33.245 0.5 42.994"
                animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida"></a-box>
 
         <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
@@ -97,6 +98,20 @@
 
 
         <script>
+            const db = new Dexie("JuegoDB");
+
+            db.version(1).stores({
+                inventario: "id, tipo"
+            });
+
+            const mesa = document.querySelector('#mesa');
+
+            mesa.addEventListener('model-loaded', () => {
+                mesa.setAttribute('ammo-body', 'type: static');
+                mesa.setAttribute('ammo-shape', 'type: mesh');
+            });
+
+
             const model = document.querySelector('#miModelo');
             model.addEventListener('model-loaded', () => {
                 model.setAttribute('ammo-body', 'type: static');
