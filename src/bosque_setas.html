@@ -1,83 +1,109 @@
 ﻿<!DOCTYPE html>
 <html lang="es">
+
 <head>
-  <meta charset="utf-8">
-  <title>bosque de setas</title>
-<script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
-  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
-  <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
-  <script src="js/bosque_setas.js"></script>
-  <style>
-    #btn-hub{position:fixed;top:14px;left:14px;z-index:999;padding:8px 18px;background:rgba(15,10,25,.85);border:1px solid rgba(201,168,76,.4);border-radius:10px;color:#f0e6d3;font-family:Georgia,serif;font-size:.85rem;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:1px;transition:background .3s,border-color .3s,transform .2s}#btn-hub:hover{background:rgba(30,20,50,.95);border-color:#c9a84c;transform:scale(1.05)}
-  </style>
+       <meta charset="utf-8">
+       <title>bosque de setas</title>
+       <script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
+       <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+       <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
+       <script
+              src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+       <script src="js/bosque_setas.js"></script>
+       <script src="js/door_funtions.js"></script>
+       <link rel="stylesheet" href="css/door-funtions.css">
+       <style>
+              #btn-hub {
+                     position: fixed;
+                     top: 14px;
+                     left: 14px;
+                     z-index: 999;
+                     padding: 8px 18px;
+                     background: rgba(15, 10, 25, .85);
+                     border: 1px solid rgba(201, 168, 76, .4);
+                     border-radius: 10px;
+                     color: #f0e6d3;
+                     font-family: Georgia, serif;
+                     font-size: .85rem;
+                     cursor: pointer;
+                     backdrop-filter: blur(6px);
+                     letter-spacing: 1px;
+                     transition: background .3s, border-color .3s, transform .2s
+              }
+
+              #btn-hub:hover {
+                     background: rgba(30, 20, 50, .95);
+                     border-color: #c9a84c;
+                     transform: scale(1.05)
+              }
+       </style>
+
 </head>
 
 <body>
-<button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
-<a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug: true">
+       <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
+       <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug: true">
+              <!-- carga de assets -->
+              <a-assets>
+                     <a-asset-item id="mapModel" src="../assets/models/Mario/gbl/Claro_de_Setas.glb"></a-asset-item>
+                     <a-asset-item id="mushroomModel" src="../assets/models/Mario/gbl/Colmenilla.glb"></a-asset-item>
+                     <a-asset-item id="LockModel" src="../assets/models/Mario/gbl/Candado.glb"></a-asset-item>
+                     <a-asset-item id="mushroomKeyModel" src="../assets/models/Mario/gbl/Llave.glb"></a-asset-item>
+                     <a-asset-item id="RightDoorModel" src="../assets/models/Mario/gbl/Puerta_Drch.glb"></a-asset-item>
+                     <a-asset-item id="LeftDoorModel" src="../assets/models/Mario/gbl/Puerta_Drch.glb"></a-asset-item>
+                     <a-asset-item id="YellowmushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Amarilla_Patron.glb"></a-asset-item>
+                     <a-asset-item id="BluemushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Azul_Patron.glb"></a-asset-item>
+                     <a-asset-item id="RedmushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Roja_Patron.glb"></a-asset-item>
+                     <a-asset-item id="GreenmushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Verde_Patron.glb"></a-asset-item>
+              </a-assets>
+              <a-entity position="0 1.6 0">
+                     <a-cylinder id="player" radius="0.3" height="1.6" rotation="0 180 0" position="0 3 -60"
+                            ammo-body="type: dynamic; mass: 5; linearDamping: 0.9; angularFactor: 0 0 0;"
+                            ammo-shape="type: cylinder" visible="false" player-move door-detector>
 
-  <a-entity position="0 1.6 4">
-    <a-cylinder id="player" radius="0.3" height="1.6" 
-                ammo-body="type: dynamic; mass: 5; linearDamping: 0.9; angularFactor: 0 0 0"
-                ammo-shape="type: cylinder"
-                visible="false"
-                player-move>
-        
-        <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false"></a-camera>
+                            <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false"></a-camera>
 
-    </a-cylinder>
-  </a-entity>
+                     </a-cylinder>
+              </a-entity>
 
-  <a-light type="ambient" intensity="0.6"></a-light>
-  <a-light type="directional" position="1 3 2"></a-light>
+              <a-light type="ambient" intensity="0.6"></a-light>
+              <a-light type="directional" position="1 3 2"></a-light>
 
-  <a-entity id="map"
-            gltf-model="url(../assets/models/Mario/gbl/Claro_de_Setas.glb)"
-            position="0 -7.5 0"
-            scale="0.5 0.5 0.5"
-            shadow="receive: true"
-            colision-ammo>
-  </a-entity>
+              <a-entity id="map" gltf-model="#mapModel" position="0 -7.5 0" scale="0.5 0.5 0.5" shadow="receive: true"
+                     colision-ammo>
+              </a-entity>
 
-  <!-- <a-plane rotation="-90 0 0"
+              <!-- <a-plane rotation="-90 0 0"
            width="40" height="40"
            color="#8AC"
            ammo-body="type: static"
            ammo-shape="type: box">
   </a-plane> -->
 
-  <a-box id="door"
-         position="0 1 0"
-         width="1.5"
-         height="2"
-         depth="0.2"
-         color="#444">
-  </a-box>
+              <a-box id="door" position="0.5 4.5 -37" width="1.5" height="2" depth="0.2" scale="2.9 2.2 0.2"
+                     color="#444" ammo-body="type: kinematic" ammo-shape="type: box">
+              </a-box>
+              </a-box>
 
-  <a-box color="red"
-         position="-1.5 1 1"
-         width="0.4" height="0.4" depth="0.2"
-         puzzle_patron-button="id:0"></a-box>
+              <a-box color="red" position="4.1 3.5 -37.43" width="0.4" height="0.4" depth="0.2"
+                     puzzle_patron-button="id:0"></a-box>
 
-  <a-box color="blue"
-         position="-0.5 1 1"
-         width="0.4" height="0.4" depth="0.2"
-         puzzle_patron-button="id:1"></a-box>
+              <a-box color="blue" position="3.6 3.5 -37.43" width="0.4" height="0.4" depth="0.2"
+                     puzzle_patron-button="id:1"></a-box>
 
-  <a-box color="green"
-         position="0.5 1 1"
-         width="0.4" height="0.4" depth="0.2"
-         puzzle_patron-button="id:2"></a-box>
+              <a-box color="#00e727" position="4.1 4 -37.43" width="0.4" height="0.4" depth="0.2"
+                     puzzle_patron-button="id:2"></a-box>
 
-  <a-box color="yellow"
-         position="1.5 1 1"
-         width="0.4" height="0.4" depth="0.2"
-         puzzle_patron-button="id:3"></a-box>
+              <a-box color="yellow" position="3.6 4 -37.43" width="0.4" height="0.4" depth="0.2"
+                     puzzle_patron-button="id:3"></a-box>
 
-  <a-entity puzzle_patron-manager></a-entity>
+              <a-entity puzzle_patron-manager></a-entity>
 
-  <!-- <a-box class="mushroom" data-mushroom-type="normal" position="-8 0.5 -5" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
+              <!-- <a-box class="mushroom" data-mushroom-type="normal" position="-8 0.5 -5" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
   <a-box class="mushroom" data-mushroom-type="normal" position="6 0.5 -8" width="0.5" height="1" depth="0.5" color="#4ECDC4"></a-box>
   <a-box class="mushroom" data-mushroom-type="normal" position="-3 0.5 -12" width="0.5" height="1" depth="0.5" color="#FFE66D"></a-box>
   <a-box class="mushroom" data-mushroom-type="normal" position="10 0.5 -2" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box>
@@ -88,34 +114,64 @@
   <a-box class="mushroom" data-mushroom-type="normal" position="-10 0.5 3" width="0.5" height="1" depth="0.5" color="#FFE66D"></a-box>
   <a-box class="mushroom" data-mushroom-type="normal" position="12 0.5 6" width="0.5" height="1" depth="0.5" color="#FF6B6B"></a-box> -->
 
-  <a-entity class="mushroom special"
-            data-mushroom-type="special"
-            position="0 -0.5 -6"
-            gltf-model="url(../assets/models/Mario/gbl/Colmenilla.glb)"
-            animation__rotate="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"></a-entity>
-<a-entity id="door2" position="5 0 0">
-  
-  <a-box width="1.5"
-         height="2"
-         depth="0.2"
-         position="0 1 0"
-         color="#555">
-  </a-box>
+              <a-entity class="mushroom special" data-mushroom-type="special" position="0 -0.5 -6"
+                     gltf-model="#mushroomModel"
+                     animation__rotate="property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear">
+              </a-entity>
+              <a-entity id="door2">
+                     <a-box width="1.5" height="2" depth="0.2" position="0 1 0" color="#555">
+                     </a-box>
 
-  <a-sphere color="gold"
-            radius="0.15"
-            position="0 1 0.15"
-            candado="llave: llave_roja">
-  </a-sphere>
+                     <a-sphere color="gold" radius="0.15" position="0 1 0.15" candado="llave: llave_roja">
+                     </a-sphere>
 
-</a-entity>
-<a-box id="key_red"
-       position="2 0.5 -3"
-       width="0.3" height="0.3" depth="0.1"
-       color="gold"
-       llave="id: llave_roja">
-</a-box>
+              </a-entity>
+              <a-box id="key_red" position="2 0.5 -3" width="0.3" height="0.3" depth="0.1" color="red"
+                     llave="id: llave_roja">
+              </a-box>
+              <!-- puerta de salida -->
+              <div id="hud-door"></div>
+              <div id="loading-screen">
+                     <h2>Entrando...</h2>
+                     <div class="spinner"></div>
+              </div>
 
-</a-scene>
+              <a-entity id="door-lobby" position="4.233 -5.5 26.95"
+                     door-portal="scene: index.html; label: volver al lobby" rotation="0 180 0">
+                     <!-- Marco -->
+                     <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#2E7D32"
+                            material="emissive: #1B5E20; emissiveIntensity: 0.3"></a-box>
+                     <a-box width="0.3" height="4" depth="0.3" position="1.5 2 0" color="#2E7D32"
+                            material="emissive: #1B5E20; emissiveIntensity: 0.3"></a-box>
+                     <a-box width="3.3" height="0.3" depth="0.3" position="0 4 0" color="#388E3C"
+                            material="emissive: #2E7D32; emissiveIntensity: 0.4"></a-box>
+                     <!-- Portal interior (plano brillante) -->
+                     <a-plane width="2.7" height="3.85" position="0 2.05 0" color="#4CAF50"
+                            material="emissive: #4CAF50; emissiveIntensity: 0.4; opacity: 0.3; transparent: true; side: double"
+                            animation="property: material.emissiveIntensity; from: 0.2; to: 0.6; dur: 2000; dir: alternate; loop: true">
+                     </a-plane>
+                     <!-- Cartel -->
+                     <a-plane width="2.4" height="0.5" position="0 4.6 0" color="#1B5E20"
+                            material="emissive: #1B5E20; emissiveIntensity: 0.2">
+                            <a-text value="Bosque de Setas" align="center" color="#A5D6A7" width="4"
+                                   position="0 0 0.01"></a-text>
+                     </a-plane>
+                     <!-- Icono -->
+                     <a-text value="*" align="center" color="#81C784" width="8" position="0 2.8 0.05" font="mozillavr"
+                            opacity="0.7"></a-text>
+                     <!-- Zona de paso (invisible, para detección) -->
+                     <a-box class="door-trigger" width="2.7" height="3.85" depth="1.2" position="0 2 0"
+                            visible="false"></a-box>
+              </a-entity>
+              <!-- trigger temporizador -->
+              <a-entity timer-trigger="
+    minX: -16.6;
+    maxX: 15.85;
+    minZ: -28.75;
+    maxZ: 3.05;
+    hito: reto_setas_completado">
+              </a-entity>
+       </a-scene>
 </body>
+
 </html>

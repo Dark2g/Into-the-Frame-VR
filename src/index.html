@@ -10,93 +10,13 @@
   <!-- Ammo.js physics -->
   <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
-
+  <script src="js/door_funtions.js"></script>
+  <link rel="stylesheet" href="css/door-funtions.css">
+  
   <style>
     body { margin: 0; overflow: hidden; }
 
-    /* ── Overlay: título de bienvenida ── */
-    #hud-title {
-      position: fixed;
-      top: 20px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      pointer-events: none;
-      text-align: center;
-      font-family: 'Georgia', serif;
-      animation: fadeTitle 6s ease forwards;
-    }
-    #hud-title h1 {
-      font-size: clamp(1.4rem, 4vw, 2.6rem);
-      color: #f7e7a0;
-      text-shadow: 0 0 20px rgba(201,168,76,0.6), 0 2px 8px rgba(0,0,0,0.8);
-      letter-spacing: 3px;
-      margin: 0;
-    }
-    #hud-title p {
-      font-size: clamp(0.8rem, 1.8vw, 1rem);
-      color: #c9a84c;
-      margin-top: 4px;
-      font-style: italic;
-      letter-spacing: 2px;
-    }
-    @keyframes fadeTitle {
-      0%   { opacity: 0; transform: translateX(-50%) translateY(-20px); }
-      15%  { opacity: 1; transform: translateX(-50%) translateY(0); }
-      80%  { opacity: 1; }
-      100% { opacity: 0; }
-    }
-
-    /* ── Indicador de puerta cercana ── */
-    #hud-door {
-      position: fixed;
-      bottom: 30px; left: 50%;
-      transform: translateX(-50%);
-      z-index: 10;
-      pointer-events: none;
-      font-family: 'Georgia', serif;
-      font-size: clamp(1rem, 2.5vw, 1.4rem);
-      color: #fff;
-      text-shadow: 0 0 15px rgba(255,255,255,0.5), 0 2px 6px rgba(0,0,0,0.9);
-      letter-spacing: 2px;
-      opacity: 0;
-      transition: opacity 0.4s ease;
-      text-align: center;
-      background: rgba(0,0,0,0.35);
-      padding: 10px 28px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-    }
-    #hud-door.visible { opacity: 1; }
-
-    /* ── Pantalla de carga al cruzar ── */
-    #loading-screen {
-      position: fixed; inset: 0;
-      z-index: 100;
-      background: #000;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.6s ease;
-      font-family: 'Georgia', serif;
-    }
-    #loading-screen.active {
-      opacity: 1;
-      pointer-events: all;
-    }
-    #loading-screen h2 {
-      color: #f7e7a0;
-      font-size: 1.6rem;
-      letter-spacing: 3px;
-      margin-bottom: 14px;
-    }
-    #loading-screen .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid rgba(201,168,76,0.2);
-      border-top-color: #c9a84c;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
+   
     @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
@@ -319,88 +239,8 @@
       }
     });
 
-    /* ─────────────────────────────────────────────
-       Componente: door-portal (datos de cada puerta)
-       ───────────────────────────────────────────── */
-    AFRAME.registerComponent('door-portal', {
-      schema: {
-        scene: { type: 'string' },
-        label: { type: 'string', default: '' }
-      }
-    });
 
-    /* ─────────────────────────────────────────────
-       Componente: door-detector (en el jugador)
-       Detecta proximidad y cruce de puertas
-       ───────────────────────────────────────────── */
-    AFRAME.registerComponent('door-detector', {
-      init() {
-        this.doorEntities = [];
-        this.hudDoor = document.getElementById('hud-door');
-        this.loadingScreen = document.getElementById('loading-screen');
-        this.isTransitioning = false;
-        this.playerPos = new THREE.Vector3();
-        this.doorPos   = new THREE.Vector3();
-
-        // Collect doors after scene loads
-        this.el.sceneEl.addEventListener('loaded', () => {
-          this.doorEntities = Array.from(document.querySelectorAll('[door-portal]'));
-        });
-      },
-
-      tick() {
-        if (this.isTransitioning) return;
-        if (this.doorEntities.length === 0) return;
-
-        this.el.object3D.getWorldPosition(this.playerPos);
-
-        let closestDoor = null;
-        let closestDist = Infinity;
-
-        for (const doorEl of this.doorEntities) {
-          doorEl.object3D.getWorldPosition(this.doorPos);
-
-          const dx = this.playerPos.x - this.doorPos.x;
-          const dz = this.playerPos.z - this.doorPos.z;
-          const dist = Math.sqrt(dx * dx + dz * dz);
-
-          if (dist < closestDist) {
-            closestDist = dist;
-            closestDoor = doorEl;
-          }
-        }
-
-        // Show label when close (< 6m)
-        if (closestDoor && closestDist < 6) {
-          const data = closestDoor.getAttribute('door-portal');
-          this.hudDoor.textContent = '[ ' + data.label + ' ] — Acercate para entrar';
-          this.hudDoor.classList.add('visible');
-        } else {
-          this.hudDoor.classList.remove('visible');
-        }
-
-        // Cross threshold (< 1.8m) → navigate
-        if (closestDoor && closestDist < 1.8) {
-          this.enterDoor(closestDoor);
-        }
-      },
-
-      enterDoor(doorEl) {
-        this.isTransitioning = true;
-        const data = doorEl.getAttribute('door-portal');
-
-        // Show loading screen
-        this.loadingScreen.querySelector('h2').textContent = data.label;
-        this.loadingScreen.classList.add('active');
-        this.hudDoor.classList.remove('visible');
-
-        // Navigate after brief transition
-        setTimeout(() => {
-          window.location.href = data.scene;
-        }, 800);
-      }
-    });
-
+    
     /* ─────────────────────────────────────────────
        Partículas 3D flotantes
        ───────────────────────────────────────────── */
