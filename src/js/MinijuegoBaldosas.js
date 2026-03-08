@@ -18,11 +18,11 @@ AFRAME.registerComponent('seguridad-plataforma', {
     var pos = this.el.getAttribute('position');
     
     // Límites laterales (paredes invisibles) en todo el recorrido
-    if (pos.x < -13.5) pos.x = -13.5;
-    if (pos.x > 13.5) pos.x = 13.5;
+    if (pos.x < -55) pos.x = -55;
+    if (pos.x > 55) pos.x = 55;
     
     // Límite trasero (solo para no caerse hacia atrás en el spawn)
-    if (pos.z > 7.8) pos.z = 7.8;
+    if (pos.z > 55) pos.z = 55;
     
     this.el.setAttribute('position', pos);
   }
@@ -183,7 +183,7 @@ AFRAME.registerComponent('gravedad-camara', {
 
     // --- RESPAWN ---
     if (pos.y < -5) {
-      pos.x = 0; pos.y = 15.0; pos.z = 4.5;
+      pos.x = 0; pos.y = 20.0; pos.z = 50;
       this.velocity = 0;
       this.isDead = false;
       this.lastCoords = 'suelo'; // Forzamos reseteo del lastCoords

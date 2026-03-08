@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Ejemplo A-Frame - Camino de Símbolos</title>
+  <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+  <!-- Baldosas-->
+  <script
+    src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
+  <script src="js/MinijuegoBaldosas.js"></script>
+  <!-- Baldosas-->
+  <!-- Ajedrez -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.1/chess.min.js"></script>
+  <script src="js/chess.js" defer></script>
+  <!-- Ajedrez -->
+
+  <!-- Baldosas-->
+  <style>
+    /* Animación para simular que el personaje habla/se mueve */
+    @keyframes hablar {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      25% {
+        transform: rotate(-10deg);
+      }
+
+      75% {
+        transform: rotate(10deg);
+      }
+
+      100% {
+        transform: rotate(0deg);
+      }
+    }
+  </style>
+  <!-- Baldosas-->
+  <style>
+    #btn-hub {
+      position: fixed;
+      top: 14px;
+      left: 14px;
+      z-index: 999;
+      padding: 8px 18px;
+      background: rgba(15, 10, 25, .85);
+      border: 1px solid rgba(201, 168, 76, .4);
+      border-radius: 10px;
+      color: #f0e6d3;
+      font-family: Georgia, serif;
+      font-size: .85rem;
+      cursor: pointer;
+      backdrop-filter: blur(6px);
+      letter-spacing: 1px;
+      transition: background .3s, border-color .3s, transform .2s
+    }
+
+    #btn-hub:hover {
+      background: rgba(30, 20, 50, .95);
+      border-color: #c9a84c;
+      transform: scale(1.05)
+    }
+  </style>
+</head>
+
+<body>
+  <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
+  <!-- BALDOSAS HUD-->
+  <div id="hud-level" style="
+      position: fixed; 
+      top: 3vh; 
+      left: 50%; 
+      transform: translateX(-50%);
+      z-index: 9999; 
+      display: flex; 
+      align-items: flex-start;
+      width: 90vw;
+      max-width: 1200px;
+      justify-content: center;
+      pointer-events: none;">
+    <img id="hud-img" src="../assets/2D/reinaminiatura.png" style="
+        width: clamp(120px, 15vw, 300px); 
+        height: clamp(120px, 15vw, 300px); 
+        object-fit: contain;
+        flex-shrink: 0;
+        animation: hablar 1s infinite ease-in-out;">
+
+    <div style="
+        position: relative;
+        margin-left: clamp(10px, 2vw, 20px); 
+        margin-top: clamp(10px, 2vw, 20px); 
+        background-color: white; 
+        color: black; 
+        padding: clamp(12px, 1.5vw, 25px) clamp(15px, 2vw, 30px); 
+        border-radius: 20px;
+        border: clamp(2px, 0.3vw, 4px) solid black;
+        font-family: sans-serif; 
+        font-size: clamp(16px, 1.8vw, 35px); 
+        font-weight: bold;
+        max-width: 60vw;
+        pointer-events: auto;">
+      <span id="row-display">Inicio</span>
+
+      <div style="
+          position: absolute;
+          left: -10px;
+          top: clamp(15px, 2.5vw, 30px);
+          width: 0; 
+          height: 0; 
+          border-top: 10px solid transparent;
+          border-bottom: 10px solid transparent; 
+          border-right: 10px solid white;">
+      </div>
+    </div>
+  </div>
+  <!-- BALDOSAS HUD-->
+
+  <!-- ASSETS -->
+  <a-assets>
+    <a-asset-item id="pawn-w" src="../assets/models/Lajara/GLB/PeonBlanco.glb"></a-asset-item>
+    <a-asset-item id="pawn-b" src="../assets/models/Lajara/GLB/PeonNegro.glb"></a-asset-item>
+    <a-asset-item id="rook-w" src="../assets/models/Lajara/GLB/TorreBlanco.glb"></a-asset-item>
+    <a-asset-item id="rook-b" src="../assets/models/Lajara/GLB/TorreNegro.glb"></a-asset-item>
+    <a-asset-item id="knight-w" src="../assets/models/Lajara/GLB/CaballoBlanco.glb"></a-asset-item>
+    <a-asset-item id="knight-b" src="../assets/models/Lajara/GLB/CaballoNegro.glb"></a-asset-item>
+    <a-asset-item id="bishop-w" src="../assets/models/Lajara/GLB/AlfilBlanco.glb"></a-asset-item>
+    <a-asset-item id="bishop-b" src="../assets/models/Lajara/GLB/AlfilNegro.glb"></a-asset-item>
+    <a-asset-item id="queen-w" src="../assets/models/Lajara/GLB/ReinaBlanco.glb"></a-asset-item>
+    <a-asset-item id="queen-b" src="../assets/models/Lajara/GLB/ReinaNegro.glb"></a-asset-item>
+    <a-asset-item id="king-w" src="../assets/models/Lajara/GLB/ReyBlanco.glb"></a-asset-item>
+    <a-asset-item id="king-b" src="../assets/models/Lajara/GLB/ReyNegro.glb"></a-asset-item>
+    <a-asset-item id="board-model" src="../assets/models/Lajara/GLB/Tablero.glb"></a-asset-item>
+    <a-asset-item id="castillo" src="../assets/models/Lajara/GLB/CastilloAlicia4-2.glb"></a-asset-item>
+  </a-assets>
+  <!-- ASSETS -->
+  <!-- -----------SCENE------------- -->
+  <a-scene physics="debug: false; gravity: -9.8" cursor="rayOrigin: mouse">
+
+    <!-- Tablero -->
+    <a-entity position="0 12.5 4"></a-entity>
+    <!--<a-entity camera position="0 12.5 10" rotation="-45 0 0"></a-entity>-->
+    <a-entity id="board" gltf-model="#board-model" position="-53 11.8 41.5" rotation="0 0 0" raycaster="objects: none"
+      scale="1 1 1">
+    </a-entity>
+    <!-- Tablero -->
+
+    <!-- Piezas -->
+    <a-entity id="pieces" position="-53 11.6 41.5" scale="0.9 0.9 0.9"></a-entity>
+    <!-- Piezas -->
+    
+    <!-- Ajedrez -->
+    <!-- Castillo-->
+    <a-entity id="Castillo" gltf-model="#castillo" position="1 11.5 1" rotation="0 90 0" raycaster="objects: none"
+      scale="2 2 2">
+    </a-entity>
+    <!-- Castillo-->
+    <!-- Baldosas-->
+    <a-plane position="0 0 0" rotation="-90 0 0" width="200" height="200" color="#263066" static-body></a-plane>
+
+    <a-box class="suelo" position="0 11.5 15.4" width="120" height="1" depth="190" color="#555" visible="false"
+      static-body></a-box>
+
+    <a-box class="suelo-final" position="0 11.5 -275" width="120" height="1" depth="50" color="#555" visible="false"
+      static-body></a-box>
+
+    <a-camera position="0 20 4.5" wasd-controls="acceleration: 60" gravedad-camara seguridad-plataforma
+      cursor="rayOrigin: mouse" raycaster="objects: [data-raycastable]; interval: 100">
+    </a-camera>
+
+    <a-entity id="grid-container" position="0 12 -85" scale="2.05 2.05 2.05"></a-entity>
+
+    <a-sky color="#ECECEC"></a-sky>
+    <!-- Baldosas-->
+  </a-scene>
+  <!-- -----------SCENE------------- -->
+</body>
+
+</html>

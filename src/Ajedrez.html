@@ -15,10 +15,7 @@
   <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
   <a-scene cursor="rayOrigin: mouse">
     <a-entity position="0 1.6 4">
-    <a-camera 
-	  cursor="rayOrigin: mouse"
-	  raycaster="objects: [data-raycastable]; interval: 100">
-	</a-camera>
+      <a-camera cursor="rayOrigin: mouse" raycaster="objects: [data-raycastable]; interval: 100"></a-camera>
     </a-entity>
 
     <a-assets>
@@ -36,7 +33,7 @@
         <a-asset-item id="king-b" src="../assets/models/Lajara/GLB/ReyNegro.glb"></a-asset-item>
         <a-asset-item id="board-model" src="../assets/models/Lajara/GLB/Tablero.glb"></a-asset-item>
        
-      </a-assets>
+    </a-assets>
 
     <a-entity camera position="0 8 10" rotation="-45 0 0"></a-entity>
 
