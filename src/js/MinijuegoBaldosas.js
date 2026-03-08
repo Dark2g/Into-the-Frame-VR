@@ -93,7 +93,7 @@ AFRAME.registerComponent('gravedad-camara', {
     this.velocity = 0;
     this.onGround = false;
     // Altura Y absoluta y fija a la que se mantendrá la cámara.<------------------------ TOCAR PARA AJUSTAR AL ALTURA DE LA CAMARA -----------------------
-    this.absoluteHeight = 20.0; 
+    this.absoluteHeight = 12; //
     this.isDead = false;
 
     // Configuración del Raycaster: un "rayo" que se lanza hacia abajo para detectar el suelo.
@@ -210,7 +210,7 @@ AFRAME.registerComponent('gravedad-camara', {
 
     // --- DETECCIÓN DE CAÍDA Y JUMPSCARE ---
     // Si la cámara baja de Y=10 y no estamos ya "muertos".
-    if (pos.y < 10 && !this.isDead) {
+    if (pos.y < -3 && !this.isDead) {
       this.isDead = true;
       var hudImg = document.querySelector('#hud-img');
       if (hudImg) {
@@ -233,9 +233,9 @@ AFRAME.registerComponent('gravedad-camara', {
 
     // --- LÓGICA DE RESPAWN ---
     // Si la cámara baja de Y=-5, el jugador ha caído lo suficiente.
-    if (pos.y < -5) {
+    if (pos.y < -10) {
       // Reseteamos la posición del jugador al punto de inicio.
-      pos.x = 0; pos.y = 20.0; pos.z = 50;
+      pos.x = 0; pos.y = 20.0; pos.z = -35;
       this.velocity = 0;
       this.isDead = false;
       this.lastCoords = 'suelo'; // Reseteamos la última coordenada para que la lógica del HUD se reinicie.
