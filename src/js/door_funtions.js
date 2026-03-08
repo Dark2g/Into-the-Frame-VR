@@ -49,8 +49,11 @@ AFRAME.registerComponent('door-portal', {
         // Show label when close (< 6m)
         if (closestDoor && closestDist < 6) {
           const data = closestDoor.getAttribute('door-portal');
-          this.hudDoor.textContent = '[ ' + data.label + ' ] — Acercate para entrar';
+          if(data.label!=""){
+            this.hudDoor.textContent = '[ ' + data.label + ' ] — Acercate para entrar';
           this.hudDoor.classList.add('visible');
+          }
+          
         } else {
           this.hudDoor.classList.remove('visible');
         }

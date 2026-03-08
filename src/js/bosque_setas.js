@@ -32,13 +32,33 @@ AFRAME.registerComponent('puzzle_patron-manager', {
     },
 
     openDoor() {
-        const door = document.querySelector('#door');
-        door.setAttribute('animation__open', {
-            property: 'position',
-            to: '0.5 0 -37',
+
+        const left = document.querySelector('#door-left-pivot');
+        const right = document.querySelector('#door-right-pivot');
+
+        if (!left || !right) return;
+
+        const leftDoor = document.querySelector('#door-left');
+        const rightDoor = document.querySelector('#door-right');
+
+        // quitar collider al abrir
+        if (leftDoor) leftDoor.removeAttribute("ammo-body");
+        if (rightDoor) rightDoor.removeAttribute("ammo-body");
+
+        left.setAttribute('animation__open', {
+            property: 'rotation',
+            to: '0 -90 0',
             dur: 1200,
             easing: 'easeOutQuad'
         });
+
+        right.setAttribute('animation__open', {
+            property: 'rotation',
+            to: '0 90 0',
+            dur: 1200,
+            easing: 'easeOutQuad'
+        });
+
     },
 
     reset() {
@@ -113,20 +133,27 @@ AFRAME.registerComponent("candado", {
             if (uiElements.container) {
                 uiElements.container.remove();
             }
+            removeFog();
+            const left = document.querySelector("#door2-left-pivot");
+            const right = document.querySelector("#door2-right-pivot");
+            const leftDoor = document.querySelector('#door2-left');
+            const rightDoor = document.querySelector('#door2-right');
 
-            const door = this.el.closest("#door2").querySelector("a-box");
-            door.setAttribute("animation__open", {
-                property: "position",
-                to: "0 -3 0",
+            // quitar collider al abrir
+            if (leftDoor) leftDoor.removeAttribute("ammo-body");
+            if (rightDoor) rightDoor.removeAttribute("ammo-body");
+            left.setAttribute("animation__open", {
+                property: "rotation",
+                to: "0 -51 0",
                 dur: 1200,
                 easing: "easeOutQuad"
             });
 
-            this.el.setAttribute("animation__break", {
-                property: "scale",
-                to: "0 0 0",
-                dur: 300,
-                easing: "easeInQuad"
+            right.setAttribute("animation__open", {
+                property: "rotation",
+                to: "0 51 0",
+                dur: 1200,
+                easing: "easeOutQuad"
             });
 
             setTimeout(() => this.el.remove(), 300);
@@ -167,18 +194,35 @@ async function initGame() {
     // Restaurar estado guardado en Dexie (llave/candado)
     try {
         if (await db.hitos.get("reto_setas_completado")) {
+
             const candadoEl = document.querySelector("[candado]");
             if (candadoEl) candadoEl.remove();
-            const puerta = document.querySelector("#door2");
-            if (puerta) {
-                const pos = puerta.getAttribute("position");
-                puerta.setAttribute("animation__open", {
-                    property: "position",
-                    to: `${pos.x} ${pos.y - 5} ${pos.z}`,
-                    dur: 1200,
-                    easing: "easeOutQuad"
-                });
+
+            const left = document.querySelector("#door2-left-pivot");
+            const right = document.querySelector("#door2-right-pivot");
+
+            const leftDoor = document.querySelector("#door2-left");
+            const rightDoor = document.querySelector("#door2-right");
+
+            if (leftDoor) leftDoor.removeAttribute("ammo-body");
+            if (rightDoor) rightDoor.removeAttribute("ammo-body");
+
+            const open = () => {
+
+                if (leftDoor) leftDoor.removeAttribute("ammo-body");
+                if (rightDoor) rightDoor.removeAttribute("ammo-body");
+
+                left.setAttribute("rotation", "0 -51 0");
+                right.setAttribute("rotation", "0 51 0");
+
+            };
+
+            if (leftDoor && leftDoor.hasLoaded) {
+                open();
+            } else if (leftDoor) {
+                leftDoor.addEventListener("model-loaded", open);
             }
+
             const el = document.querySelector("[llave]");
             if (el) el.remove();
         }
@@ -188,20 +232,29 @@ async function initGame() {
         }
         if (await db.hitos.get("reto_patrones_completado")) {
 
-            const puerta = document.querySelector('#door');
+            const left = document.querySelector('#door-left-pivot');
+            const right = document.querySelector('#door-right-pivot');
 
-            if (puerta) {
+            const leftDoor = document.querySelector('#door-left');
+            const rightDoor = document.querySelector('#door-right');
 
-                const pos = puerta.getAttribute("position");
+            const open = () => {
 
-                puerta.setAttribute("animation__open", {
-                    property: "position",
-                    to: `${pos.x} ${pos.y - 5} ${pos.z}`,
-                    dur: 1200,
-                    easing: "easeOutQuad"
-                });
+                if (leftDoor) leftDoor.removeAttribute("ammo-body");
+                if (rightDoor) rightDoor.removeAttribute("ammo-body");
 
+                left.setAttribute('rotation', '0 -90 0');
+                right.setAttribute('rotation', '0 90 0');
+
+            };
+
+            // esperar a que cargue el modelo
+            if (leftDoor.hasLoaded) {
+                open();
+            } else {
+                leftDoor.addEventListener("model-loaded", open);
             }
+
         }
     } catch (err) {
         console.warn('[GAME] Error al restaurar estado de Dexie:', err);
@@ -287,7 +340,7 @@ function startTimer() {
  * Usa distancia horizontal (XZ) ignorando la altura (Y)
  */
 function startProximityCheck() {
-    const camera = document.querySelector('a-camera');
+    const camera = document.querySelector('#cam');
     const mushrooms = document.querySelectorAll('.mushroom');
 
     // guardar posiciones solo la primera vez
@@ -434,45 +487,45 @@ AFRAME.registerComponent('colision-ammo', {
     }
 });
 
-AFRAME.registerComponent('player-move', {
-    init() {
-        this.keys = {};
-        window.addEventListener('keydown', e => this.keys[e.code] = true);
-        window.addEventListener('keyup', e => this.keys[e.code] = false);
-    },
-    tick() {
-        const body = this.el.body;
-        if (!body) return; // Espera a que nazca el cuerpo físico
+// AFRAME.registerComponent('player-move', {
+//     init() {
+//         this.keys = {};
+//         window.addEventListener('keydown', e => this.keys[e.code] = true);
+//         window.addEventListener('keyup', e => this.keys[e.code] = false);
+//     },
+//     tick() {
+//         const body = this.el.body;
+//         if (!body) return; // Espera a que nazca el cuerpo físico
 
-        const cam = document.querySelector('#cam');
-        if (!cam) return;
+//         const cam = document.querySelector('#cam');
+//         if (!cam) return;
 
-        // Calculamos hacia dónde mira la cámara
-        const dir = new THREE.Vector3();
-        cam.object3D.getWorldDirection(dir);
-        dir.y = 0;
-        dir.normalize();
+//         // Calculamos hacia dónde mira la cámara
+//         const dir = new THREE.Vector3();
+//         cam.object3D.getWorldDirection(dir);
+//         dir.y = 0;
+//         dir.normalize();
 
-        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+//         const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
 
-        const speed = 4; // Velocidad del jugador
-        let vx = 0, vz = 0;
+//         const speed = 4; // Velocidad del jugador
+//         let vx = 0, vz = 0;
 
-        // Controles WASD
-        if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
-        if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
-        if (this.keys.KeyA) { vx += right.x; vz += right.z; }
-        if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
+//         // Controles WASD
+//         if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
+//         if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
+//         if (this.keys.KeyA) { vx += right.x; vz += right.z; }
+//         if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
 
-        // Aplicamos la velocidad usando Ammo.js
-        const vel = body.getLinearVelocity();
-        body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
+//         // Aplicamos la velocidad usando Ammo.js
+//         const vel = body.getLinearVelocity();
+//         body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
 
-        // Magia negra de Ammo para evitar que el jugador se "duerma" (kinematic flag)
-        body.setCollisionFlags(body.getCollisionFlags() & ~2);
-        body.activate();
-    }
-});
+//         // Magia negra de Ammo para evitar que el jugador se "duerma" (kinematic flag)
+//         body.setCollisionFlags(body.getCollisionFlags() & ~2);
+//         body.activate();
+//     }
+// });
 //inicializar timer cuando pases de cierta zona
 AFRAME.registerComponent('timer-trigger', {
     schema: {
@@ -539,7 +592,7 @@ function startChallenge() {
     if (!uiElements.container) {
         createUI();
     }
-
+    activateFog();
     uiElements.timer.textContent = "Tiempo: 30s";
     uiElements.timer.style.color = "#333";
 
@@ -567,7 +620,7 @@ function resetChallenge() {
                 gameState.startPosition.z
             )
         );
-
+        removeFog();
         player.body.setWorldTransform(transform);
         player.body.getMotionState().setWorldTransform(transform);
 
@@ -587,25 +640,43 @@ function respawnMushrooms() {
 
         mushroom.classList.add("mushroom");
 
-        if (data.type === "special") {
-            mushroom.classList.add("special");
-        }
 
         mushroom.setAttribute("data-mushroom-type", data.type);
-
-        mushroom.setAttribute("position",
+        mushroom.setAttribute(
+            "position",
             `${data.position.x} ${data.position.y} ${data.position.z}`
         );
 
-        mushroom.setAttribute("gltf-model", "#mushroomModel");
+        // modelo interno (offset corregido)
+        const model = document.createElement("a-entity");
 
-        mushroom.setAttribute(
-            "animation__rotate",
-            "property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"
-        );
+        model.setAttribute("gltf-model", "#mushroomModel");
+        model.setAttribute("position", "2.517 -4.564 11.264");
+        model.setAttribute("scale", "0.35 0.35 0.35");
+
+        mushroom.appendChild(model);
 
         document.querySelector("a-scene").appendChild(mushroom);
 
     });
+
+}
+function activateFog() {
+
+    const scene = document.querySelector("a-scene");
+
+    scene.setAttribute("fog", {
+        type: "exponential",
+        color: "#4B1E6E",
+        density: 0.5
+    });
+
+}
+
+function removeFog() {
+
+    const scene = document.querySelector("a-scene");
+
+    scene.removeAttribute("fog");
 
 }
