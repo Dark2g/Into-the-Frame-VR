@@ -3,9 +3,9 @@ const db = new Dexie("JuegoDB");
 
 db.version(1).stores({
     inventario: "id, tipo",
-    hitos:"id"
+    hitos: "id"
 });
-
+let mushroomSpawns = [];
 
 //registro componente gestor patron 
 AFRAME.registerComponent('puzzle_patron-manager', {
@@ -18,11 +18,12 @@ AFRAME.registerComponent('puzzle_patron-manager', {
         });
     },
 
-    check(id) {
+    async check(id) {
         if (id === this.order[this.step]) {
             this.step++;
 
             if (this.step === this.order.length) {
+                await db.hitos.put({ id: "reto_patrones_completado" })
                 this.openDoor();
             }
         } else {
@@ -34,7 +35,7 @@ AFRAME.registerComponent('puzzle_patron-manager', {
         const door = document.querySelector('#door');
         door.setAttribute('animation__open', {
             property: 'position',
-            to: '0 3 0',
+            to: '0.5 0 -37',
             dur: 1200,
             easing: 'easeOutQuad'
         });
@@ -98,8 +99,21 @@ AFRAME.registerComponent("candado", {
 
             // Consumir llave
             await db.inventario.delete(this.data.llave);
-            await db.hitos.put({id:"puerta_roja_abierta"})
+            await db.hitos.put({ id: "reto_setas_completado" })
             console.log(" Candado abierto");
+
+            // detener contador
+            gameState.isActive = false;
+
+            if (gameState.timerInterval) {
+                clearInterval(gameState.timerInterval);
+                gameState.timerInterval = null;
+            }
+
+            if (uiElements.container) {
+                uiElements.container.remove();
+            }
+
             const door = this.el.closest("#door2").querySelector("a-box");
             door.setAttribute("animation__open", {
                 property: "position",
@@ -124,6 +138,7 @@ AFRAME.registerComponent("candado", {
 // CONTADOR DE SETAS
 
 let gameState = {
+    startPosition: null,
     timeRemaining: 30, // Segundos restantes
     isActive: false, // Si el juego está en marcha
     mushroomsCollected: 0, // Cantidad de setas normales recogidas
@@ -136,7 +151,7 @@ let uiElements = {
     timer: null
 };
 
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', async function () {
     const scene = document.querySelector('a-scene');
 
     if (scene.hasLoaded) {
@@ -151,33 +166,48 @@ document.addEventListener('DOMContentLoaded', function () {
 async function initGame() {
     // Restaurar estado guardado en Dexie (llave/candado)
     try {
-        if (await db.hitos.get("puerta_roja_abierta")) {
+        if (await db.hitos.get("reto_setas_completado")) {
             const candadoEl = document.querySelector("[candado]");
             if (candadoEl) candadoEl.remove();
             const puerta = document.querySelector("#door2");
             if (puerta) {
                 const pos = puerta.getAttribute("position");
-                puerta.setAttribute("position", {
-                    x: pos.x,
-                    y: pos.y - 3,
-                    z: pos.z
+                puerta.setAttribute("animation__open", {
+                    property: "position",
+                    to: `${pos.x} ${pos.y - 5} ${pos.z}`,
+                    dur: 1200,
+                    easing: "easeOutQuad"
                 });
             }
             const el = document.querySelector("[llave]");
             if (el) el.remove();
         }
-        if (await db.inventario.get("llave_roja")) {
+        if (await db.inventario.get("llave_roja") || await db.hitos.get("reto_setas_completado")) {
             const el = document.querySelector("[llave]");
             if (el) el.remove();
+        }
+        if (await db.hitos.get("reto_patrones_completado")) {
+
+            const puerta = document.querySelector('#door');
+
+            if (puerta) {
+
+                const pos = puerta.getAttribute("position");
+
+                puerta.setAttribute("animation__open", {
+                    property: "position",
+                    to: `${pos.x} ${pos.y - 5} ${pos.z}`,
+                    dur: 1200,
+                    easing: "easeOutQuad"
+                });
+
+            }
         }
     } catch (err) {
         console.warn('[GAME] Error al restaurar estado de Dexie:', err);
     }
 
-    // Siempre iniciar el contador y el sistema de recogida de setas
-    createUI();
-    startTimer();
-    startProximityCheck();
+
 
     gameState.isActive = true;
     console.log('[GAME] Juego iniciado');
@@ -213,19 +243,23 @@ function createUI() {
 }
 
 function startTimer() {
+
+    // evitar múltiples timers
+    if (gameState.timerInterval) return;
+
     gameState.timerInterval = setInterval(function () {
+
         if (!gameState.isActive) {
             clearInterval(gameState.timerInterval);
+            gameState.timerInterval = null;
             return;
         }
 
         gameState.timeRemaining--;
 
-        // Actualizar UI del timer
         if (uiElements.timer) {
             uiElements.timer.textContent = 'Tiempo: ' + gameState.timeRemaining + 's';
 
-            // Cambiar a rojo cuando quedan 10 segundos
             if (gameState.timeRemaining <= 10) {
                 uiElements.timer.style.color = '#E74C3C';
             } else {
@@ -233,17 +267,20 @@ function startTimer() {
             }
         }
 
-        console.log('[TIMER] Tiempo restante:', gameState.timeRemaining);
-
-        // Cuando llega a 0, se detiene sin mensaje
         if (gameState.timeRemaining <= 0) {
+
             console.log('[TIMER] Tiempo agotado');
+
             gameState.isActive = false;
+
             clearInterval(gameState.timerInterval);
+            gameState.timerInterval = null;
+
+            resetChallenge();
         }
+
     }, 1000);
 }
-
 /**
  * SISTEMA DE DETECCIÓN DE PROXIMIDAD
  * Revisa constantemente la distancia del jugador a las setas
@@ -252,6 +289,22 @@ function startTimer() {
 function startProximityCheck() {
     const camera = document.querySelector('a-camera');
     const mushrooms = document.querySelectorAll('.mushroom');
+
+    // guardar posiciones solo la primera vez
+    if (mushroomSpawns.length === 0) {
+
+        mushrooms.forEach(m => {
+
+            const pos = m.getAttribute("position");
+
+            mushroomSpawns.push({
+                type: m.getAttribute("data-mushroom-type"),
+                position: { x: pos.x, y: pos.y, z: pos.z }
+            });
+
+        });
+
+    }
 
     if (!camera) {
         console.error('[ERROR] No se encontró la cámara');
@@ -414,9 +467,145 @@ AFRAME.registerComponent('player-move', {
         // Aplicamos la velocidad usando Ammo.js
         const vel = body.getLinearVelocity();
         body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
-        
+
         // Magia negra de Ammo para evitar que el jugador se "duerma" (kinematic flag)
-        body.setCollisionFlags(body.getCollisionFlags() & ~2); 
-        body.activate(); 
+        body.setCollisionFlags(body.getCollisionFlags() & ~2);
+        body.activate();
     }
 });
+//inicializar timer cuando pases de cierta zona
+AFRAME.registerComponent('timer-trigger', {
+    schema: {
+        minX: { type: 'number' },
+        maxX: { type: 'number' },
+        minZ: { type: 'number' },
+        maxZ: { type: 'number' },
+        hito: { type: 'string' }
+    },
+
+    init() {
+        this.player = document.querySelector('#player');
+        this.playerPos = new THREE.Vector3();
+        this.triggered = false;
+    },
+
+    async tick() {
+        if (this.triggered || !this.player) return;
+
+        // si el hito ya está completado → no hacer nada
+        const done = await db.hitos.get(this.data.hito);
+        if (done) {
+            this.triggered = true;
+            return;
+        }
+
+        this.player.object3D.getWorldPosition(this.playerPos);
+
+        const x = this.playerPos.x;
+        const z = this.playerPos.z;
+        if (
+            !this.triggered &&
+            x >= this.data.minX &&
+            x <= this.data.maxX &&
+            z >= this.data.minZ &&
+            z <= this.data.maxZ
+        ) {
+
+            this.triggered = true; // bloquear inmediatamente
+
+            console.log("[TRIGGER] Zona del minijuego alcanzada");
+            this.player.object3D.getWorldPosition(this.playerPos);
+
+            gameState.startPosition = {
+                x: this.playerPos.x,
+                y: this.playerPos.y,
+                z: this.playerPos.z
+            };
+            startChallenge();
+
+        }
+    }
+
+}
+
+)
+function startChallenge() {
+    gameState.collectedSet.clear();
+    gameState.timeRemaining = 30;
+    gameState.isActive = true;
+    gameState.mushroomsCollected = 0;
+    gameState.collectedSet.clear();
+
+    if (!uiElements.container) {
+        createUI();
+    }
+
+    uiElements.timer.textContent = "Tiempo: 30s";
+    uiElements.timer.style.color = "#333";
+
+    startTimer();
+    startProximityCheck();
+
+};
+function resetChallenge() {
+
+    console.log("[GAME] Reiniciando reto");
+
+    const player = document.querySelector("#player");
+
+    if (player && gameState.startPosition) {
+
+        player.body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
+
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+
+        transform.setOrigin(
+            new Ammo.btVector3(
+                gameState.startPosition.x,
+                gameState.startPosition.y,
+                gameState.startPosition.z
+            )
+        );
+
+        player.body.setWorldTransform(transform);
+        player.body.getMotionState().setWorldTransform(transform);
+
+    }
+
+    respawnMushrooms();
+    startChallenge();
+}
+function respawnMushrooms() {
+
+    // eliminar setas actuales
+    document.querySelectorAll(".mushroom").forEach(m => m.remove());
+
+    mushroomSpawns.forEach(data => {
+
+        const mushroom = document.createElement("a-entity");
+
+        mushroom.classList.add("mushroom");
+
+        if (data.type === "special") {
+            mushroom.classList.add("special");
+        }
+
+        mushroom.setAttribute("data-mushroom-type", data.type);
+
+        mushroom.setAttribute("position",
+            `${data.position.x} ${data.position.y} ${data.position.z}`
+        );
+
+        mushroom.setAttribute("gltf-model", "#mushroomModel");
+
+        mushroom.setAttribute(
+            "animation__rotate",
+            "property: rotation; to: 0 360 0; dur: 3000; loop: true; easing: linear"
+        );
+
+        document.querySelector("a-scene").appendChild(mushroom);
+
+    });
+
+}
