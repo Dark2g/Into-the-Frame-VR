@@ -17,8 +17,23 @@
   <style>
     #btn-hub{position:fixed;top:14px;left:14px;z-index:999;padding:8px 18px;background:rgba(15,10,25,.85);border:1px solid rgba(201,168,76,.4);border-radius:10px;color:#f0e6d3;font-family:Georgia,serif;font-size:.85rem;cursor:pointer;backdrop-filter:blur(6px);letter-spacing:1px;transition:background .3s,border-color .3s,transform .2s}#btn-hub:hover{background:rgba(30,20,50,.95);border-color:#c9a84c;transform:scale(1.05)}
   </style>
+
 </head>
 <body>
+    <div id="mensajePuzzle" style="
+        position: fixed;
+        top: 40%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 40px;
+        color: white;
+        background: rgba(0,0,0,0.7);
+        padding: 20px 40px;
+        border-radius: 10px;
+        display: none;
+        z-index: 999;
+        ">
+            </div>
     <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
 
     <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false">
@@ -34,31 +49,54 @@
                         player-move>
                 <a-entity id="cam" camera look-controls="pointerLockEnabled: false" position="0 0.8 0">
 
-                    <a-entity id="holder" position="0 -0.3 -1"></a-entity>
+                    <a-entity id="holder" position="0  -1"></a-entity>
                 </a-entity>
 
             </a-cylinder>
 
 
         </a-entity>
-        <a-box color="brown"
-               position="-38.430 0.5 -0.270"
-               animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"></a-box>
-        <a-box color="brown"
-               position="-4.954 0.5 -46.216"
-               animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva."></a-box>
-        <a-box color="brown"
-               position="-38.408 0.5 42.696"
-               animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? "></a-box>
-        <a-box color="brown"
-               position="0 0.5 47"
-               animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio."></a-box>
-        <a-box color="brown"
-               position="45.210 0.5 -28.792"
-               animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada"></a-box>
-        <a-box color="brown"
-               position="33.245 0.5 42.994"
-               animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida"></a-box>
+        <a-entity position="-38.430 -0.5 0.217" rotation="0 -90 0"
+                  animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Conejo.glb)"
+                      position="0 0 0">
+            </a-entity>
+        </a-entity>
+
+        <a-entity position="-5 -0.5 -45.506" rotation="0 -90 0"
+                  animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva.">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Buho.glb)"
+                      position="0 0 3.5">
+            </a-entity>
+        </a-entity>
+
+        <a-entity position="-38.408 -0.5 42.696"
+                  animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? ">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Perro.glb)"
+                      position="0 0 0">
+            </a-entity>
+        </a-entity>
+
+        <a-entity position="0 -0.5 47" rotation="0 90 0"
+                  animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio.">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Gato.glb)"
+                      position="2.5 0 0">
+            </a-entity>
+        </a-entity>
+
+        <a-entity position="45.210 -0.5 -28.792"
+                  animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Cerdo.glb)"
+                      position="0 0 0">
+            </a-entity>
+        </a-entity>
+
+        <a-entity position="33.245 -0.5 42.994"
+                  animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida">
+            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Gallina.glb)"
+                      position="0 0 0">
+            </a-entity>
+        </a-entity>
 
         <a-entity id="miModelo" gltf-model="url(../assets/models/Gabi/laberinto.glb)" position="0 0 0"></a-entity>
         <a-entity id="mesa" gltf-model="url(../assets/models/Gabi/Mesa.glb)" position="0 0 0"></a-entity>
@@ -69,30 +107,30 @@
 
 
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 0" class="asiento" asiento="tipo: Buho">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
 
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -12" class="asiento" asiento="tipo: null">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 -6" class="asiento" asiento="tipo: Conejo">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" position="0 0 6" class="asiento" asiento="tipo: Cerdo">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
 
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 5" class="asiento" asiento="tipo: null">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -2" class="asiento" asiento="tipo: Gato">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 11" class="asiento" asiento="tipo: Gallina">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
         <a-entity id="silla" gltf-model="url(../assets/models/Gabi/Silla.glb)" rotation="0 180 0" position="0 0 -8" class="asiento" asiento="tipo: Perro">
-            <a-entity class="seat-point" position="7.2 3 2.2"></a-entity>
+            <a-entity class="seat-point" position="6.820 1.670 2.2" rotation="0 -90 0"></a-entity>
         </a-entity>
 
 
@@ -120,12 +158,12 @@
 
             // Slots globales en el centro para evitar superposición
             const centroSlots = [
-                new THREE.Vector3(10, 0.5, -16),
-                new THREE.Vector3(8, 0.5, -16),
-                new THREE.Vector3(12, 0.5, -16),
-                new THREE.Vector3(14, 0.5, -16),
-                new THREE.Vector3(16, 0.5, -16),
-                new THREE.Vector3(18, 0.5, -16),
+                new THREE.Vector3(10, -0.5, -16),
+                new THREE.Vector3(8, -0.5, -16),
+                new THREE.Vector3(12, -0.5, -16),
+                new THREE.Vector3(14, -0.5, -16),
+                new THREE.Vector3(16, -0.5, -16),
+                new THREE.Vector3(18, -0.5, -16),
             ];
 
             // Componente unificado para animales
@@ -149,6 +187,7 @@
                             this.el.object3D.position.copy(slot);
                             this.centerPos = slot.clone();
                             this.state = "at-center";
+                            this.el.object3D.rotation.set(0, 0, 0);
                             console.log(`${this.data.tipo} teletransportado al centro`);
                         } else if (
                             this.state === "at-center" &&
@@ -177,7 +216,7 @@
                 tick: function () {
                     if (this.state === "holdable" && window.animalActivo === this.el) {
                         const cam = document.querySelector("#cam").object3D;
-                        const offset = new THREE.Vector3(0, -0.3, -3); // frente y un poco abajo
+                        const offset = new THREE.Vector3(0, -1.5, -3); // frente y un poco abajo
                         offset.applyQuaternion(cam.quaternion);
                         const camPos = cam.getWorldPosition(new THREE.Vector3());
                         this.el.object3D.position.copy(camPos.clone().add(offset));
@@ -190,7 +229,7 @@
                         this.el.setAttribute("scale", this.originalScale);
                         this.state = "at-center";
                         this.el.removeAttribute("placed");
-
+                        this.el.object3D.rotation.set(0, 0, 0);
                         if (this.el.assignedAsiento) {
                             this.el.assignedAsiento.ocupado = false;
                         }
@@ -253,16 +292,16 @@
                 animales.forEach((a) => {
                     const tipoAnimal = a.getAttribute("animal-interactive").tipo;
                     const asiento = a.assignedAsiento;
-                    // ACTUALIZAR comprobar que solo se puede sentar un animal en cada asiento
+
                     if (!asiento || asiento.data.tipo !== tipoAnimal) {
                         todosCorrectos = false;
                     }
                 });
 
                 if (todosCorrectos) {
-                    console.log("✔ Todos correctos. Nada que hacer.");
+                    mostrarMensaje("¡PUZLE COMPLETADO!")
                 } else {
-                    console.log("✖ Al menos uno está mal, reseteando todos");
+                    mostrarMensaje("PUZLE FALLADO")
                     animales.forEach((a) => {
                         a.components["animal-interactive"].resetToCenter();
                     });
@@ -270,25 +309,22 @@
             }
 
             function showDialogTakeAnimal(animalTipo, animalText, onTake, onLeave) {
-                // Desactivar movimiento al abrir
-                //setPlayerMovement(false);
+
 
                 window.dialogManager.show({
                     title: animalTipo,
                     content: `¿Quieres coger el ${animalTipo}?<br>${animalText}`,
                     showCloseButton: true,
                     gameStyle: true,
-                    darkBackground: true, // Corregido typo
+                    darkBackground: true, 
                     onClose: () => {
-                        // Reactivar movimiento al cerrar (por X o fondo)
-                        //setPlayerMovement(true);
+
                     },
                     buttons: [
                         {
                             text: "Coger",
                             callback: () => {
                                 if (onTake) onTake();
-                                //setPlayerMovement(true);
                             },
                         },
                         {
@@ -296,13 +332,22 @@
                             secondary: true,
                             callback: () => {
                                 if (onLeave) window.dialogManager.hide(() => onLeave());
-                                //setPlayerMovement(true);
+
                             },
                         },
                     ],
                 });
             }
 
+            function mostrarMensaje(texto) {
+                const cartel = document.getElementById("mensajePuzzle");
+                cartel.innerText = texto;
+                cartel.style.display = "block";
+
+                setTimeout(() => {
+                    cartel.style.display = "none";
+                }, 3000);
+            }
 
         </script>
 
@@ -310,7 +355,7 @@
 
 
 
-        <a-sky color="#ECECEC"></a-sky>
+        <a-sky color="#87CEEB"></a-sky>
     </a-scene>
 </body>
 </html>
