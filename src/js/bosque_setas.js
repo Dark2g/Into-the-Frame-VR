@@ -15,7 +15,7 @@ let mushroomSpawns = [];
 //registro componente gestor patron 
 AFRAME.registerComponent('puzzle_patron-manager', {
     init() {
-        this.order = [0, 1, 2, 3];
+        this.order = [2, 1, 0, 3];
         this.step = 0;
 
         this.el.sceneEl.addEventListener('puzzle-patron-press', (e) => {
@@ -671,7 +671,7 @@ function activateFog() {
     scene.setAttribute("fog", {
         type: "exponential",
         color: "#4B1E6E",
-        density: 0.5
+        density: 0.25
     });
 
 }
