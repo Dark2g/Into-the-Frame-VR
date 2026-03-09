@@ -66,12 +66,13 @@ AFRAME.registerComponent('baldosa-sensor', {
   init: function() {
     this.raycaster = new THREE.Raycaster();
     this.raycaster.ray.direction.set(0, -1, 0); // Rayo apuntando hacia abajo
-    this.raycaster.far = 3.0;
+    this.raycaster.far = 6.0; // El rig tiene scale 5 → jugador a y≈16, baldosas a y≈12, distancia ≈ 4
 
     this.frases = []; 
     this.coordenadasRuta = [];
     this.lastCoords = null;
     this.isDead = false;
+    this.hudShown = false;
   },
   tick: function () {
     var playerPos = new THREE.Vector3();
@@ -102,6 +103,13 @@ AFRAME.registerComponent('baldosa-sensor', {
         
         // --- SISTEMA DE DIÁLOGOS (PASO A PASO) ---
         if (hitEl && hitEl.classList.contains('baldosa')) {
+          // Mostrar HUD de pistas la primera vez que pisamos una baldosa
+          if (!this.hudShown) {
+            this.hudShown = true;
+            var hudLevel = document.querySelector('#hud-level');
+            if (hudLevel) hudLevel.style.display = 'flex';
+          }
+
           var coords = hitEl.getAttribute('data-coords');
 
           if (coords !== this.lastCoords) {
@@ -309,9 +317,9 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log("Ruta seleccionada:", rutaElegida.nombre);
 
   var patternImages = [
-    ['../assets/2d/Individual symbols/Clock.png', '../assets/2d/Individual symbols/Hole and Key.png', '../assets/2d/Individual symbols/Hat.png', '../assets/2d/Individual symbols/Clock.png', '../assets/2d/Individual symbols/Hole and Key.png', '../assets/2d/Individual symbols/Hat.png'],
-    ['../assets/2d/Individual symbols/Card.png', '../assets/2d/Individual symbols/Jelly.png', '../assets/2d/Individual symbols/Flower.png', '../assets/2d/Individual symbols/Card.png', '../assets/2d/Individual symbols/Jelly.png', '../assets/2d/Individual symbols/Flower.png'],
-    ['../assets/2d/Individual symbols/Cups.png', '../assets/2d/Individual symbols/Chessire.png', '../assets/2d/Individual symbols/Spade.png', '../assets/2d/Individual symbols/Cups.png', '../assets/2d/Individual symbols/Chessire.png', '../assets/2d/Individual symbols/Spade.png']
+    ['../assets/2d/Symbols/Individual symbols/Clock.png', '../assets/2d/Symbols/Individual symbols/Hole and Key.png', '../assets/2d/Symbols/Individual symbols/Hat.png', '../assets/2d/Symbols/Individual symbols/Clock.png', '../assets/2d/Symbols/Individual symbols/Hole and Key.png', '../assets/2d/Symbols/Individual symbols/Hat.png'],
+    ['../assets/2d/Symbols/Individual symbols/Card.png', '../assets/2d/Symbols/Individual symbols/Jelly.png', '../assets/2d/Symbols/Individual symbols/Flower.png', '../assets/2d/Symbols/Individual symbols/Card.png', '../assets/2d/Symbols/Individual symbols/Jelly.png', '../assets/2d/Symbols/Individual symbols/Flower.png'],
+    ['../assets/2d/Symbols/Individual symbols/Cups.png', '../assets/2d/Symbols/Individual symbols/Chessire.png', '../assets/2d/Symbols/Individual symbols/Spade.png', '../assets/2d/Symbols/Individual symbols/Cups.png', '../assets/2d/Symbols/Individual symbols/Chessire.png', '../assets/2d/Symbols/Individual symbols/Spade.png']
   ];
 
   if (container) {
@@ -353,14 +361,38 @@ document.addEventListener('DOMContentLoaded', function() {
           box.setAttribute('data-safe', 'false');
         }
 
-        // --- ÚNICAMENTE FÍSICAS DE AMMO.JS ---
-        box.setAttribute('ammo-body', 'type: static'); 
-        
-        // ¡LA SOLUCIÓN! Le decimos a Ammo.js el tamaño real (la mitad de 9.6x1x10)
-        box.setAttribute('ammo-shape', 'type: box; halfExtents: 4.8 0.5 5');
+        // NO añadir físicas aquí: las matrices del contenedor aún no están calculadas.
+        // Los cuerpos estáticos de Ammo leen la posición mundial UNA sola vez al inicializarse,
+        // así que si la añadimos antes de que Three.js compute las matrices, los colisionadores
+        // quedan en la posición LOCAL (y=-0.5) en vez de la MUNDIAL (y=11.5) y el jugador los atraviesa.
         
         container.appendChild(box);
       }
+    }
+
+    // --- AÑADIR FÍSICAS DESPUÉS DE QUE LA ESCENA ESTÉ LISTA ---
+    // Mismo patrón que 'colision-ammo': esperar a que la escena cargue y las matrices estén calculadas.
+    var sceneEl = document.querySelector('a-scene');
+    var addPhysicsToTiles = function() {
+      // Forzar actualización de matrices del contenedor y sus hijos
+      container.object3D.updateMatrixWorld(true);
+
+      setTimeout(function() {
+        var baldosas = container.querySelectorAll('.baldosa');
+        for (var i = 0; i < baldosas.length; i++) {
+          // No añadir físicas a baldosas que ya hayan caído (caso extremo)
+          if (baldosas[i].getAttribute('data-falling') === 'true') continue;
+          baldosas[i].setAttribute('ammo-body', 'type: static');
+          baldosas[i].setAttribute('ammo-shape', 'type: box; halfExtents: 4.8 0.5 5');
+        }
+        console.log("✅ Físicas de baldosas cargadas correctamente.");
+      }, 200);
+    };
+
+    if (sceneEl.hasLoaded) {
+      addPhysicsToTiles();
+    } else {
+      sceneEl.addEventListener('loaded', addPhysicsToTiles);
     }
   }
 
