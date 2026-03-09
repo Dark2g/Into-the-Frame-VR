@@ -150,6 +150,8 @@ AFRAME.registerComponent('baldosa-sensor', {
       }
 
       var hudText = document.querySelector('#row-display');
+
+      
       if (hudText && hudText.parentElement) {
         hudText.innerText = "¡TE EQUIVOCASTE!";
         hudText.parentElement.style.fontSize = 'clamp(30px, 4vw, 80px)';
@@ -408,6 +410,7 @@ document.addEventListener('DOMContentLoaded', function() {
       sensorEl.components['baldosa-sensor'].coordenadasRuta = rutaElegida.coordenadas;
       
       var hudText = document.querySelector('#row-display');
+      
       if (hudText && rutaElegida.frases.length > 0) {
          hudText.innerText = rutaElegida.frases[0];
       }
