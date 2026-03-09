@@ -699,7 +699,7 @@ function activateFog() {
     scene.setAttribute("fog", {
         type: "exponential",
         color: "#4B1E6E",
-        density: 0.25
+        density: 0.25,
     });
 
 }
