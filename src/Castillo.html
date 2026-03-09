@@ -255,12 +255,12 @@
     <a-asset-item id="llave" src="../assets/models/Lajara/GLB/Llave.glb"></a-asset-item>
 
     </a-assets>
+    
     <!-- ASSETS -->
-
     <a-entity id="player-rig" position="1 0 20" scale="5 5 5">
           <a-cylinder id="player" radius="0.3" height="1.6" rotation="0 0 0" position="0 12.8 0"
-                ammo-body="type: dynamic; mass: 2; linearDamping: 0.9; angularFactor: 0 0 0;"
-                ammo-shape="type: cylinder" visible="true" player-move door-detector respawn-on-fall="respawnPosition: 0 12.8 0" coords-tracker baldosa-sensor>
+                ammo-body="type: dynamic; mass: 2; linearDamping: 0.9; angularFactor: 0 0 0"
+                ammo-shape="type: cylinder" visible="true" player-move door-detector respawn-on-fall="mainRespawn: 1 16 20; tilesRespawn: 1 16 -38" coords-tracker baldosa-sensor>
                 <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false" cursor="rayOrigin: mouse" raycaster="objects: [data-raycastable]; interval: 100" ></a-camera>
 
           </a-cylinder>
@@ -526,7 +526,6 @@
     <a-entity id="grid-container" position="0 12 -45" scale="1 1 1"></a-entity>
     
     <a-sky color="#ECECEC"></a-sky>
-    <!-- Baldosas-->
   </a-scene>
   <!-- -----------SCENE------------- -->
   <script>
@@ -538,39 +537,57 @@
      */
     AFRAME.registerComponent('respawn-on-fall', {
       schema: {
-        threshold: {type: 'number', default: -5}, // Umbral en el eje Y (coordenadas del mundo) para activar el respawn
-        respawnPosition: {type: 'vec3', default: {x: 1, y: 12.8, z: 20}} // Posición local a la que volverá la entidad
+        threshold: {type: 'number', default: -5},
+        // Punto de respawn principal (coordenadas MUNDIALES)
+        mainRespawn: {type: 'vec3', default: {x: 1, y: 16, z: 20}}, 
+        // Punto de respawn para el puzzle de baldosas (coordenadas MUNDIALES)
+        tilesRespawn: {type: 'vec3', default: {x: 1, y: 16, z: -38}},
+        // Límite en Z para decidir qué respawn usar
+        tilesZBoundary: {type: 'number', default: -40}
       },
       init: function() {
-        // Reutilizamos un vector para no crear uno nuevo en cada frame (optimización)
         this.worldPosition = new THREE.Vector3();
+        this.isFalling = false; // Flag para evitar ejecuciones múltiples por caída.
       },
       tick: function () {
-        // Obtenemos la posición mundial de la entidad en cada frame
         this.el.object3D.getWorldPosition(this.worldPosition);
         
-        if (this.worldPosition.y < this.data.threshold) {
+        // Si el jugador está por encima del umbral, nos aseguramos de que el flag de caída esté reseteado.
+        if (this.worldPosition.y > this.data.threshold) {
+          this.isFalling = false;
+          return;
+        }
+
+        // Si estamos por debajo del umbral y el respawn no se ha activado ya para esta caída...
+        if (this.isFalling === false) {
+          this.isFalling = true; // Activamos el flag para que solo se ejecute una vez.
+          console.log("¡Caída detectada! Iniciando respawn...");
+
           const body = this.el.body;
           if (body) {
-            // Detenemos cualquier movimiento para que no lo conserve al reaparecer
+            // Detenemos por completo al jugador
             body.setLinearVelocity(new Ammo.btVector3(0, 0, 0));
             body.setAngularVelocity(new Ammo.btVector3(0, 0, 0));
 
-            // Para teletransportar un cuerpo de físicas, no se debe usar setAttribute('position').
-            // Se debe manipular directamente la transformación del cuerpo en el mundo de Ammo.js.
+            let respawnTarget;
+            if (this.worldPosition.z < this.data.tilesZBoundary) {
+              console.log("Caída en zona de baldosas. Reapareciendo al inicio del puzle.");
+              respawnTarget = this.data.tilesRespawn;
+            } else {
+              console.log("Caída fuera de la zona de baldosas. Reapareciendo al inicio del nivel.");
+              respawnTarget = this.data.mainRespawn;
+            }
+
+            // Teletransportamos el cuerpo de físicas a la posición de respawn
             const transform = body.getWorldTransform();
-            const worldRespawnPos = new THREE.Vector3();
-
-            // La respawnPosition es local al padre, así que la convertimos a coordenadas del mundo.
-            this.el.parentEl.object3D.localToWorld(worldRespawnPos.copy(this.data.respawnPosition));
-
-            // Establecemos la nueva posición en la transformación y la aplicamos al cuerpo.
-            transform.setOrigin(new Ammo.btVector3(worldRespawnPos.x, worldRespawnPos.y, worldRespawnPos.z));
+            transform.setOrigin(new Ammo.btVector3(respawnTarget.x, respawnTarget.y, respawnTarget.z));
             body.setWorldTransform(transform);
+            body.activate(); // Forzamos a que el cuerpo se "despierte" para que las físicas se apliquen inmediatamente.
           }
         }
       }
     });
+
 
     /**
      * Componente: coords-tracker
