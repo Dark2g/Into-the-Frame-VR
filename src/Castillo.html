@@ -26,6 +26,7 @@
   <!-- RESIZE -->
    <script src="js/resizeManager.js"></script>
    <!-- FIN RESIZE -->
+  <script src="js/startAudioOnClick.js"></script>
   
   <!-- BALDOSAS HUD-->
   <style>
@@ -253,7 +254,9 @@
     <a-asset-item id="puerta" src="../assets/models/Lajara/GLB/PuertaAlicia.glb"></a-asset-item>
     <a-asset-item id="reina" src="../assets/models/Lajara/GLB/Reina.glb"></a-asset-item>
     <a-asset-item id="llave" src="../assets/models/Lajara/GLB/Llave.glb"></a-asset-item>
-
+    <audio id="llave-snd"
+      src="../assets/sounds/Llave.wav"
+      preload="auto"></audio>
     </a-assets>
     
     <!-- ASSETS -->
@@ -535,9 +538,7 @@
     <a-entity id="Reina" gltf-model="#reina" position="1 14 -235" rotation="0 0 0" raycaster="objects: none" visible="false"
       animation-mixer="clip: Idle; loop: repeat; timeScale: 2" scale="3 3 3" >
     </a-entity>
-    <a-entity id="Llave" gltf-model="#llave" position="-25 16 21" rotation="0 90 0" scale="1 1 1"
-      data-raycastable key-pickup>
-    </a-entity>
+    
 
     <!-- Castillo-->
     <!-- Baldosas-->
@@ -699,10 +700,16 @@
             console.log("Cuerpo físico de la llave creado correctamente.");
           }, 100);
         });
-
+        keyEl.setAttribute('sound', {
+          src: '#llave-snd',
+          autoplay: false,
+          positional: false,
+          volume: 1
+        });
         // Evento al hacer clic en la llave (se ejecuta solo una vez)
         keyEl.addEventListener('click', () => {
           console.log("¡Llave recogida!");
+          keyEl.components.sound.playSound();
           window.playerHasKey = true;
 
           // 1. Mostrar icono de la llave en el HUD
@@ -715,7 +722,9 @@
           keyEl.removeAttribute('ammo-body');
           keyEl.removeAttribute('data-raycastable');
         }, { once: true });
+        
       }
+      
     });
 
     /**

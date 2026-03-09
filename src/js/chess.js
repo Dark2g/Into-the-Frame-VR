@@ -201,12 +201,33 @@ function EliminarPiezas() {
     const piezas = document.querySelector('#pieces');
     piezas.innerHTML = '';
 }
+function spawnKey() {
+
+    const scene = document.querySelector('a-scene');
+
+    const key = document.createElement('a-entity');
+
+    key.setAttribute('id', 'Llave');
+    key.setAttribute('gltf-model', '#llave');
+    key.setAttribute('position', '-25 16 21');
+    key.setAttribute('rotation', '0 90 0');
+    key.setAttribute('scale', '1 1 1');
+
+    key.setAttribute('data-raycastable', '');
+    key.setAttribute('key-pickup', '');
+
+    scene.appendChild(key);
+
+    console.log("🔑 Llave generada");
+}
+
 function checkGameState() {
     console.log(game.in_check());
 
 
     if (game.in_check()) {
-        alert(`♟️ JAQUE MATE! Gana ${game.turn() === 'w' ? 'negro' : 'blanco'}`);
+        
+        spawnKey();
         return;
     } else {
 
