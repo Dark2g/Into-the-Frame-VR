@@ -181,9 +181,15 @@ AFRAME.registerComponent('baldosa-sensor', {
   }
 });
 
-// Script principal: Generar Grid y seleccionar Ruta
+// Script principal: Generar Grid
 document.addEventListener('DOMContentLoaded', function() {
   var container = document.querySelector('#grid-container');
+  if (!container) return;
+
+  // REAJUSTE PERFECTO: Forzamos la escala real (1) y colocamos el inicio 
+  // exactamente donde acaba el suelo de tu castillo (Z=-40).
+  container.setAttribute('scale', '1 1 1');
+  container.setAttribute('position', '0 12 -40');
 
   var rutasPosibles = [
     {
@@ -322,78 +328,76 @@ document.addEventListener('DOMContentLoaded', function() {
     ['../assets/2d/Symbols/Individual symbols/Cups.png', '../assets/2d/Symbols/Individual symbols/Chessire.png', '../assets/2d/Symbols/Individual symbols/Spade.png', '../assets/2d/Symbols/Individual symbols/Cups.png', '../assets/2d/Symbols/Individual symbols/Chessire.png', '../assets/2d/Symbols/Individual symbols/Spade.png']
   ];
 
-  if (container) {
-    for (var z = 0; z < 18; z++) {
-      for (var x = 0; x < 6; x++) {
-        var box = document.createElement('a-box');
-        
-        // --- MEDIDAS ADAPTADAS AL CASTILLO ---
-        var posX = (x - 2.5) * 9.6; 
-        var posZ = -z * 10; 
-        
-        box.setAttribute('position', {x: posX, y: -0.5, z: posZ});
-        box.setAttribute('width', 9.6);
-        box.setAttribute('height', 1.0); 
-        box.setAttribute('depth', 10);
-        box.setAttribute('color', '#EEEEEE');
+  // --- MATEMÁTICAS EXACTAS PARA EL HUECO DE 75 METROS ---
+  var tileWidth = 9.6;           // 6x9.6 = 57.6m (Perfecto para la plataforma que mide ~58m)
+  var tileDepth = 85.0 / 18.0;   // ~4.166m para que 18 filas midan exactamente 75 metros
 
-        var imgEl = document.createElement('a-image');
-        var rowPattern = patternImages[z % 3];
-        var symbol = rowPattern[x];
-        
-        imgEl.setAttribute('src', symbol);
-        imgEl.setAttribute('rotation', '-90 0 0');
-        imgEl.setAttribute('width', 9.2);   
-        imgEl.setAttribute('height', 9.6);
-        imgEl.setAttribute('position', '0 0.51 0');
-        imgEl.setAttribute('mejora-textura', ''); 
-        box.appendChild(imgEl);
-        
-        box.setAttribute('class', 'baldosa');
-        
-        var coordStr = '[' + z + ',' + x + ']';
-        box.setAttribute('data-coords', coordStr);
-        box.setAttribute('baldosa-interactiva', '');
+  var baldosasArray = [];
 
-        if (rutaElegida.coordenadas.includes(coordStr)) {
-          box.setAttribute('data-safe', 'true');
-        } else {
-          box.setAttribute('data-safe', 'false');
-        }
+  for (var z = 0; z < 18; z++) {
+    for (var x = 0; x < 6; x++) {
+      var box = document.createElement('a-entity');
+      
+      var posX = (x - 2.5) * tileWidth; 
+      // Posición local Z: se desplaza media baldosa para que empiece justo en el borde 0
+      var posZ = -z * tileDepth - (tileDepth / 2); 
+      
+      box.setAttribute('geometry', `primitive: box; width: ${tileWidth}; height: 1.0; depth: ${tileDepth}`);
+      box.setAttribute('material', 'color: #EEEEEE');
+      box.setAttribute('position', {x: posX, y: -0.5, z: posZ});
 
-        // NO añadir físicas aquí: las matrices del contenedor aún no están calculadas.
-        // Los cuerpos estáticos de Ammo leen la posición mundial UNA sola vez al inicializarse,
-        // así que si la añadimos antes de que Three.js compute las matrices, los colisionadores
-        // quedan en la posición LOCAL (y=-0.5) en vez de la MUNDIAL (y=11.5) y el jugador los atraviesa.
-        
-        container.appendChild(box);
+      var imgEl = document.createElement('a-image');
+      var rowPattern = patternImages[z % 3];
+      var symbol = rowPattern[x];
+      
+      imgEl.setAttribute('src', symbol);
+      imgEl.setAttribute('rotation', '-90 0 0');
+      imgEl.setAttribute('width', tileWidth - 0.4);   
+      imgEl.setAttribute('height', tileDepth - 0.1);
+      imgEl.setAttribute('position', '0 0.51 0');
+      imgEl.setAttribute('mejora-textura', ''); 
+      box.appendChild(imgEl);
+      
+      box.setAttribute('class', 'baldosa');
+      
+      var coordStr = '[' + z + ',' + x + ']';
+      box.setAttribute('data-coords', coordStr);
+      box.setAttribute('baldosa-interactiva', '');
+
+      if (rutaElegida.coordenadas.includes(coordStr)) {
+        box.setAttribute('data-safe', 'true');
+      } else {
+        box.setAttribute('data-safe', 'false');
       }
+      
+      container.appendChild(box);
+      baldosasArray.push(box);
     }
+  }
 
-    // --- AÑADIR FÍSICAS DESPUÉS DE QUE LA ESCENA ESTÉ LISTA ---
-    // Mismo patrón que 'colision-ammo': esperar a que la escena cargue y las matrices estén calculadas.
-    var sceneEl = document.querySelector('a-scene');
-    var addPhysicsToTiles = function() {
-      // Forzar actualización de matrices del contenedor y sus hijos
-      container.object3D.updateMatrixWorld(true);
+  // --- FÍSICAS RECALCULADAS CON EXACTITUD ---
+  var sceneEl = document.querySelector('a-scene');
+  var addPhysicsToTiles = function() {
+    container.object3D.updateMatrixWorld(true);
 
-      setTimeout(function() {
-        var baldosas = container.querySelectorAll('.baldosa');
-        for (var i = 0; i < baldosas.length; i++) {
-          // No añadir físicas a baldosas que ya hayan caído (caso extremo)
-          if (baldosas[i].getAttribute('data-falling') === 'true') continue;
-          baldosas[i].setAttribute('ammo-body', 'type: static');
-          baldosas[i].setAttribute('ammo-shape', 'type: box; halfExtents: 4.8 0.5 5');
-        }
-        console.log("✅ Físicas de baldosas cargadas correctamente.");
-      }, 200);
-    };
+    setTimeout(function() {
+      // Dimensiones de la forma física exactas a la nueva medida (la mitad del total)
+      var halfX = tileWidth / 2;
+      var halfZ = tileDepth / 2;
+      
+      baldosasArray.forEach(function(baldosa) {
+        if (baldosa.getAttribute('data-falling') === 'true') return;
+        baldosa.setAttribute('ammo-body', 'type: static');
+        baldosa.setAttribute('ammo-shape', `type: box; halfExtents: ${halfX} 0.5 ${halfZ}`);
+      });
+      console.log("✅ Físicas de baldosas milimétricas cargadas.");
+    }, 800);
+  };
 
-    if (sceneEl.hasLoaded) {
-      addPhysicsToTiles();
-    } else {
-      sceneEl.addEventListener('loaded', addPhysicsToTiles);
-    }
+  if (sceneEl.hasLoaded) {
+    addPhysicsToTiles();
+  } else {
+    sceneEl.addEventListener('loaded', addPhysicsToTiles);
   }
 
   // --- INYECTAR DATOS AL SENSOR AL CARGAR ---
