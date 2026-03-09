@@ -33,13 +33,35 @@
               <h1></h1>
               <p></p>
        </div>
+       <div id="key-icon-hud" style="
+      position: fixed;
+      top: 60px;
+      right: 14px;
+      z-index: 999;
+      width: 70px;
+      height: 70px;
+      background: rgba(15,10,25,.85);
+      border: 1px solid rgba(201,168,76,.4);
+      border-radius: 10px;
+      display: none;
+      pointer-events: none;
+      /* Estilos para centrar el emoji */
+      text-align: center;
+      font-size: 50px;
+      line-height: 70px;
+    ">
+              <div
+                     style="font-size: 28px; display: flex; align-items: center; justify-content: center; width: 100%; height: 100%;">
+                     🔑
+              </div>
+       </div>
        <div id="hud-door"></div>
        <div id="loading-screen">
               <h2>Entrando...</h2>
               <div class="spinner"></div>
        </div>
        <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
-       <a-scene cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug:false">
+       <a-scene  cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug:false">
               <!-- ASSETS -->
               <a-assets>
                      <a-asset-item id="mapModel" src="../assets/models/Mario/gbl/Claro_de_Setas.glb"></a-asset-item>
@@ -48,10 +70,16 @@
                      <a-asset-item id="mushroomKeyModel" src="../assets/models/Mario/gbl/Llave.glb"></a-asset-item>
                      <a-asset-item id="RightDoorModel" src="../assets/models/Mario/gbl/Puerta_Drch.glb"></a-asset-item>
                      <a-asset-item id="LeftDoorModel" src="../assets/models/Mario/gbl/Puerta_Izq.glb"></a-asset-item>
-                     <a-asset-item id="RedMushroomModel" src="../assets/models/Mario/gbl/Seta_Roja_Patron.glb"></a-asset-item>
-                     <a-asset-item id="BlueMushroomModel" src="../assets/models/Mario/gbl/Seta_Azul_Patron.glb"></a-asset-item>
-                     <a-asset-item id="YellowMushroomModel" src="../assets/models/Mario/gbl/Seta_Amarilla_Patron.glb"></a-asset-item>
-                     <a-asset-item id="GreenMushroomModel" src="../assets/models/Mario/gbl/Seta_Verde_Patron.glb"></a-asset-item>
+                     <a-asset-item id="RedMushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Roja_Patron.glb"></a-asset-item>
+                     <a-asset-item id="BlueMushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Azul_Patron.glb"></a-asset-item>
+                     <a-asset-item id="YellowMushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Amarilla_Patron.glb"></a-asset-item>
+                     <a-asset-item id="GreenMushroomModel"
+                            src="../assets/models/Mario/gbl/Seta_Verde_Patron.glb"></a-asset-item>
+                     <audio id="llave-snd" src="../assets/sounds/Llave.wav" preload="auto"></audio>
+                     <audio id="puerta-snd" src="../assets/sounds/Puerta.wav" preload="auto"></audio>
 
               </a-assets>
               <!-- PLAYER -->
@@ -72,13 +100,13 @@
               <!-- PUERTA PUZZLE -->
               <a-entity id="door" position="0 2.4 -37">
                      <!-- pivote izquierda -->
-                     <a-entity id="door-left-pivot" position="2.5 0 0"> <a-entity id="door-left"
+                     <a-entity id="door-left-pivot"  sound="src: #puerta-snd; loop: false; volume: 1;" position="2.5 0 0"> <a-entity id="door-left"
                                    gltf-model="#LeftDoorModel" position="-0.5 0 0" rotation="0 180 0"
                                    scale="2.75 2.75 1" ammo-body="type: kinematic" colision-ammo>
                             </a-entity>
                      </a-entity>
                      <!-- pivote derecha -->
-                     <a-entity id="door-right-pivot" position="-1.56 0 -0.05"> <a-entity id="door-right"
+                     <a-entity id="door-right-pivot"  sound="src: #puerta-snd; loop: false; volume: 1;" position="-1.56 0 -0.05"> <a-entity id="door-right"
                                    gltf-model="#RightDoorModel" position="2 0 0" rotation="0 180 0" scale="2.75 2.75 1"
                                    ammo-body="type: kinematic" colision-ammo> </a-entity>
                      </a-entity>
@@ -94,26 +122,34 @@
                      puzzle_patron-button="id:3"></a-box>
               <a-entity puzzle_patron-manager></a-entity>
               <!-- SETAS PATRON -->
-              <a-entity gltf-model="#YellowMushroomModel" position="12.811 1.997 -50.37" scale="0.5 0.5 0.5" rotation="0 -45 0"></a-entity>
-              <a-entity gltf-model="#YellowMushroomModel" position="12.811 2.086 -50.509" scale="0.5 0.5 0.5" rotation="0 180 0"></a-entity>
-              <a-entity gltf-model="#YellowMushroomModel" position="12.811 2.2 -50.509" scale="0.5 0.5 0.5" rotation="0 -90 0"></a-entity>
-              <a-entity gltf-model="#YellowMushroomModel" position="12.811 1.931 -50.509" scale="0.5 0.5 0.5" rotation="0 -90 0"></a-entity>
-              <a-entity gltf-model="#RedMushroomModel" position="-5.964 2.2 -52.463" scale="0.5 0.5 0.5"  rotation="0 70 0"></a-entity>
+              <a-entity gltf-model="#YellowMushroomModel" position="12.811 1.997 -50.37" scale="0.5 0.5 0.5"
+                     rotation="0 -45 0"></a-entity>
+              <a-entity gltf-model="#YellowMushroomModel" position="12.811 2.086 -50.509" scale="0.5 0.5 0.5"
+                     rotation="0 180 0"></a-entity>
+              <a-entity gltf-model="#YellowMushroomModel" position="12.811 2.2 -50.509" scale="0.5 0.5 0.5"
+                     rotation="0 -90 0"></a-entity>
+              <a-entity gltf-model="#YellowMushroomModel" position="12.811 1.931 -50.509" scale="0.5 0.5 0.5"
+                     rotation="0 -90 0"></a-entity>
+              <a-entity gltf-model="#RedMushroomModel" position="-5.964 2.2 -52.463" scale="0.5 0.5 0.5"
+                     rotation="0 70 0"></a-entity>
               <a-entity gltf-model="#RedMushroomModel" position="-5.984 1.966 -52.439" scale="0.5 0.5 0.5"></a-entity>
-              <a-entity gltf-model="#RedMushroomModel" position="-5.984 2.035 -52.554" scale="0.5 0.5 0.5" rotation="0 120 0"></a-entity>
-               <a-entity gltf-model="#BlueMushroomModel" position="-10.681 1.799 -67.487" scale="0.5 0.5 0.5" rotation="0 90 0"></a-entity>
-               <a-entity gltf-model="#BlueMushroomModel" position="-10.681 1.949 -67.487" scale="0.5 0.5 0.5"></a-entity>
-               <a-entity gltf-model="#GreenMushroomModel" position="-17.131 1.727 -44.915" scale="0.5 0.5 0.5"></a-entity>
+              <a-entity gltf-model="#RedMushroomModel" position="-5.984 2.035 -52.554" scale="0.5 0.5 0.5"
+                     rotation="0 120 0"></a-entity>
+              <a-entity gltf-model="#BlueMushroomModel" position="-10.681 1.799 -67.487" scale="0.5 0.5 0.5"
+                     rotation="0 90 0"></a-entity>
+              <a-entity gltf-model="#BlueMushroomModel" position="-10.681 1.949 -67.487" scale="0.5 0.5 0.5"></a-entity>
+              <a-entity gltf-model="#GreenMushroomModel" position="-17.131 1.727 -44.915"
+                     scale="0.5 0.5 0.5"></a-entity>
               <!-- SETA -->
               <a-entity class="mushroom" data-mushroom-type="special" position="3 -0.760 -8">
 
                      <!-- modelo desplazado para corregir pivot -->
-                     <a-entity gltf-model="#mushroomModel"  position="2.517 -4.564 11.264" scale="0.35 0.35 0.35">
+                     <a-entity gltf-model="#mushroomModel" position="2.517 -4.564 11.264" scale="0.35 0.35 0.35">
                      </a-entity>
 
               </a-entity>
 
-              <a-entity class="mushroom"  data-mushroom-type="special" position="0 -0.760 -6">
+              <a-entity class="mushroom" data-mushroom-type="special" position="0 -0.760 -6">
 
                      <!-- modelo desplazado para corregir pivot -->
                      <a-entity gltf-model="#mushroomModel" position="2.517 -4.564 11.264" scale="0.35 0.35 0.35">
@@ -131,27 +167,28 @@
               <!-- PUERTA CON CANDADO -->
               <a-entity id="door2" position="-1.5 -0.7 2.8">
                      <!-- pivote izquierda -->
-                     <a-entity id="door2-left-pivot" position="4.530 0 0">
+                     <a-entity id="door2-left-pivot" sound="src: #puerta-snd; loop: false; volume: 1;" position="4.530 0 0">
                             <a-entity id="door2-left" gltf-model="#LeftDoorModel" position="-1.5 0 0" rotation="0 180 0"
                                    scale="4.8 2.85 1" ammo-body="type: kinematic" colision-ammo>
                             </a-entity>
                      </a-entity>
                      <!-- pivote derecha -->
-                     <a-entity id="door2-right-pivot" position="-3.38 0 -0.05">
+                     <a-entity id="door2-right-pivot"  sound="src: #puerta-snd; loop: false; volume: 1;" position="-3.38 0 -0.05">
                             <a-entity id="door2-right" gltf-model="#RightDoorModel" position="3.64 0 0"
                                    rotation="0 180 0" scale="4.8 2.85 1" ammo-body="type: kinematic" colision-ammo>
                             </a-entity>
                      </a-entity>
-                     <a-entity gltf-model="#LockModel" position="0.380 1.195 -0.170" scale="0.4 0.4 0.4" rotation="0 180 0"
-                            candado="llave: llave_roja"> </a-entity>
+                     <a-entity  gltf-model="#LockModel" position="0.380 1.195 -0.170" scale="0.4 0.4 0.4"
+                            rotation="0 180 0" candado="llave: llave_roja"
+                            > </a-entity>
               </a-entity>
               <!-- LLAVE -->
               <a-box id="key_red" position="13.67 -0.59 1.308" width="0.3" height="0.3" rotation="13.75 16 -90"
                      scale="0.25 0.25 0.25" depth="0.1" color="red" gltf-model="#mushroomKeyModel"
-                     llave="id: llave_roja">
+                     llave="id: llave_roja" sound="src: #llave-snd; loop: false; volume: 1;">
               </a-box>
-              <a-entity id="door-lobby" position="-0.6 -0.9 5" scale="3 1 1"
-                     door-portal="scene: index.html; label:" rotation="0 180 0">
+              <a-entity id="door-lobby" position="-0.6 -0.9 5" scale="3 1 1" door-portal="scene: index.html; label:"
+                     rotation="0 180 0">
                      <!-- Marco -->
                      <a-box width="0.3" height="4" depth="0.3" position="-1.5 2 0" color="#2E7D32"
                             material="emissive: #1B5E20; emissiveIntensity: 0.3"></a-box>

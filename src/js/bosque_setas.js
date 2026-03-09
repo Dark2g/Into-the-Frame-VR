@@ -41,10 +41,21 @@ AFRAME.registerComponent('puzzle_patron-manager', {
     },
 
     openDoor() {
+                    // reproducir sonido
+            if (this.el.components.sound) {
+                this.el.components.sound.playSound();
+            }
+
+
 
         const left = document.querySelector('#door-left-pivot');
+                    if (left.components.sound) {
+                left.components.sound.playSound();
+            }
         const right = document.querySelector('#door-right-pivot');
-
+              if (right.components.sound) {
+                right.components.sound.playSound();
+            }
         if (!left || !right) return;
 
         const leftDoor = document.querySelector('#door-left');
@@ -91,7 +102,7 @@ AFRAME.registerComponent('puzzle_patron-button', {
             });
         });
     }
-});
+});            
 //recogida de llave
 AFRAME.registerComponent("llave", {
     schema: {
@@ -104,10 +115,21 @@ AFRAME.registerComponent("llave", {
                 id: this.data.id,
                 tipo: "llave"
             });
-
             console.log("[LLAVE] Guardada:", this.data.id);
 
-            this.el.remove(); // desaparece del mundo
+            // reproducir sonido
+            if (this.el.components.sound) {
+                this.el.components.sound.playSound();
+            }
+
+            // ocultar la llave inmediatamente
+            this.el.setAttribute("visible", false);
+
+            // eliminarla del DOM después de un momento
+            setTimeout(() => {
+                this.el.remove();
+            }, 1000);
+
         });
     }
 });
@@ -147,7 +169,13 @@ AFRAME.registerComponent("candado", {
             const right = document.querySelector("#door2-right-pivot");
             const leftDoor = document.querySelector('#door2-left');
             const rightDoor = document.querySelector('#door2-right');
+                    if (left.components.sound) {
+                left.components.sound.playSound();
+            }
 
+              if (right.components.sound) {
+                right.components.sound.playSound();
+            }
             // quitar collider al abrir
             if (leftDoor) leftDoor.removeAttribute("ammo-body");
             if (rightDoor) rightDoor.removeAttribute("ammo-body");
@@ -553,7 +581,7 @@ AFRAME.registerComponent('timer-trigger', {
         // Comprobar el hito UNA sola vez al inicio, no en cada tick
         db.hitos.get(this.data.hito)
             .then(done => { if (done) this.triggered = true; })
-            .catch(() => {});
+            .catch(() => { });
     },
 
     tick() {
