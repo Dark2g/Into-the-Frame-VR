@@ -191,7 +191,7 @@ Punto de entrada del juego. El jugador aparece en el centro de una sala oscura c
 
 | Componente | Adjunto a | Función |
 |---|---|---|
-| `player-move` | `#player` | Movimiento FPS con Ammo.js (velocidad 5 m/s) |
+| `player-move` | `#player` | Movimiento FPS con Ammo.js (velocidad 4 m/s). Versión inline propia del hub, distinta a `movement.js` (que usa 5 m/s). Incluye `remove()` con limpieza de listeners. |
 | `door-portal` | Cada puerta | Almacena `scene` (URL destino) y `label` (nombre visible) |
 | `door-detector` | `#player` | Cada frame calcula la distancia a las 3 puertas. Si < 6m muestra indicador HUD; si < 1.8m navega a la escena |
 
