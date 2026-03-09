@@ -1,7 +1,12 @@
 //crear cargar la base de datos y la tabla
 const db = new Dexie("JuegoDB");
 
+// version 1 → solo inventario (schema original)
 db.version(1).stores({
+    inventario: "id, tipo"
+});
+// version 2 → añade tabla hitos
+db.version(2).stores({
     inventario: "id, tipo",
     hitos: "id"
 });
@@ -23,7 +28,11 @@ AFRAME.registerComponent('puzzle_patron-manager', {
             this.step++;
 
             if (this.step === this.order.length) {
-                await db.hitos.put({ id: "reto_patrones_completado" })
+                try {
+                    await db.hitos.put({ id: "reto_patrones_completado" });
+                } catch (e) {
+                    console.warn('[DB] Error guardando hito:', e);
+                }
                 this.openDoor();
             }
         } else {
@@ -540,34 +549,29 @@ AFRAME.registerComponent('timer-trigger', {
         this.player = document.querySelector('#player');
         this.playerPos = new THREE.Vector3();
         this.triggered = false;
+
+        // Comprobar el hito UNA sola vez al inicio, no en cada tick
+        db.hitos.get(this.data.hito)
+            .then(done => { if (done) this.triggered = true; })
+            .catch(() => {});
     },
 
-    async tick() {
+    tick() {
         if (this.triggered || !this.player) return;
-
-        // si el hito ya está completado → no hacer nada
-        const done = await db.hitos.get(this.data.hito);
-        if (done) {
-            this.triggered = true;
-            return;
-        }
 
         this.player.object3D.getWorldPosition(this.playerPos);
 
         const x = this.playerPos.x;
         const z = this.playerPos.z;
         if (
-            !this.triggered &&
             x >= this.data.minX &&
             x <= this.data.maxX &&
             z >= this.data.minZ &&
             z <= this.data.maxZ
         ) {
-
-            this.triggered = true; // bloquear inmediatamente
+            this.triggered = true;
 
             console.log("[TRIGGER] Zona del minijuego alcanzada");
-            this.player.object3D.getWorldPosition(this.playerPos);
 
             gameState.startPosition = {
                 x: this.playerPos.x,
@@ -575,7 +579,6 @@ AFRAME.registerComponent('timer-trigger', {
                 z: this.playerPos.z
             };
             startChallenge();
-
         }
     }
 
