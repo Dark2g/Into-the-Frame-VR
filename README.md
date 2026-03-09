@@ -16,7 +16,6 @@ Juego WebVR/WebXR construido con [A-Frame](https://aframe.io/) que recrea escena
    - 4.1 [Bosque de Setas (`bosque_setas.html`)](#41-bosque-de-setas)
    - 4.2 [Mesa de Té (`MesaTe.html`)](#42-mesa-de-té)
    - 4.3 [Castillo (`Castillo.html`)](#43-castillo)
-   - 4.4 [Puzzle de Baldosas (`MinijuegoBaldosas.html`)](#44-puzzle-de-baldosas)
 5. [Sistemas Reutilizables](#5-sistemas-reutilizables)
    - 5.1 [Sistema de Diálogos (`dialog.js` + `dialog.css`)](#51-sistema-de-diálogos)
    - 5.2 [ResizeManager (`resizeManager.js`)](#52-resizemanager)
@@ -89,12 +88,12 @@ Into-the-Frame-VR/
 │   ├── scenes/                        ← (Reservado para futuras escenas)
 │   └── sounds/                        ← Efectos de audio (Chicken, cat, dog, owl, pig, RabbitEat, Llave…)
 ├── src/
-│   ├── index.html                     ← Hub central: sala 3D con 4 puertas (punto de entrada)
+│   ├── index.html                     ← Hub central: sala 3D con 3 puertas + tablón de equipos (punto de entrada)
 │   ├── Ajedrez.html                   ← Escena: Minijuego de Ajedrez (standalone)
 │   ├── Castillo.html                  ← Escena: Castillo (Baldosas + Ajedrez combinados)
 │   ├── bosque_setas.html              ← Escena: Bosque de Setas (escena principal)
 │   ├── MesaTe.html                    ← Escena: Mesa de Té (con modelos 3D)
-│   ├── MinijuegoBaldosas.html         ← Escena: Puzzle de baldosas tipo "camino seguro"
+│   ├── MinijuegoBaldosas.html         ← Escena: Puzzle de baldosas tipo "camino seguro" (standalone, integrada en Castillo)
 │   ├── Frases por casilla.txt         ← Guión de frases por casilla (referencia de diseño)
 │   ├── MesaTe_Test.html               ← Test simplificado de la Mesa de Té
 │   ├── Resize_Test.html               ← Test del sistema de cambio de tamaño
@@ -167,7 +166,7 @@ El proyecto sigue una arquitectura basada en **componentes de A-Frame** (`AFRAME
 
 #### Descripción
 
-Punto de entrada del juego. El jugador aparece en el centro de una sala oscura con niebla y puede moverse libremente con WASD + ratón. La sala contiene **4 puertas** orientadas a los puntos cardinales, cada una conduciendo a una escena diferente. Al cruzar una puerta, se navega automáticamente a la escena correspondiente.
+Punto de entrada del juego. El jugador aparece en el centro de una sala oscura con niebla y puede moverse libremente con WASD + ratón. La sala contiene **3 puertas** orientadas a los puntos cardinales (Norte, Este, Sur), cada una conduciendo a una escena diferente. En el lado Oeste se encuentra un **tablón de equipos** con los nombres de los miembros de cada grupo. Al cruzar una puerta, se navega automáticamente a la escena correspondiente.
 
 #### Distribución de las puertas
 
@@ -176,14 +175,14 @@ Punto de entrada del juego. El jugador aparece en el centro de una sala oscura c
 | Norte | Verde | Bosque de Setas | `bosque_setas.html` |
 | Este | Púrpura | Mesa de Té | `MesaTe.html` |
 | Sur | Rosa | Castillo | `Castillo.html` |
-| Oeste | Azul | Puzzle de Baldosas | `MinijuegoBaldosas.html` |
 
 #### Elementos de la escena
 
 - **Plano de suelo** (40×40) con físicas Ammo.js estáticas y textura de cuadrícula.
 - **Anillo luminoso central** dorado como referencia visual.
-- **4 portales**: cada uno con marco de cajas (`<a-box>`), plano translúcido con brillo pulsante (`animation` en `emissiveIntensity`), cartel con nombre de la escena (`<a-text>`), y una **zona de paso invisible** (`door-trigger`) para detección de proximidad.
-- **Iluminación**: luz ambiental tenue + luz puntual dorada central + 4 luces puntuales de color en cada puerta.
+- **3 portales**: cada uno con marco de cajas (`<a-box>`), plano translúcido con brillo pulsante (`animation` en `emissiveIntensity`), cartel con nombre de la escena (`<a-text>`), y una **zona de paso invisible** (`door-trigger`) para detección de proximidad.
+- **Tablón de equipos** (`#tablon-equipos`): panel de madera en el lado Oeste con los nombres de los miembros de cada grupo (Bosque de Setas, Mesa de Té, Castillo), con luz puntual dorada propia.
+- **Iluminación**: luz ambiental tenue + luz puntual dorada central + 3 luces puntuales de color en cada puerta + luz del tablón.
 - **Pilares decorativos** en las 4 esquinas.
 - **Partículas 3D flotantes**: 40 esferas pequeñas con animación de movimiento suave.
 - **Niebla exponencial** para efecto de profundidad.
@@ -194,7 +193,7 @@ Punto de entrada del juego. El jugador aparece en el centro de una sala oscura c
 |---|---|---|
 | `player-move` | `#player` | Movimiento FPS con Ammo.js (velocidad 5 m/s) |
 | `door-portal` | Cada puerta | Almacena `scene` (URL destino) y `label` (nombre visible) |
-| `door-detector` | `#player` | Cada frame calcula la distancia a las 4 puertas. Si < 6m muestra indicador HUD; si < 1.8m navega a la escena |
+| `door-detector` | `#player` | Cada frame calcula la distancia a las 3 puertas. Si < 6m muestra indicador HUD; si < 1.8m navega a la escena |
 
 #### HUD (overlays HTML)
 
@@ -497,9 +496,11 @@ Al cambiar de tamaño se recrea `ammo-shape` para actualizar el colisionador.
 
 ---
 
-### 4.4 Puzzle de Baldosas
+### 4.4 Puzzle de Baldosas (standalone)
 
 **Archivo**: `src/MinijuegoBaldosas.html` + `src/js/MinijuegoBaldosas.js`
+
+> **Nota**: Esta escena ya no tiene puerta propia en el hub. Se mantiene como página standalone y su lógica está integrada dentro de `Castillo.html` (sección 4.3.C).
 
 #### Descripción
 
