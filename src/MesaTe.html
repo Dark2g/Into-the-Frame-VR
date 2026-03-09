@@ -14,6 +14,48 @@
     <script src="js/movement.js"></script>
     <script src="js/startAudioOnClick.js"></script>
     <style>
+        /* UI tamaño jugador */
+        .ui-container {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 999;
+            display: flex;
+            gap: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: sans-serif;
+        }
+
+        .ui-container button {
+            padding: 12px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            transition: transform .1s, filter .2s;
+            color: white;
+        }
+
+        .ui-container button:hover {
+            filter: brightness(1.1);
+        }
+
+        .ui-container button:active {
+            transform: scale(0.95);
+        }
+
+        .btn-enano {
+            background: #2ecc71;
+            color: #111;
+        }
+
+        .btn-normal {
+            background: #60abdd;
+        }
       #btn-hub {
         position: fixed;
         top: 14px;
@@ -42,9 +84,8 @@
     </style>
   </head>
   <body>
-    <div
-      id="mensajePuzzle"
-      style="
+      <div id="mensajePuzzle"
+           style="
         position: fixed;
         top: 40%;
         left: 50%;
@@ -56,418 +97,479 @@
         border-radius: 10px;
         display: none;
         z-index: 999;
-      "
-    ></div>
-    <button id="btn-hub" onclick="window.location.href = 'index.html'">
-      ← Menú
-    </button>
+      "></div>
+      <button id="btn-hub" onclick="window.location.href = 'index.html'">
+          ← Menú
+      </button>
+      <div class="ui-container">
+          <button class="btn-enano" onclick="setPlayerState('enano')">
+              Modo enano
+          </button>
 
-    <a-scene cursor="rayOrigin: mouse"
-             start-audio-on-click
-             physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false">
-        <a-assets>
-            <audio id="conejo-snd"
-                   src="../assets/sounds/RabbitEat.wav"
-                   preload="auto"></audio>
-            <audio id="buho-snd"
-                   src="../assets/sounds/owl.wav"
-                   preload="auto"></audio>
-            <audio id="perro-snd"
-                   src="../assets/sounds/dog2.wav"
-                   preload="auto"></audio>
-            <audio id="gato-snd"
-                   src="../assets/sounds/cat.wav"
-                   preload="auto"></audio>
-            <audio id="cerdo-snd"
-                   src="../assets/sounds/pig.wav"
-                   preload="auto"></audio>
-            <audio id="gallina-snd"
-                   src="../assets/sounds/Chicken.wav"
-                   preload="auto"></audio>
-        </a-assets>
+          <button class="btn-normal" onclick="setPlayerState('normal')">
+              Modo normal
+          </button>
+      </div>
 
-        <!-- Jugador -->
-        <a-entity>
-            <a-cylinder id="player"
-                        radius="0.3"
-                        height="10"
-                        position="5 10 0"
-                        ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
-                        ammo-shape="type: box; radius: 0.3; height: 1.4"
-                        player-move>
-                <a-entity id="cam"
-                          camera
-                          look-controls="pointerLockEnabled: false"
-                          position="0 0.8 0">
-                    <a-entity id="holder" position="0  -1"></a-entity>
-                </a-entity>
-            </a-cylinder>
-        </a-entity>
-        <a-entity position="-38.430 -0.5 0.217"
-                  rotation="0 -90 0"
-                  animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"
-                  sound="src: #conejo-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Conejo.glb)"
-                      position="-9.5 0 0">
-            </a-entity>
+      <a-scene cursor="rayOrigin: mouse"
+               start-audio-on-click
+               physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false">
+          <a-assets>
+              <audio id="conejo-snd"
+                     src="../assets/sounds/RabbitEat.wav"
+                     preload="auto"></audio>
+              <audio id="buho-snd"
+                     src="../assets/sounds/owl.wav"
+                     preload="auto"></audio>
+              <audio id="perro-snd"
+                     src="../assets/sounds/dog2.wav"
+                     preload="auto"></audio>
+              <audio id="gato-snd"
+                     src="../assets/sounds/cat.wav"
+                     preload="auto"></audio>
+              <audio id="cerdo-snd"
+                     src="../assets/sounds/pig.wav"
+                     preload="auto"></audio>
+              <audio id="gallina-snd"
+                     src="../assets/sounds/Chicken.wav"
+                     preload="auto"></audio>
+          </a-assets>
 
-        </a-entity>
+          <!-- Jugador -->
+          <a-entity id="player-rig" scale="1 1 1">
+              <a-cylinder id="player"
+                          radius="0.3"
+                          height="10"
+                          visible="false"
+                          position="5 10 0"
+                          ammo-body="type: dynamic; mass: 1; linearDamping: 0.9; angularFactor: 0 0 0"
+                          ammo-shape="type: box; radius: 0.3; height: 1.4"
+                          player-move>
+                  <a-entity id="cam"
+                            camera
+                            look-controls="pointerLockEnabled: false"
+                            position="0 0.8 0">
+                      <a-entity id="holder" position="0  -1"></a-entity>
+                  </a-entity>
+              </a-cylinder>
+          </a-entity>
+          <a-entity position="-38.430 -0.5 0.217"
+                    rotation="0 -90 0"
+                    animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"
+                    sound="src: #conejo-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Conejo.glb)"
+                        position="-9.5 0 0">
+              </a-entity>
 
-        <a-entity position="-5 -0.5 -45.506" rotation="0 -90 0"
-                  animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva."
-                  sound="src: #buho-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Buho.glb)"
-                      position="-8 0 0">
-            </a-entity>
-        </a-entity>
-        <a-entity position="-38.408 -0.5 42.696"
-                  animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? "
-                  sound="src: #perro-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Perro.glb)"
-                      position="0 0 0">
-            </a-entity>
-        </a-entity>
+          </a-entity>
 
-        <a-entity position="0 -0.5 47"
-                  rotation="0 90 0"
-                  animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio."
-                  sound="src: #gato-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Gato.glb)"
-                      position="2.2 0 0">
-            </a-entity>
-        </a-entity>
+          <a-entity position="-5 -0.5 -45.506" rotation="0 -90 0"
+                    animal-interactive="tipo: Buho; slotIndex: 1; texto: Quiero conocer mucha gente nueva."
+                    sound="src: #buho-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Buho.glb)"
+                        position="-8 0 0">
+              </a-entity>
+          </a-entity>
+          <a-entity position="-38.408 -0.5 42.696"
+                    animal-interactive="tipo: Perro; slotIndex: 2; texto: ¿Tenéis algo con lo que pueda tomarme estas plantas “medicinales”? "
+                    sound="src: #perro-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Perro.glb)"
+                        position="0 0 0">
+              </a-entity>
+          </a-entity>
 
-        <a-entity position="45.210 -0.5 -28.792" rotation="0 180 0"
-                  animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada"
-                  sound="src: #cerdo-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Cerdo.glb)"
-                      position="-2 0 0">
-            </a-entity>
-        </a-entity>
+          <a-entity position="0 -0.5 47"
+                    rotation="0 90 0"
+                    animal-interactive="tipo: Gato; slotIndex: 3; texto: Quiero estar junto a un compañero de oficio."
+                    sound="src: #gato-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Gato.glb)"
+                        position="2.2 0 0">
+              </a-entity>
+          </a-entity>
 
-        <a-entity position="34 -0.5 42.2" rotation="0 -90 0"
-                  animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida"
-                  sound="src: #gallina-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
-            <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Pollo.glb)"
-                      position="0 0 0">
-            </a-entity>
-        </a-entity>
+          <a-entity position="45.210 -0.5 -28.792" rotation="0 180 0"
+                    animal-interactive="tipo: Cerdo; slotIndex: 4; texto: Quiero poder leer aún si se alarga mucho la velada"
+                    sound="src: #cerdo-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Cerdo.glb)"
+                        position="-2 0 0">
+              </a-entity>
+          </a-entity>
 
-        <a-entity id="miModelo"
-                  gltf-model="url(../assets/models/Gabi/laberinto.glb)"
-                  position="0 0 0"></a-entity>
-        <a-entity id="mesa"
-                  gltf-model="url(../assets/models/Gabi/Mesa.glb)"
-                  position="0 0 0"></a-entity>
+          <a-entity position="34 -0.5 42.2" rotation="0 -90 0"
+                    animal-interactive="tipo: Gallina; slotIndex: 5; texto: Soy un poco introvertida"
+                    sound="src: #gallina-snd; loop: true; volume: 1; positional: true; distanceModel: exponential; rolloffFactor: 1; refDistance: 1.5">
+              <a-entity gltf-model="url(../assets/models/Gabi/Personajes/Pollo.glb)"
+                        position="0 0 0">
+              </a-entity>
+          </a-entity>
 
-        <a-entity id="pipa"
-                  gltf-model="url(../assets/models/Gabi/Pipa.glb)"
-                  position="-3 0 -11"></a-entity>
-        <a-entity id="tarta"
-                  gltf-model="url(../assets/models/Gabi/Tarta.glb)"
-                  position="3 0 0"></a-entity>
-        <a-entity id="vela"
-                  gltf-model="url(../assets/models/Gabi/Vela.glb)"
-                  position="3 0 20"></a-entity>
+          <a-entity id="miModelo"
+                    gltf-model="url(../assets/models/Gabi/laberinto.glb)"
+                    position="0 0 0"></a-entity>
+          <a-entity id="mesa"
+                    gltf-model="url(../assets/models/Gabi/Mesa.glb)"
+                    position="0 0 0"></a-entity>
 
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  position="0 0 0"
-                  class="asiento"
-                  asiento="tipo: Buho">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
+          <a-entity id="pipa"
+                    gltf-model="url(../assets/models/Gabi/Pipa.glb)"
+                    position="-3 0 -11"></a-entity>
+          <a-entity id="tarta"
+                    gltf-model="url(../assets/models/Gabi/Tarta.glb)"
+                    position="3 0 0"></a-entity>
+          <a-entity id="vela"
+                    gltf-model="url(../assets/models/Gabi/Vela.glb)"
+                    position="3 0 20"></a-entity>
 
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  position="0 0 -12"
-                  class="asiento"
-                  asiento="tipo: null">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  position="0 0 -6"
-                  class="asiento"
-                  asiento="tipo: Conejo">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  position="0 0 6"
-                  class="asiento"
-                  asiento="tipo: Cerdo">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    position="0 0 0"
+                    class="asiento"
+                    asiento="tipo: Buho">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
 
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  rotation="0 180 0"
-                  position="0 0 5"
-                  class="asiento"
-                  asiento="tipo: null">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  rotation="0 180 0"
-                  position="0 0 -2"
-                  class="asiento"
-                  asiento="tipo: Gato">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  rotation="0 180 0"
-                  position="0 0 11"
-                  class="asiento"
-                  asiento="tipo: Gallina">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
-        <a-entity id="silla"
-                  gltf-model="url(../assets/models/Gabi/Silla.glb)"
-                  rotation="0 180 0"
-                  position="0 0 -8"
-                  class="asiento"
-                  asiento="tipo: Perro">
-            <a-entity class="seat-point"
-                      position="6.820 1.670 2.2"
-                      rotation="0 -90 0"></a-entity>
-        </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    position="0 0 -12"
+                    class="asiento"
+                    asiento="tipo: null">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    position="0 0 -6"
+                    class="asiento"
+                    asiento="tipo: Conejo">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    position="0 0 6"
+                    class="asiento"
+                    asiento="tipo: Cerdo">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
 
-        <script>
-            const db = new Dexie("JuegoDB");
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    rotation="0 180 0"
+                    position="0 0 5"
+                    class="asiento"
+                    asiento="tipo: null">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    rotation="0 180 0"
+                    position="0 0 -2"
+                    class="asiento"
+                    asiento="tipo: Gato">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    rotation="0 180 0"
+                    position="0 0 11"
+                    class="asiento"
+                    asiento="tipo: Gallina">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
+          <a-entity id="silla"
+                    gltf-model="url(../assets/models/Gabi/Silla.glb)"
+                    rotation="0 180 0"
+                    position="0 0 -8"
+                    class="asiento"
+                    asiento="tipo: Perro">
+              <a-entity class="seat-point"
+                        position="6.820 1.670 2.2"
+                        rotation="0 -90 0"></a-entity>
+          </a-entity>
 
-            db.version(1).stores({
-                inventario: "id, tipo",
-            });
+          <script>
+              const db = new Dexie("JuegoDB");
 
-            const mesa = document.querySelector("#mesa");
+              db.version(1).stores({
+                  inventario: "id, tipo",
+              });
 
-            mesa.addEventListener("model-loaded", () => {
-                mesa.setAttribute("ammo-body", "type: static");
-                mesa.setAttribute("ammo-shape", "type: mesh");
-            });
+              const mesa = document.querySelector("#mesa");
 
-            const model = document.querySelector("#miModelo");
-            model.addEventListener("model-loaded", () => {
-                model.setAttribute("ammo-body", "type: static");
-                model.setAttribute("ammo-shape", "type: mesh");
-            });
+              mesa.addEventListener("model-loaded", () => {
+                  mesa.setAttribute("ammo-body", "type: static");
+                  mesa.setAttribute("ammo-shape", "type: mesh");
+              });
 
-            // Slots globales en el centro para evitar superposición
-            const centroSlots = [
-                new THREE.Vector3(10, -0.5, -16),
-                new THREE.Vector3(8, -0.5, -16),
-                new THREE.Vector3(12, -0.5, -16),
-                new THREE.Vector3(14, -0.5, -16),
-                new THREE.Vector3(16, -0.5, -16),
-                new THREE.Vector3(18, -0.5, -16),
-            ];
+              const model = document.querySelector("#miModelo");
+              model.addEventListener("model-loaded", () => {
+                  model.setAttribute("ammo-body", "type: static");
+                  model.setAttribute("ammo-shape", "type: mesh");
+              });
 
-            // Componente unificado para animales
-            AFRAME.registerComponent("animal-interactive", {
-                schema: {
-                    tipo: { type: "string" },
-                    slotIndex: { type: "int", default: 0 },
-                    texto: { type: "string", default: "" },
-                },
-                init: function () {
-                    this.state = "idle"; // idle -> at-center -> holdable
-                    this.originalScale = this.el.getAttribute("scale");
-                    this.centerPos = null;
+              // Slots globales en el centro para evitar superposición
+              const centroSlots = [
+                  new THREE.Vector3(10, -0.5, -16),
+                  new THREE.Vector3(8, -0.5, -16),
+                  new THREE.Vector3(12, -0.5, -16),
+                  new THREE.Vector3(14, -0.5, -16),
+                  new THREE.Vector3(16, -0.5, -16),
+                  new THREE.Vector3(18, -0.5, -16),
+              ];
 
-                    this.el.addEventListener("click", () => {
-                        const centro = document.querySelector("#centro");
+              // Componente unificado para animales
+              AFRAME.registerComponent("animal-interactive", {
+                  schema: {
+                      tipo: { type: "string" },
+                      slotIndex: { type: "int", default: 0 },
+                      texto: { type: "string", default: "" },
+                  },
+                  init: function () {
+                      this.state = "idle"; // idle -> at-center -> holdable
+                      this.originalScale = this.el.getAttribute("scale");
+                      this.centerPos = null;
 
-                        if (this.state === "idle") {
-                            // Teletransporta al slot del centro
-                            const slot = centroSlots[this.data.slotIndex];
-                            this.el.object3D.position.copy(slot);
-                            this.centerPos = slot.clone();
-                            this.state = "at-center";
-                            this.el.object3D.rotation.set(0, 0, 0);
+                      this.el.addEventListener("click", () => {
+                          const centro = document.querySelector("#centro");
 
-                            // Detener el sonido porque ya hemos encontrado al animal
-                            if (this.el.components.sound) {
-                                this.el.components.sound.pauseSound();
-                            }
+                          if (this.state === "idle") {
+                              // Teletransporta al slot del centro
+                              const slot = centroSlots[this.data.slotIndex];
+                              this.el.object3D.position.copy(slot);
+                              this.centerPos = slot.clone();
+                              this.state = "at-center";
+                              this.el.object3D.rotation.set(0, 0, 0);
 
-                            console.log(`${this.data.tipo} teletransportado al centro`);
-                        } else if (
-                            this.state === "at-center" &&
-                            window.animalActivo == null
-                        ) {
-                            const animalEl = this.el;
-                            const animalTipo = this.data.tipo;
-                            const animalText = this.data.texto;
-                            showDialogTakeAnimal(
-                                animalTipo,
-                                animalText,
-                                () => {
-                                    window.animalActivo = animalEl;
-                                    this.state = "holdable";
-                                    console.log(`${animalTipo} ahora holdable`);
-                                },
-                                animalText,
-                                () => {
-                                    console.log(`${animalTipo} se queda en el centro`);
-                                },
-                            );
-                        }
-                    });
-                },
-                tick: function () {
-                    if (this.state === "holdable" && window.animalActivo === this.el) {
-                        const cam = document.querySelector("#cam").object3D;
-                        const offset = new THREE.Vector3(0, -1.5, -3); // frente y un poco abajo
-                        offset.applyQuaternion(cam.quaternion);
-                        const camPos = cam.getWorldPosition(new THREE.Vector3());
-                        this.el.object3D.position.copy(camPos.clone().add(offset));
-                        this.el.object3D.quaternion.copy(cam.quaternion);
-                    }
-                },
-                resetToCenter: function () {
-                    if (this.centerPos) {
-                        this.el.object3D.position.copy(this.centerPos);
-                        this.el.setAttribute("scale", this.originalScale);
-                        this.state = "at-center";
-                        this.el.removeAttribute("placed");
-                        this.el.object3D.rotation.set(0, 0, 0);
-                        if (this.el.assignedAsiento) {
-                            this.el.assignedAsiento.ocupado = false;
-                        }
+                              // Detener el sonido porque ya hemos encontrado al animal
+                              if (this.el.components.sound) {
+                                  this.el.components.sound.pauseSound();
+                              }
 
-                        delete this.el.assignedAsiento;
-                    }
-                },
-            });
+                              console.log(`${this.data.tipo} teletransportado al centro`);
+                          } else if (
+                              this.state === "at-center" &&
+                              window.animalActivo == null
+                          ) {
+                              const animalEl = this.el;
+                              const animalTipo = this.data.tipo;
+                              const animalText = this.data.texto;
+                              showDialogTakeAnimal(
+                                  animalTipo,
+                                  animalText,
+                                  () => {
+                                      window.animalActivo = animalEl;
+                                      this.state = "holdable";
+                                      console.log(`${animalTipo} ahora holdable`);
+                                  },
+                                  animalText,
+                                  () => {
+                                      console.log(`${animalTipo} se queda en el centro`);
+                                  },
+                              );
+                          }
+                      });
+                  },
+                  tick: function () {
+                      if (this.state === "holdable" && window.animalActivo === this.el) {
+                          const cam = document.querySelector("#cam").object3D;
+                          const offset = new THREE.Vector3(0, -1.5, -3); // frente y un poco abajo
+                          offset.applyQuaternion(cam.quaternion);
+                          const camPos = cam.getWorldPosition(new THREE.Vector3());
+                          this.el.object3D.position.copy(camPos.clone().add(offset));
+                          this.el.object3D.quaternion.copy(cam.quaternion);
+                      }
+                  },
+                  resetToCenter: function () {
+                      if (this.centerPos) {
+                          this.el.object3D.position.copy(this.centerPos);
+                          this.el.setAttribute("scale", this.originalScale);
+                          this.state = "at-center";
+                          this.el.removeAttribute("placed");
+                          this.el.object3D.rotation.set(0, 0, 0);
+                          if (this.el.assignedAsiento) {
+                              this.el.assignedAsiento.ocupado = false;
+                          }
 
-            // Componente para asientos y los animales sentandose
-            AFRAME.registerComponent("asiento", {
-                schema: { tipo: { type: "string" } },
+                          delete this.el.assignedAsiento;
+                      }
+                  },
+              });
 
-                init: function () {
-                    this.ocupado = false;
+              // Componente para asientos y los animales sentandose
+              AFRAME.registerComponent("asiento", {
+                  schema: { tipo: { type: "string" } },
 
-                    this.el.addEventListener("click", () => {
-                        if (!window.animalActivo) return;
+                  init: function () {
+                      this.ocupado = false;
 
-                        if (this.ocupado) {
-                            console.log("Este asiento ya está ocupado");
-                            return;
-                        }
+                      this.el.addEventListener("click", () => {
+                          if (!window.animalActivo) return;
 
-                        const animal = window.animalActivo;
-                        const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
+                          if (this.ocupado) {
+                              console.log("Este asiento ya está ocupado");
+                              return;
+                          }
 
-                        const seatPoint = this.el.querySelector(".seat-point");
-                        if (!seatPoint) return;
+                          const animal = window.animalActivo;
+                          const tipoAnimal = animal.getAttribute("animal-interactive").tipo;
 
-                        const worldPos = seatPoint.object3D.getWorldPosition(
-                            new THREE.Vector3(),
-                        );
-                        const worldRot = seatPoint.object3D.getWorldQuaternion(
-                            new THREE.Quaternion(),
-                        );
+                          const seatPoint = this.el.querySelector(".seat-point");
+                          if (!seatPoint) return;
 
-                        animal.object3D.position.copy(worldPos);
-                        animal.object3D.quaternion.copy(worldRot);
+                          const worldPos = seatPoint.object3D.getWorldPosition(
+                              new THREE.Vector3(),
+                          );
+                          const worldRot = seatPoint.object3D.getWorldQuaternion(
+                              new THREE.Quaternion(),
+                          );
 
-                        animal.setAttribute("placed", "true");
-                        animal.assignedAsiento = this;
+                          animal.object3D.position.copy(worldPos);
+                          animal.object3D.quaternion.copy(worldRot);
 
-                        this.ocupado = true;
+                          animal.setAttribute("placed", "true");
+                          animal.assignedAsiento = this;
 
-                        window.animalActivo = null;
+                          this.ocupado = true;
 
-                        checkAllAnimals();
-                    });
-                },
-            });
+                          window.animalActivo = null;
 
-            // Función global para validar si los animales están correctos
-            function checkAllAnimals() {
-                const animales = document.querySelectorAll("[animal-interactive]");
+                          checkAllAnimals();
+                      });
+                  },
+              });
 
-                // Solo validar si todos están colocados
-                const todosColocados = Array.from(animales).every(
-                    (a) => a.getAttribute("placed") === "true",
-                );
-                if (!todosColocados) return;
+              // Función global para validar si los animales están correctos
+              function checkAllAnimals() {
+                  const animales = document.querySelectorAll("[animal-interactive]");
 
-                let todosCorrectos = true;
-                animales.forEach((a) => {
-                    const tipoAnimal = a.getAttribute("animal-interactive").tipo;
-                    const asiento = a.assignedAsiento;
+                  // Solo validar si todos están colocados
+                  const todosColocados = Array.from(animales).every(
+                      (a) => a.getAttribute("placed") === "true",
+                  );
+                  if (!todosColocados) return;
 
-                    if (!asiento || asiento.data.tipo !== tipoAnimal) {
-                        todosCorrectos = false;
-                    }
-                });
+                  let todosCorrectos = true;
+                  animales.forEach((a) => {
+                      const tipoAnimal = a.getAttribute("animal-interactive").tipo;
+                      const asiento = a.assignedAsiento;
 
-                if (todosCorrectos) {
-                    mostrarMensaje("¡PUZLE COMPLETADO!");
-                } else {
-                    mostrarMensaje("PUZLE FALLADO");
-                    animales.forEach((a) => {
-                        a.components["animal-interactive"].resetToCenter();
-                    });
-                }
-            }
+                      if (!asiento || asiento.data.tipo !== tipoAnimal) {
+                          todosCorrectos = false;
+                      }
+                  });
 
-            function showDialogTakeAnimal(animalTipo, animalText, onTake, onLeave) {
-                window.dialogManager.show({
-                    title: animalTipo,
-                    content: `¿Quieres coger el ${animalTipo}?<br>${animalText}`,
-                    showCloseButton: true,
-                    gameStyle: true,
-                    darkBackground: true,
-                    onClose: () => { },
-                    buttons: [
-                        {
-                            text: "Coger",
-                            callback: () => {
-                                if (onTake) onTake();
-                            },
-                        },
-                        {
-                            text: "No coger",
-                            secondary: true,
-                            callback: () => {
-                                if (onLeave) window.dialogManager.hide(() => onLeave());
-                            },
-                        },
-                    ],
-                });
-            }
+                  if (todosCorrectos) {
+                      mostrarMensaje("¡PUZLE COMPLETADO!");
+                  } else {
+                      mostrarMensaje("PUZLE FALLADO");
+                      animales.forEach((a) => {
+                          a.components["animal-interactive"].resetToCenter();
+                      });
+                  }
+              }
 
-            function mostrarMensaje(texto) {
-                const cartel = document.getElementById("mensajePuzzle");
-                cartel.innerText = texto;
-                cartel.style.display = "block";
+              function showDialogTakeAnimal(animalTipo, animalText, onTake, onLeave) {
+                  window.dialogManager.show({
+                      title: animalTipo,
+                      content: `¿Quieres coger el ${animalTipo}?<br>${animalText}`,
+                      showCloseButton: true,
+                      gameStyle: true,
+                      darkBackground: true,
+                      onClose: () => { },
+                      buttons: [
+                          {
+                              text: "Coger",
+                              callback: () => {
+                                  if (onTake) onTake();
+                              },
+                          },
+                          {
+                              text: "No coger",
+                              secondary: true,
+                              callback: () => {
+                                  if (onLeave) window.dialogManager.hide(() => onLeave());
+                              },
+                          },
+                      ],
+                  });
+              }
 
-                setTimeout(() => {
-                    cartel.style.display = "none";
-                }, 3000);
-            }
-        </script>
+              function mostrarMensaje(texto) {
+                  const cartel = document.getElementById("mensajePuzzle");
+                  cartel.innerText = texto;
+                  cartel.style.display = "block";
 
-        <a-sky color="#87CEEB"></a-sky>
-    </a-scene>
+                  setTimeout(() => {
+                      cartel.style.display = "none";
+                  }, 3000);
+              }
+              const playerStates = {
+                  enano: {
+                      rigScale: 1,
+                      playerHeight: 0.2,
+                      playerPositionY: 9.6,
+                      cameraY: -0.05
+                  },
+
+                  normal: {
+                      rigScale: 1,
+                      playerHeight: 10,
+                      playerPositionY: 10,
+                      cameraY: 0.8
+                  }
+              };
+
+              function setPlayerState(stateName) {
+
+                  const state = playerStates[stateName];
+                  if (!state) return;
+
+                  const rig = document.querySelector('#player-rig');
+                  const player = document.querySelector('#player');
+                  const cam = document.querySelector('#cam');
+
+                  const duration = 800;
+
+                  rig.setAttribute(
+                      'animation__scale',
+                      `property: scale; to: ${state.rigScale} ${state.rigScale} ${state.rigScale}; dur:${duration}`
+                  );
+
+                  player.setAttribute(
+                      'animation__height',
+                      `property: height; to: ${state.playerHeight}; dur:${duration}`
+                  );
+
+                  player.setAttribute(
+                      'animation__pos',
+                      `property: position; to: 5 ${state.playerPositionY} 0; dur:${duration}`
+                  );
+
+                  cam.setAttribute(
+                      'animation__cam',
+                      `property: position; to: 0 ${state.cameraY} 0; dur:${duration}`
+                  );
+
+                  setTimeout(() => {
+                      player.removeAttribute('ammo-shape');
+                      player.setAttribute('ammo-shape', 'type: box; radius: 0.3; height: 1.4');
+                  }, duration + 50);
+              }
+          </script>
+
+          <a-sky color="#87CEEB"></a-sky>
+      </a-scene>
   </body>
 </html>
