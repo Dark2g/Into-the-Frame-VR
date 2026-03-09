@@ -18,7 +18,7 @@
 
             const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
 
-            const speed = 3;
+            const speed = 5;
             let vx = 0, vz = 0;
 
             if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
