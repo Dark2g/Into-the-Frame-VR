@@ -72,6 +72,35 @@
 
     });
 
+  /* ── Desactivar fuse cursor en VR (los láseres manejan clicks) ── */
+  (function () {
+    function toggleFuseCursor() {
+      var s = document.querySelector('a-scene');
+      if (!s) return;
+      s.addEventListener('enter-vr', function () {
+        var c = document.querySelector('a-cursor');
+        if (c) {
+          c.setAttribute('fuse', false);
+          c.setAttribute('visible', false);
+        }
+      });
+      s.addEventListener('exit-vr', function () {
+        var c = document.querySelector('a-cursor');
+        if (c) {
+          c.setAttribute('fuse', true);
+          c.setAttribute('visible', true);
+        }
+      });
+    }
+    if (document.querySelector('a-scene')) {
+      document.querySelector('a-scene').addEventListener('loaded', toggleFuseCursor);
+    } else {
+      window.addEventListener('DOMContentLoaded', function () {
+        document.querySelector('a-scene').addEventListener('loaded', toggleFuseCursor);
+      });
+    }
+  })();
+
   /* ───────────────────────────────────────────────
      VR Menu: crea botones 3D que replican la UI HTML
      Solo visible dentro de VR inmersivo
