@@ -376,11 +376,7 @@
             wasd-controls="enabled: false"
             cursor="rayOrigin: mouse"
             raycaster="objects: [data-raycastable]; interval: 100"
-          >
-            <a-cursor fuse="true" fuse-timeout="1500" color="#FFD700"
-                      geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
-                      material="shader: flat; opacity: 0.8"></a-cursor>
-          </a-camera>
+          ></a-camera>
           <!-- VR controllers: hijos del player -->
           <a-entity laser-controls="hand: left" vr-thumbstick raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
           <a-entity laser-controls="hand: right" vr-thumbstick raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>

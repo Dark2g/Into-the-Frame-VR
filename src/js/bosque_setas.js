@@ -412,11 +412,14 @@ function startProximityCheck() {
      * Se ejecuta cada frame (60 veces por segundo)
      */
     const checkProximity = function () {
+        if (!gameState.isActive) return; // parar loop si el juego no está activo
+
         // Obtener posición actual del jugador en el mundo 3D
         camera.object3D.getWorldPosition(playerWorldPos);
 
-        // Revisar cada seta del juego
-        mushrooms.forEach((mushroom) => {
+        // Re-buscar setas (pueden haberse re-creado en respawn)
+        const currentMushrooms = document.querySelectorAll('.mushroom');
+        currentMushrooms.forEach((mushroom) => {
             // Saltar si ya fue recogida
             if (gameState.collectedSet.has(mushroom)) return;
 
@@ -435,11 +438,16 @@ function startProximityCheck() {
         });
 
         // Continuar el loop
-        requestAnimationFrame(checkProximity);
+        gameState._proximityRAF = requestAnimationFrame(checkProximity);
     };
 
+    // Cancelar loop anterior si existe
+    if (gameState._proximityRAF) {
+        cancelAnimationFrame(gameState._proximityRAF);
+    }
+
     // Iniciar el loop
-    requestAnimationFrame(checkProximity);
+    gameState._proximityRAF = requestAnimationFrame(checkProximity);
 }
 
 /**

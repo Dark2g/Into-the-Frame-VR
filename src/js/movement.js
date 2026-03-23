@@ -131,20 +131,21 @@
       }
       if (btns.length === 0) return;
 
-      // Contenedor: hijo de la cámara, abajo-centro del campo de visión
+      // Contenedor: hijo de la cámara, esquina inferior-izquierda del campo de visión
       var menu = document.createElement('a-entity');
       menu.setAttribute('id', 'vr-menu');
-      menu.setAttribute('position', '0 -0.4 -0.8');
-      menu.setAttribute('rotation', '-25 0 0');
+      menu.setAttribute('position', '-0.45 -0.35 -0.8');
+      menu.setAttribute('rotation', '-15 10 0');
       menu.setAttribute('visible', false);
 
       btns.forEach(function (b, i) {
         var plane = document.createElement('a-plane');
-        plane.setAttribute('width', 0.4);
-        plane.setAttribute('height', 0.1);
+        plane.setAttribute('width', 0.35);
+        plane.setAttribute('height', 0.09);
         plane.setAttribute('color', b.bg);
-        plane.setAttribute('opacity', 0.9);
-        plane.setAttribute('position', ((i - (btns.length - 1) / 2) * 0.45) + ' 0 0');
+        plane.setAttribute('opacity', 0.92);
+        // Apilar verticalmente: el primero arriba, los siguientes debajo
+        plane.setAttribute('position', '0 ' + ((btns.length - 1 - i) * 0.11) + ' 0');
         plane.classList.add('clickable');
 
         var txt = document.createElement('a-text');
