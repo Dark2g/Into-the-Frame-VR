@@ -77,28 +77,32 @@
     function toggleFuseCursor() {
       var s = document.querySelector('a-scene');
       if (!s) return;
-      s.addEventListener('enter-vr', function () {
+
+      function disableFuse() {
         var c = document.querySelector('a-cursor');
-        if (c) {
-          c.setAttribute('fuse', false);
-          c.setAttribute('visible', false);
-        }
-      });
-      s.addEventListener('exit-vr', function () {
+        if (c) { c.setAttribute('fuse', false); c.setAttribute('visible', false); }
+      }
+      function enableFuse() {
         var c = document.querySelector('a-cursor');
-        if (c) {
-          c.setAttribute('fuse', true);
-          c.setAttribute('visible', true);
-        }
-      });
+        if (c) { c.setAttribute('fuse', true); c.setAttribute('visible', true); }
+      }
+
+      s.addEventListener('enter-vr', disableFuse);
+      s.addEventListener('exit-vr', enableFuse);
+
+      // Si ya estamos en VR (navegación entre páginas), aplicar ahora
+      if (s.is('vr-mode')) { disableFuse(); }
     }
-    if (document.querySelector('a-scene')) {
-      document.querySelector('a-scene').addEventListener('loaded', toggleFuseCursor);
-    } else {
-      window.addEventListener('DOMContentLoaded', function () {
-        document.querySelector('a-scene').addEventListener('loaded', toggleFuseCursor);
-      });
+
+    function initToggle() {
+      var s = document.querySelector('a-scene');
+      if (!s) return;
+      if (s.hasLoaded) { toggleFuseCursor(); }
+      else { s.addEventListener('loaded', toggleFuseCursor); }
     }
+
+    if (document.querySelector('a-scene')) { initToggle(); }
+    else { window.addEventListener('DOMContentLoaded', initToggle); }
   })();
 
   /* ───────────────────────────────────────────────
@@ -182,15 +186,21 @@
       scene.addEventListener('exit-vr', function () {
         menu.setAttribute('visible', false);
       });
+
+      // Si ya estamos en VR (navegación entre páginas), mostrar ahora
+      if (scene.is('vr-mode')) {
+        menu.setAttribute('visible', true);
+      }
     }
 
     // Esperar a que la escena esté lista
-    function waitScene() {
+    function initMenu() {
       var s = document.querySelector('a-scene');
-      if (s) { s.addEventListener('loaded', buildVRMenu); }
-      else { window.addEventListener('DOMContentLoaded', function () {
-        document.querySelector('a-scene').addEventListener('loaded', buildVRMenu);
-      }); }
+      if (!s) return;
+      if (s.hasLoaded) { buildVRMenu(); }
+      else { s.addEventListener('loaded', buildVRMenu); }
     }
-    waitScene();
+
+    if (document.querySelector('a-scene')) { initMenu(); }
+    else { window.addEventListener('DOMContentLoaded', initMenu); }
   })();

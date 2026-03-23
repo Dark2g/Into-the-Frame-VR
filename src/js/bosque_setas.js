@@ -212,8 +212,21 @@ let gameState = {
 
 let uiElements = {
     container: null,
-    timer: null
+    timer: null,
+    vrTimer: null  // 3D text for VR mode
 };
+
+// Helper: update timer text in both HTML overlay and 3D VR text
+function updateTimerDisplay(text, color) {
+    if (uiElements.timer) {
+        uiElements.timer.textContent = text;
+        if (color) uiElements.timer.style.color = color;
+    }
+    if (uiElements.vrTimer) {
+        uiElements.vrTimer.setAttribute('value', text);
+        if (color) uiElements.vrTimer.setAttribute('color', color);
+    }
+}
 
 document.addEventListener('DOMContentLoaded', async function () {
     const scene = document.querySelector('a-scene');
@@ -330,6 +343,21 @@ function createUI() {
 
     uiElements.container.appendChild(uiElements.timer);
     document.body.appendChild(uiElements.container);
+
+    // 3D timer for VR mode (attached to camera)
+    var cam = document.querySelector('#cam');
+    if (cam && !uiElements.vrTimer) {
+        var vrT = document.createElement('a-text');
+        vrT.setAttribute('value', 'Tiempo: 30s');
+        vrT.setAttribute('align', 'center');
+        vrT.setAttribute('color', '#333');
+        vrT.setAttribute('width', 1.4);
+        vrT.setAttribute('position', '0 0.35 -0.8');
+        vrT.setAttribute('geometry', 'primitive: plane; width: 0.5; height: 0.1');
+        vrT.setAttribute('material', 'color: #ffffff; opacity: 0.85; transparent: true');
+        cam.appendChild(vrT);
+        uiElements.vrTimer = vrT;
+    }
 }
 
 function startTimer() {
@@ -347,15 +375,10 @@ function startTimer() {
 
         gameState.timeRemaining--;
 
-        if (uiElements.timer) {
-            uiElements.timer.textContent = 'Tiempo: ' + gameState.timeRemaining + 's';
-
-            if (gameState.timeRemaining <= 10) {
-                uiElements.timer.style.color = '#E74C3C';
-            } else {
-                uiElements.timer.style.color = '#333';
-            }
-        }
+        updateTimerDisplay(
+            'Tiempo: ' + gameState.timeRemaining + 's',
+            gameState.timeRemaining <= 10 ? '#E74C3C' : '#333'
+        );
 
         if (gameState.timeRemaining <= 0) {
 
@@ -475,10 +498,7 @@ function collectMushroom(mushroomEl) {
         gameState.timeRemaining = 30;
 
         // Actualizar UI inmediatamente
-        if (uiElements.timer) {
-            uiElements.timer.textContent = 'Tiempo: 30s';
-            uiElements.timer.style.color = '#333'; // Volver a color normal
-        }
+        updateTimerDisplay('Tiempo: 30s', '#333');
 
     } else {
         // SETA NORMAL: incrementar contador
@@ -632,8 +652,7 @@ function startChallenge() {
         createUI();
     }
     activateFog();
-    uiElements.timer.textContent = "Tiempo: 30s";
-    uiElements.timer.style.color = "#333";
+    updateTimerDisplay('Tiempo: 30s', '#333');
 
     startTimer();
     startProximityCheck();

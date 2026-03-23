@@ -369,17 +369,24 @@
 
 
     /* ── Desactivar fuse cursor en VR ── */
-    document.querySelector('a-scene').addEventListener('loaded', () => {
+    (function () {
       var scene = document.querySelector('a-scene');
-      scene.addEventListener('enter-vr', function () {
-        var c = document.querySelector('a-cursor');
-        if (c) { c.setAttribute('fuse', false); c.setAttribute('visible', false); }
-      });
-      scene.addEventListener('exit-vr', function () {
-        var c = document.querySelector('a-cursor');
-        if (c) { c.setAttribute('fuse', true); c.setAttribute('visible', true); }
-      });
-    });
+      function setup() {
+        function disableFuse() {
+          var c = document.querySelector('a-cursor');
+          if (c) { c.setAttribute('fuse', false); c.setAttribute('visible', false); }
+        }
+        function enableFuse() {
+          var c = document.querySelector('a-cursor');
+          if (c) { c.setAttribute('fuse', true); c.setAttribute('visible', true); }
+        }
+        scene.addEventListener('enter-vr', disableFuse);
+        scene.addEventListener('exit-vr', enableFuse);
+        if (scene.is('vr-mode')) { disableFuse(); }
+      }
+      if (scene.hasLoaded) { setup(); }
+      else { scene.addEventListener('loaded', setup); }
+    })();
     
     /* ─────────────────────────────────────────────
        Partículas 3D flotantes
