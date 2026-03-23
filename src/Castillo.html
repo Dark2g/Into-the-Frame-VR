@@ -381,10 +381,11 @@
                       geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
                       material="shader: flat; opacity: 0.8"></a-cursor>
           </a-camera>
-          <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
-          <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
         </a-cylinder>
       </a-entity>
+      <!-- VR controllers (fuera del cuerpo de física) -->
+      <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
+      <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
 
       <!-- Columnas con colisiones -->
       <a-cylinder

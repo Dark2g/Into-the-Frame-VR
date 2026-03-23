@@ -5,21 +5,17 @@
         window.addEventListener('keydown', e => this.keys[e.code] = true);
         window.addEventListener('keyup', e => this.keys[e.code] = false);
 
-        // VR thumbstick support
+        // VR thumbstick — escuchar en la escena (bubble up desde cualquier mando)
         this.onThumbstick = (evt) => {
           this.thumbstick.x = evt.detail.x;
           this.thumbstick.y = evt.detail.y;
         };
-        this.el.sceneEl.addEventListener('loaded', () => {
-          document.querySelectorAll('[tracked-controls], [laser-controls]').forEach(ctrl => {
-            ctrl.addEventListener('thumbstickmoved', this.onThumbstick);
-            ctrl.addEventListener('trackpadmoved', this.onThumbstick);
-          });
-        });
+        this.el.sceneEl.addEventListener('thumbstickmoved', this.onThumbstick);
+        this.el.sceneEl.addEventListener('trackpadmoved', this.onThumbstick);
       },
         tick() {
             const body = this.el.body;
-            if (!body) return; // espera hasta que el cuerpo exista
+            if (!body) return;
 
             const cam = document.querySelector('#cam');
             if (!cam) return;
@@ -39,7 +35,7 @@
             if (this.keys.KeyA) { vx += right.x; vz += right.z; }
             if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
 
-            // VR thumbstick movement
+            // VR thumbstick
             var tx = this.thumbstick.x;
             var ty = this.thumbstick.y;
             if (Math.abs(tx) > 0.1 || Math.abs(ty) > 0.1) {
@@ -49,8 +45,8 @@
 
             const vel = body.getLinearVelocity();
             body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
-            body.setCollisionFlags(body.getCollisionFlags() & ~2); // elimina el flag kinem�tico
-            body.activate(); // reactivar cuerpo
+            body.setCollisionFlags(body.getCollisionFlags() & ~2);
+            body.activate();
         }
 
     });

@@ -268,11 +268,12 @@
                    animation__reset="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 200">
           </a-cursor>
         </a-camera>
-        <!-- VR controllers -->
-        <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger"></a-entity>
-        <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger"></a-entity>
       </a-cylinder>
     </a-entity>
+
+    <!-- VR controllers (fuera del cuerpo de física) -->
+    <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger"></a-entity>
+    <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger"></a-entity>
 
   </a-scene>
 
@@ -292,17 +293,13 @@
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup',   this.onKeyUp);
 
-        // VR thumbstick support
+        // VR thumbstick — escuchar en la escena (bubble up desde cualquier mando)
         this.onThumbstick = (evt) => {
           this.thumbstick.x = evt.detail.x;
           this.thumbstick.y = evt.detail.y;
         };
-        this.el.sceneEl.addEventListener('loaded', () => {
-          document.querySelectorAll('[tracked-controls], [laser-controls]').forEach(ctrl => {
-            ctrl.addEventListener('thumbstickmoved', this.onThumbstick);
-            ctrl.addEventListener('trackpadmoved', this.onThumbstick);
-          });
-        });
+        this.el.sceneEl.addEventListener('thumbstickmoved', this.onThumbstick);
+        this.el.sceneEl.addEventListener('trackpadmoved', this.onThumbstick);
       },
       tick() {
         const body = this.el.body;

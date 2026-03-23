@@ -71,10 +71,11 @@
                                 geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
                                 material="shader: flat; opacity: 0.8"></a-cursor>
                             </a-entity>
-                            <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable"></a-entity>
-                            <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable"></a-entity>
                      </a-cylinder>
               </a-entity>
+              <!-- VR controllers (fuera del cuerpo de física) -->
+              <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable"></a-entity>
+              <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable"></a-entity>
               <!-- LUCES -->
               <a-light type="ambient" intensity="0.6"></a-light>
               <a-light type="directional" position="1 3 2"></a-light>

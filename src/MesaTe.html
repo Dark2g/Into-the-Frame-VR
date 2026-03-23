@@ -155,10 +155,11 @@
                                 geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
                                 material="shader: flat; opacity: 0.8"></a-cursor>
                   </a-entity>
-                  <a-entity laser-controls="hand: left" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
-                  <a-entity laser-controls="hand: right" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
               </a-cylinder>
           </a-entity>
+          <!-- VR controllers (fuera del cuerpo de física) -->
+          <a-entity laser-controls="hand: left" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
+          <a-entity laser-controls="hand: right" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
           <a-entity position="-38.430 -0.5 0.217"
                     rotation="0 -90 0"
                     animal-interactive="tipo: Conejo; slotIndex: 0; texto: Habrá aperitivo aunque sea ¿no?"
