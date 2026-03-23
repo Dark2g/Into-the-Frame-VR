@@ -20,7 +20,7 @@ const board = document.querySelector('#board'); // Pilla el tablero
 const size = 1;
 
 //const game = new Chess(); // motor de ajedrez
-var game = new Chess();
+let game = new Chess();
 
 game.clear();
 
@@ -217,21 +217,21 @@ function spawnKey() {
     key.setAttribute('key-pickup', '');
 
     scene.appendChild(key);
-
-    console.log("🔑 Llave generada");
 }
 
 function checkGameState() {
-    console.log(game.in_check());
-
-
     if (game.in_check()) {
         
         spawnKey();
         return;
     } else {
 
-        alert('eres una mierda');
+        const msgEl = document.getElementById('mensajePuzzle') || document.getElementById('row-display');
+        if (msgEl) {
+            msgEl.textContent = 'Intento fallido. ¡Inténtalo de nuevo!';
+            if (msgEl.style) msgEl.style.display = 'block';
+            setTimeout(() => { if (msgEl.style) msgEl.style.display = 'none'; }, 2500);
+        }
         EliminarPiezas();
 
         game = new Chess();

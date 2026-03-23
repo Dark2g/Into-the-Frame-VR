@@ -1,5 +1,5 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="es">
   <head>
     <meta charset="utf-8" />
     <title>Laberinto</title>
@@ -9,7 +9,7 @@
     <script src="js/dialog.js"></script>
     <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/MozillaReality/ammo.js@8bbc0ea/builds/ammo.wasm.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.1/dist/aframe-physics-system.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
     <script src="https://unpkg.com/dexie@3/dist/dexie.js"></script>
     <script src="js/movement.js"></script>
     <script src="js/startAudioOnClick.js"></script>
@@ -337,9 +337,11 @@
                       texto: { type: "string", default: "" },
                   },
                   init: function () {
-                      this.state = "idle"; // idle -> at-center -> holdable
+                      this.state = "idle";
                       this.originalScale = this.el.getAttribute("scale");
                       this.centerPos = null;
+                      this._camPos = new THREE.Vector3();
+                      this._offset = new THREE.Vector3();
 
                       this.el.addEventListener("click", () => {
                           const centro = document.querySelector("#centro");
@@ -384,10 +386,10 @@
                   tick: function () {
                       if (this.state === "holdable" && window.animalActivo === this.el) {
                           const cam = document.querySelector("#cam").object3D;
-                          const offset = new THREE.Vector3(0, -1.5, -3); // frente y un poco abajo
-                          offset.applyQuaternion(cam.quaternion);
-                          const camPos = cam.getWorldPosition(new THREE.Vector3());
-                          this.el.object3D.position.copy(camPos.clone().add(offset));
+                          this._offset.set(0, -1.5, -3);
+                          this._offset.applyQuaternion(cam.quaternion);
+                          cam.getWorldPosition(this._camPos);
+                          this.el.object3D.position.copy(this._camPos.add(this._offset));
                           this.el.object3D.quaternion.copy(cam.quaternion);
                       }
                   },

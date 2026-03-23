@@ -380,20 +380,14 @@ function startProximityCheck() {
     const camera = document.querySelector('#cam');
     const mushrooms = document.querySelectorAll('.mushroom');
 
-    // guardar posiciones solo la primera vez
     if (mushroomSpawns.length === 0) {
-
         mushrooms.forEach(m => {
-
             const pos = m.getAttribute("position");
-
             mushroomSpawns.push({
                 type: m.getAttribute("data-mushroom-type"),
                 position: { x: pos.x, y: pos.y, z: pos.z }
             });
-
         });
-
     }
 
     if (!camera) {
@@ -403,39 +397,35 @@ function startProximityCheck() {
 
     const COLLECT_DISTANCE = 1.5;  // Metros de distancia para recoger
 
-    // Vectores para cálculos de posición 3D
+    const COLLECT_DISTANCE_SQ = COLLECT_DISTANCE * COLLECT_DISTANCE;
+
+    // Cached vectors for proximity check
     const playerWorldPos = new THREE.Vector3();
     const mushroomWorldPos = new THREE.Vector3();
 
-    /**
-     * LOOP PRINCIPAL DE DETECCIÓN
-     * Se ejecuta cada frame (60 veces por segundo)
-     */
     const checkProximity = function () {
-        // Obtener posición actual del jugador en el mundo 3D
+        if (!gameState.isActive) return;
+
         camera.object3D.getWorldPosition(playerWorldPos);
 
-        // Revisar cada seta del juego
-        mushrooms.forEach((mushroom) => {
-            // Saltar si ya fue recogida
+        const currentMushrooms = document.querySelectorAll('.mushroom');
+        currentMushrooms.forEach((mushroom) => {
             if (gameState.collectedSet.has(mushroom)) return;
 
-            // Obtener posición de la seta
             mushroom.object3D.getWorldPosition(mushroomWorldPos);
 
-            // Calcular distancia HORIZONTAL (ignorando altura Y)
             const dx = playerWorldPos.x - mushroomWorldPos.x;
             const dz = playerWorldPos.z - mushroomWorldPos.z;
-            const horizontalDistance = Math.sqrt(dx * dx + dz * dz);
+            const distSq = dx * dx + dz * dz;
 
-            // Si está suficientemente cerca, recogerla
-            if (horizontalDistance < COLLECT_DISTANCE) {
+            if (distSq < COLLECT_DISTANCE_SQ) {
                 collectMushroom(mushroom);
             }
         });
 
-        // Continuar el loop
-        requestAnimationFrame(checkProximity);
+        if (gameState.isActive) {
+            requestAnimationFrame(checkProximity);
+        }
     };
 
     // Iniciar el loop
@@ -449,45 +439,25 @@ function startProximityCheck() {
  * - Seta especial: resetea el timer a 30 segundos
  */
 function collectMushroom(mushroomEl) {
-    // Evitar recoger dos veces la misma seta
     if (gameState.collectedSet.has(mushroomEl)) return;
 
     const mushroomType = mushroomEl.getAttribute('data-mushroom-type');
-
-    console.log('[COLLECT] Seta recogida -', mushroomType);
-
-    // Marcar como recogida
     gameState.collectedSet.add(mushroomEl);
 
     if (mushroomType === 'special') {
-        // SETA ESPECIAL: resetear timer a 30 segundos
-        console.log('[COLLECT] ¡Seta especial! Timer reseteado a 30s');
-
-        // Resetear tiempo a 30
         gameState.timeRemaining = 30;
-
-        // Actualizar UI inmediatamente
         if (uiElements.timer) {
             uiElements.timer.textContent = 'Tiempo: 30s';
-            uiElements.timer.style.color = '#333'; // Volver a color normal
+            uiElements.timer.style.color = '#333';
         }
-
     } else {
-        // SETA NORMAL: incrementar contador
         gameState.mushroomsCollected++;
-        console.log('[COLLECT] Setas normales recogidas:', gameState.mushroomsCollected);
     }
 
-    // Animar y eliminar la seta del mundo
     animateAndRemoveMushroom(mushroomEl);
 }
 
-/**
- * ANIMAR Y ELIMINAR SETA
- * Aplica animaciones de desaparición y luego elimina del DOM
- */
 function animateAndRemoveMushroom(mushroomEl) {
-    // Animación de encogimiento
     mushroomEl.setAttribute('animation', {
         property: 'scale',
         to: '0 0 0',
@@ -495,7 +465,6 @@ function animateAndRemoveMushroom(mushroomEl) {
         easing: 'easeInQuad'
     });
 
-    // Animación de rotación
     mushroomEl.setAttribute('animation__rotate', {
         property: 'rotation',
         to: '0 360 0',
@@ -514,56 +483,14 @@ function animateAndRemoveMushroom(mushroomEl) {
 AFRAME.registerComponent('colision-ammo', {
     init: function () {
         this.el.addEventListener('model-loaded', () => {
-            // Esperar un frame para que Three.js aplique las matrices de transformación
             setTimeout(() => {
                 this.el.setAttribute('ammo-body', 'type: static');
                 this.el.setAttribute('ammo-shape', 'type: mesh; fit: all; includeInvisible: true');
-                console.log("✅ [AMMO] Físicas del mapa cargadas correctamente.");
             }, 100);
         });
     }
 });
 
-// AFRAME.registerComponent('player-move', {
-//     init() {
-//         this.keys = {};
-//         window.addEventListener('keydown', e => this.keys[e.code] = true);
-//         window.addEventListener('keyup', e => this.keys[e.code] = false);
-//     },
-//     tick() {
-//         const body = this.el.body;
-//         if (!body) return; // Espera a que nazca el cuerpo físico
-
-//         const cam = document.querySelector('#cam');
-//         if (!cam) return;
-
-//         // Calculamos hacia dónde mira la cámara
-//         const dir = new THREE.Vector3();
-//         cam.object3D.getWorldDirection(dir);
-//         dir.y = 0;
-//         dir.normalize();
-
-//         const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
-
-//         const speed = 4; // Velocidad del jugador
-//         let vx = 0, vz = 0;
-
-//         // Controles WASD
-//         if (this.keys.KeyS) { vx += dir.x; vz += dir.z; }
-//         if (this.keys.KeyW) { vx -= dir.x; vz -= dir.z; }
-//         if (this.keys.KeyA) { vx += right.x; vz += right.z; }
-//         if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
-
-//         // Aplicamos la velocidad usando Ammo.js
-//         const vel = body.getLinearVelocity();
-//         body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
-
-//         // Magia negra de Ammo para evitar que el jugador se "duerma" (kinematic flag)
-//         body.setCollisionFlags(body.getCollisionFlags() & ~2);
-//         body.activate();
-//     }
-// });
-//inicializar timer cuando pases de cierta zona
 AFRAME.registerComponent('timer-trigger', {
     schema: {
         minX: { type: 'number' },
@@ -661,53 +588,37 @@ function resetChallenge() {
     startChallenge();
 }
 function respawnMushrooms() {
-
-    // eliminar setas actuales
     document.querySelectorAll(".mushroom").forEach(m => m.remove());
 
     mushroomSpawns.forEach(data => {
-
         const mushroom = document.createElement("a-entity");
 
         mushroom.classList.add("mushroom");
-
-
         mushroom.setAttribute("data-mushroom-type", data.type);
         mushroom.setAttribute(
             "position",
             `${data.position.x} ${data.position.y} ${data.position.z}`
         );
 
-        // modelo interno (offset corregido)
         const model = document.createElement("a-entity");
-
         model.setAttribute("gltf-model", "#mushroomModel");
         model.setAttribute("position", "2.517 -4.564 11.264");
         model.setAttribute("scale", "0.35 0.35 0.35");
 
         mushroom.appendChild(model);
-
         document.querySelector("a-scene").appendChild(mushroom);
-
     });
-
 }
 function activateFog() {
-
     const scene = document.querySelector("a-scene");
-
     scene.setAttribute("fog", {
         type: "exponential",
         color: "#4B1E6E",
         density: 0.25,
     });
-
 }
 
 function removeFog() {
-
     const scene = document.querySelector("a-scene");
-
     scene.removeAttribute("fog");
-
 }

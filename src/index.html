@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Into the Frame VR — Alicia en el País de las Maravillas</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#070712">
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
@@ -258,7 +260,15 @@
         player-move
         door-detector
       >
-        <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false" look-controls="pointerLockEnabled: true"></a-camera>
+        <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false" look-controls="pointerLockEnabled: true">
+          <!-- Cursor para VR -->
+          <a-entity cursor="fuse: true; fuseTimeout: 1500" raycaster="objects: .door-trigger; far: 10"
+                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
+                    material="color: #c9a84c; shader: flat" position="0 0 -0.8"></a-entity>
+        </a-camera>
+        <!-- Controladores VR -->
+        <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger; far: 10" line="color: #c9a84c"></a-entity>
+        <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger; far: 10" line="color: #c9a84c"></a-entity>
       </a-cylinder>
     </a-entity>
 
@@ -274,6 +284,10 @@
     AFRAME.registerComponent('player-move', {
       init() {
         this.keys = {};
+        this.dir = new THREE.Vector3();
+        this.right = new THREE.Vector3();
+        this.up = new THREE.Vector3(0, 1, 0);
+        this.camEl = null;
         this.onKeyDown = (e) => { this.keys[e.code] = true; };
         this.onKeyUp   = (e) => { this.keys[e.code] = false; };
         window.addEventListener('keydown', this.onKeyDown);
@@ -283,23 +297,22 @@
         const body = this.el.body;
         if (!body) return;
 
-        const cam = document.querySelector('#cam');
-        if (!cam) return;
+        if (!this.camEl) this.camEl = document.getElementById('cam');
+        if (!this.camEl) return;
 
-        const dir = new THREE.Vector3();
-        cam.object3D.getWorldDirection(dir);
-        dir.y = 0;
-        dir.normalize();
+        this.camEl.object3D.getWorldDirection(this.dir);
+        this.dir.y = 0;
+        this.dir.normalize();
 
-        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+        this.right.crossVectors(this.dir, this.up).normalize();
 
         const speed = 4;
         let vx = 0, vz = 0;
 
-        if (this.keys.KeyW) { vx -= dir.x;   vz -= dir.z;   }
-        if (this.keys.KeyS) { vx += dir.x;   vz += dir.z;   }
-        if (this.keys.KeyA) { vx += right.x; vz += right.z; }
-        if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
+        if (this.keys.KeyW) { vx -= this.dir.x;   vz -= this.dir.z;   }
+        if (this.keys.KeyS) { vx += this.dir.x;   vz += this.dir.z;   }
+        if (this.keys.KeyA) { vx += this.right.x; vz += this.right.z; }
+        if (this.keys.KeyD) { vx -= this.right.x; vz -= this.right.z; }
 
         const vel = body.getLinearVelocity();
         body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
@@ -321,7 +334,7 @@
       const container = document.getElementById('particles-3d');
       const colors = ['#c9a84c', '#4CAF50', '#9C27B0', '#E91E63', '#2196F3', '#FFF'];
 
-      for (let i = 0; i < 40; i++) {
+      for (let i = 0; i < 25; i++) {
         const p = document.createElement('a-sphere');
         const x = (Math.random() - 0.5) * 30;
         const y = Math.random() * 6 + 0.5;
@@ -338,6 +351,11 @@
         container.appendChild(p);
       }
     });
+
+    /* ── Registrar Service Worker para modo offline ── */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
   </script>
 </body>
 </html>

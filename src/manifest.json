@@ -1,0 +1,24 @@
+{
+  "name": "Into the Frame VR",
+  "short_name": "IntoTheFrame",
+  "description": "Alicia en el País de las Maravillas - Experiencia VR",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#070712",
+  "theme_color": "#070712",
+  "icons": [
+    {
+      "src": "icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml"
+    },
+    {
+      "src": "icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["games"],
+  "ovr_package_name": "com.intotheframe.vr"
+}
