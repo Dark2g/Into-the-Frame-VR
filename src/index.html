@@ -4,8 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Into the Frame VR — Alicia en el País de las Maravillas</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#070712">
 
   <!-- A-Frame -->
   <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
@@ -14,6 +12,8 @@
   <script src="https://cdn.jsdelivr.net/gh/c-frame/aframe-physics-system@v4.2.2/dist/aframe-physics-system.min.js"></script>
   <script src="js/door_funtions.js"></script>
   <link rel="stylesheet" href="css/door-funtions.css">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#070712">
   
   <style>
     body { margin: 0; overflow: hidden; }
@@ -261,14 +261,16 @@
         door-detector
       >
         <a-camera id="cam" position="0 0.6 0" wasd-controls="enabled: false" look-controls="pointerLockEnabled: true">
-          <!-- Cursor para VR -->
-          <a-entity cursor="fuse: true; fuseTimeout: 1500" raycaster="objects: .door-trigger; far: 10"
-                    geometry="primitive: ring; radiusInner: 0.01; radiusOuter: 0.015"
-                    material="color: #c9a84c; shader: flat" position="0 0 -0.8"></a-entity>
+          <a-cursor fuse="true" fuse-timeout="1500" color="#FFD700"
+                   geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                   material="shader: flat; opacity: 0.8"
+                   animation__fusing="property: scale; startEvents: fusing; from: 1 1 1; to: 0.3 0.3 0.3; dur: 1500"
+                   animation__reset="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 200">
+          </a-cursor>
         </a-camera>
-        <!-- Controladores VR -->
-        <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger; far: 10" line="color: #c9a84c"></a-entity>
-        <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger; far: 10" line="color: #c9a84c"></a-entity>
+        <!-- VR controllers -->
+        <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger"></a-entity>
+        <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger"></a-entity>
       </a-cylinder>
     </a-entity>
 
@@ -284,10 +286,6 @@
     AFRAME.registerComponent('player-move', {
       init() {
         this.keys = {};
-        this.dir = new THREE.Vector3();
-        this.right = new THREE.Vector3();
-        this.up = new THREE.Vector3(0, 1, 0);
-        this.camEl = null;
         this.onKeyDown = (e) => { this.keys[e.code] = true; };
         this.onKeyUp   = (e) => { this.keys[e.code] = false; };
         window.addEventListener('keydown', this.onKeyDown);
@@ -297,22 +295,23 @@
         const body = this.el.body;
         if (!body) return;
 
-        if (!this.camEl) this.camEl = document.getElementById('cam');
-        if (!this.camEl) return;
+        const cam = document.querySelector('#cam');
+        if (!cam) return;
 
-        this.camEl.object3D.getWorldDirection(this.dir);
-        this.dir.y = 0;
-        this.dir.normalize();
+        const dir = new THREE.Vector3();
+        cam.object3D.getWorldDirection(dir);
+        dir.y = 0;
+        dir.normalize();
 
-        this.right.crossVectors(this.dir, this.up).normalize();
+        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
 
         const speed = 4;
         let vx = 0, vz = 0;
 
-        if (this.keys.KeyW) { vx -= this.dir.x;   vz -= this.dir.z;   }
-        if (this.keys.KeyS) { vx += this.dir.x;   vz += this.dir.z;   }
-        if (this.keys.KeyA) { vx += this.right.x; vz += this.right.z; }
-        if (this.keys.KeyD) { vx -= this.right.x; vz -= this.right.z; }
+        if (this.keys.KeyW) { vx -= dir.x;   vz -= dir.z;   }
+        if (this.keys.KeyS) { vx += dir.x;   vz += dir.z;   }
+        if (this.keys.KeyA) { vx += right.x; vz += right.z; }
+        if (this.keys.KeyD) { vx -= right.x; vz -= right.z; }
 
         const vel = body.getLinearVelocity();
         body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
@@ -334,7 +333,7 @@
       const container = document.getElementById('particles-3d');
       const colors = ['#c9a84c', '#4CAF50', '#9C27B0', '#E91E63', '#2196F3', '#FFF'];
 
-      for (let i = 0; i < 25; i++) {
+      for (let i = 0; i < 40; i++) {
         const p = document.createElement('a-sphere');
         const x = (Math.random() - 0.5) * 30;
         const y = Math.random() * 6 + 0.5;
@@ -351,10 +350,14 @@
         container.appendChild(p);
       }
     });
+  </script>
 
-    /* ── Registrar Service Worker para modo offline ── */
+  <!-- Service Worker para PWA offline -->
+  <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('./sw.js').catch(() => {});
+      navigator.serviceWorker.register('sw.js').catch(function(e) {
+        console.warn('SW registro falló:', e);
+      });
     }
   </script>
 </body>

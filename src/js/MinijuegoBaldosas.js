@@ -73,11 +73,10 @@ AFRAME.registerComponent('baldosa-sensor', {
     this.lastCoords = null;
     this.isDead = false;
     this.hudShown = false;
-    this._playerPos = new THREE.Vector3();
   },
   tick: function () {
-    this.el.object3D.getWorldPosition(this._playerPos);
-    var playerPos = this._playerPos;
+    var playerPos = new THREE.Vector3();
+    this.el.object3D.getWorldPosition(playerPos);
 
     // Disparar rayo desde el jugador hacia el suelo
     this.raycaster.ray.origin.copy(playerPos);
