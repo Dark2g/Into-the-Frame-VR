@@ -270,10 +270,10 @@
                    animation__reset="property: scale; startEvents: mouseleave; to: 1 1 1; dur: 200">
           </a-cursor>
         </a-camera>
+        <!-- VR controllers: hijos del player para que sigan su posición -->
+        <a-entity laser-controls="hand: left" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
+        <a-entity laser-controls="hand: right" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
       </a-cylinder>
-      <!-- VR controllers: hijos del wrapper para que sigan al jugador -->
-      <a-entity laser-controls="hand: left" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
-      <a-entity laser-controls="hand: right" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
     </a-entity>
 
 
