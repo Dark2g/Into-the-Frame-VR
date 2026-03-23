@@ -392,8 +392,8 @@
         var tx = this.thumbstick.x;
         var ty = this.thumbstick.y;
         if (Math.abs(tx) > 0.1 || Math.abs(ty) > 0.1) {
-          vx += -dir.x * ty + -right.x * tx;
-          vz += -dir.z * ty + -right.z * tx;
+          vx += dir.x * ty + -right.x * tx;
+          vz += dir.z * ty + -right.z * tx;
         }
 
         if (vx === 0 && vz === 0) return;
