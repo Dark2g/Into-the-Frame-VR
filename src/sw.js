@@ -1,4 +1,4 @@
-const CACHE_NAME = 'into-the-frame-v6';
+const CACHE_NAME = 'into-the-frame-v7';
 
 // All files to cache for offline use
 const ASSETS_TO_CACHE = [
