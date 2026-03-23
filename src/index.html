@@ -354,8 +354,6 @@
         });
       }
     });
-      }
-    });
 
     /* ─────────────────────────────────────────────
        Componente: player-move (movimiento FPS)
@@ -369,23 +367,21 @@
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup',   this.onKeyUp);
         dbg('player-move INIT ok');
+        dbg('has body?: ' + (this.el.body ? 'YES' : 'NO (will use position)'));
       },
-      tick() {
-        const body = this.el.body;
-        if (!body) return;
-
-        const cam = document.querySelector('#cam');
+      tick(t, dt) {
+        var cam = document.querySelector('#cam');
         if (!cam) return;
 
-        const dir = new THREE.Vector3();
+        var dir = new THREE.Vector3();
         cam.object3D.getWorldDirection(dir);
         dir.y = 0;
         dir.normalize();
 
-        const right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
+        var right = new THREE.Vector3().crossVectors(dir, new THREE.Vector3(0, 1, 0)).normalize();
 
-        const speed = 4;
-        let vx = 0, vz = 0;
+        var speed = 4;
+        var vx = 0, vz = 0;
 
         if (this.keys.KeyW) { vx -= dir.x;   vz -= dir.z;   }
         if (this.keys.KeyS) { vx += dir.x;   vz += dir.z;   }
@@ -400,10 +396,22 @@
           vz += -dir.z * ty + -right.z * tx;
         }
 
-        const vel = body.getLinearVelocity();
-        body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
-        body.setCollisionFlags(body.getCollisionFlags() & ~2);
-        body.activate();
+        if (vx === 0 && vz === 0) return;
+
+        // intenta physics, si no, mueve directamente
+        var body = this.el.body;
+        if (body) {
+          var vel = body.getLinearVelocity();
+          body.setLinearVelocity(new Ammo.btVector3(vx * speed, vel.y(), vz * speed));
+          body.setCollisionFlags(body.getCollisionFlags() & ~2);
+          body.activate();
+        } else {
+          // Fallback: mover posición directamente
+          var delta = (dt || 16) / 1000;
+          var pos = this.el.object3D.position;
+          pos.x += vx * speed * delta;
+          pos.z += vz * speed * delta;
+        }
       },
       remove() {
         window.removeEventListener('keydown', this.onKeyDown);
