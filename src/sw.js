@@ -1,4 +1,4 @@
-const CACHE_NAME = 'into-the-frame-v1';
+const CACHE_NAME = 'into-the-frame-v2';
 
 // All files to cache for offline use
 const ASSETS_TO_CACHE = [
@@ -51,27 +51,26 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: serve from cache first, fallback to network, then cache the response
+// Fetch: NETWORK FIRST, fallback to cache (ensures updates are always visible)
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((cached) => {
-      if (cached) return cached;
-
-      return fetch(event.request).then((response) => {
-        // Only cache successful same-origin or CORS requests
-        if (!response || response.status !== 200) return response;
-
-        const responseClone = response.clone();
+    fetch(event.request).then((response) => {
+      // Got network response — cache it and return
+      if (response && response.status === 200) {
+        var responseClone = response.clone();
         caches.open(CACHE_NAME).then((cache) => {
           cache.put(event.request, responseClone);
         });
-
-        return response;
-      }).catch(() => {
-        // If offline and not in cache, return a fallback for navigation
+      }
+      return response;
+    }).catch(() => {
+      // Network failed — serve from cache (offline mode)
+      return caches.match(event.request).then((cached) => {
+        if (cached) return cached;
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
+      });
       });
     })
   );
