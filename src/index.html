@@ -21,30 +21,10 @@
    
     @keyframes spin { to { transform: rotate(360deg); } }
 
-    /* Debug panel */
-    #vr-debug {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 99999;
-      background: rgba(0,0,0,0.85);
-      color: #0f0;
-      font-family: monospace;
-      font-size: 14px;
-      padding: 15px;
-      border: 2px solid #0f0;
-      border-radius: 8px;
-      pointer-events: none;
-      max-width: 400px;
-      white-space: pre-wrap;
-    }
+
   </style>
 </head>
 <body>
-
-  <!-- Debug VR -->
-  <div id="vr-debug">VR Debug: cargando...</div>
 
   <!-- ── HUD ── -->
   <div id="hud-title">
@@ -291,16 +271,12 @@
           </a-cursor>
         </a-camera>
       </a-cylinder>
+      <!-- VR controllers: hijos del wrapper para que sigan al jugador -->
+      <a-entity laser-controls="hand: left" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
+      <a-entity laser-controls="hand: right" vr-thumbstick raycaster="objects: .door-trigger, .clickable"></a-entity>
     </a-entity>
 
-    <!-- VR controllers (fuera del cuerpo de física) -->
-    <a-entity laser-controls="hand: left" vr-thumbstick raycaster="objects: .door-trigger"></a-entity>
-    <a-entity laser-controls="hand: right" vr-thumbstick raycaster="objects: .door-trigger"></a-entity>
 
-    <!-- Debug 3D (visible en VR) -->
-    <a-entity id="debug-3d" position="0 3 -2">
-      <a-text id="debug-text-3d" value="Debug: cargando..." color="#0f0" width="3" align="center" font="monoid"></a-text>
-    </a-entity>
 
   </a-scene>
 
@@ -309,31 +285,9 @@
        ══════════════════════════════════════════════════════ -->
   <script>
     /* ── Componente que va en cada mando VR ── */
-    var vrDebugLog = [];
-    function dbg(msg) {
-      vrDebugLog.push(msg);
-      if (vrDebugLog.length > 12) vrDebugLog.shift();
-      var txt = vrDebugLog.join('\n');
-      var el = document.getElementById('vr-debug');
-      if (el) el.textContent = txt;
-      var el3d = document.getElementById('debug-text-3d');
-      if (el3d) el3d.setAttribute('value', txt);
-    }
-
     AFRAME.registerComponent('vr-thumbstick', {
       init: function () {
-        var hand = this.el.getAttribute('laser-controls');
-        dbg('vr-thumbstick init: ' + (hand ? hand.hand || hand : 'unknown'));
-
-        this.el.addEventListener('controllerconnected', function (evt) {
-          dbg('CONTROLLER CONNECTED: ' + evt.detail.name + ' hand=' + (hand ? hand.hand || hand : '?'));
-        });
-        this.el.addEventListener('controllerdisconnected', function (evt) {
-          dbg('CONTROLLER DISCONNECTED: ' + evt.detail.name);
-        });
-
         this.el.addEventListener('thumbstickmoved', function (evt) {
-          dbg('THUMBSTICK: x=' + evt.detail.x.toFixed(2) + ' y=' + evt.detail.y.toFixed(2));
           var player = document.querySelector('[player-move]');
           if (player && player.components['player-move']) {
             player.components['player-move'].thumbstick.x = evt.detail.x;
@@ -341,16 +295,11 @@
           }
         });
         this.el.addEventListener('trackpadmoved', function (evt) {
-          dbg('TRACKPAD: x=' + evt.detail.x.toFixed(2) + ' y=' + evt.detail.y.toFixed(2));
           var player = document.querySelector('[player-move]');
           if (player && player.components['player-move']) {
             player.components['player-move'].thumbstick.x = evt.detail.x;
             player.components['player-move'].thumbstick.y = evt.detail.y;
           }
-        });
-
-        this.el.addEventListener('buttondown', function (evt) {
-          dbg('BUTTON DOWN: ' + evt.detail.id);
         });
       }
     });
@@ -366,8 +315,7 @@
         this.onKeyUp   = (e) => { this.keys[e.code] = false; };
         window.addEventListener('keydown', this.onKeyDown);
         window.addEventListener('keyup',   this.onKeyUp);
-        dbg('player-move INIT ok');
-        dbg('has body?: ' + (this.el.body ? 'YES' : 'NO (will use position)'));
+
       },
       tick(t, dt) {
         var cam = document.querySelector('#cam');
@@ -425,22 +373,7 @@
        Partículas 3D flotantes
        ───────────────────────────────────────────── */
     document.querySelector('a-scene').addEventListener('loaded', () => {
-      dbg('SCENE LOADED');
       var scene = document.querySelector('a-scene');
-      dbg('is VR?: ' + (scene.is('vr-mode') ? 'YES' : 'NO'));
-      dbg('xrSession?: ' + (scene.xrSession ? 'YES' : 'NO'));
-      dbg('navigator.xr?: ' + (navigator.xr ? 'YES' : 'NO'));
-
-      // Detectar controladores
-      var ctrls = document.querySelectorAll('[laser-controls]');
-      dbg('laser-controls count: ' + ctrls.length);
-      ctrls.forEach(function(c, i) {
-        var tc = c.components['tracked-controls'];
-        dbg('ctrl[' + i + '] tracked?: ' + (tc ? 'YES' : 'NO'));
-      });
-
-      scene.addEventListener('enter-vr', function() { dbg('>>> ENTER VR <<<'); });
-      scene.addEventListener('exit-vr', function() { dbg('>>> EXIT VR <<<'); });
 
       const container = document.getElementById('particles-3d');
       const colors = ['#c9a84c', '#4CAF50', '#9C27B0', '#E91E63', '#2196F3', '#FFF'];

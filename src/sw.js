@@ -1,4 +1,4 @@
-const CACHE_NAME = 'into-the-frame-v4';
+const CACHE_NAME = 'into-the-frame-v5';
 
 // All files to cache for offline use
 const ASSETS_TO_CACHE = [
@@ -70,7 +70,6 @@ self.addEventListener('fetch', (event) => {
         if (event.request.mode === 'navigate') {
           return caches.match('./index.html');
         }
-      });
       });
     })
   );
