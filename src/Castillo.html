@@ -263,6 +263,7 @@
       start-audio-on-click
       cursor="rayOrigin: mouse"
       physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false"
+      vr-mode-ui="enabled: true"
     >
       <!-- ASSETS -->
       <a-assets>
@@ -375,7 +376,13 @@
             wasd-controls="enabled: false"
             cursor="rayOrigin: mouse"
             raycaster="objects: [data-raycastable]; interval: 100"
-          ></a-camera>
+          >
+            <a-cursor fuse="true" fuse-timeout="1500" color="#FFD700"
+                      geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                      material="shader: flat; opacity: 0.8"></a-cursor>
+          </a-camera>
+          <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
+          <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable, [data-raycastable]"></a-entity>
         </a-cylinder>
       </a-entity>
 

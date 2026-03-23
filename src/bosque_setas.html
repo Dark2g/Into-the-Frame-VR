@@ -40,7 +40,7 @@
               <div class="spinner"></div>
        </div>
        <button id="btn-hub" onclick="window.location.href='index.html'">← Menú</button>
-       <a-scene  cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug:false">
+       <a-scene  cursor="rayOrigin: mouse" physics="driver: ammo; gravity: 0 -9.8 0; debug:false" vr-mode-ui="enabled: true">
               <!-- ASSETS -->
               <a-assets>
                      <a-asset-item id="mapModel" src="../assets/models/Mario/gbl/Claro_de_Setas.glb"></a-asset-item>
@@ -67,7 +67,12 @@
                             ammo-body="type: dynamic; mass:5; linearDamping:0.9; angularFactor:0 0 0"
                             ammo-shape="type: cylinder" visible="false" player-move door-detector>
                             <a-entity id="cam" camera look-controls="pointerLockEnabled:false" position="0 0.8 0">
+                              <a-cursor fuse="true" fuse-timeout="1500" color="#FFD700"
+                                geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                                material="shader: flat; opacity: 0.8"></a-cursor>
                             </a-entity>
+                            <a-entity laser-controls="hand: left" raycaster="objects: .door-trigger, .clickable"></a-entity>
+                            <a-entity laser-controls="hand: right" raycaster="objects: .door-trigger, .clickable"></a-entity>
                      </a-cylinder>
               </a-entity>
               <!-- LUCES -->

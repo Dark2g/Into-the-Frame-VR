@@ -113,7 +113,8 @@
 
       <a-scene cursor="rayOrigin: mouse"
                start-audio-on-click
-               physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false">
+               physics="driver: ammo; gravity: 0 -9.8 0; ammoSubSteps: 10; ammoStepFrequency: 60; debug: false"
+               vr-mode-ui="enabled: true">
           <a-assets>
               <audio id="conejo-snd"
                      src="../assets/sounds/RabbitEat.wav"
@@ -150,7 +151,12 @@
                             look-controls="pointerLockEnabled: false"
                             position="0 0.8 0">
                       <a-entity id="holder" position="0  -1"></a-entity>
+                      <a-cursor fuse="true" fuse-timeout="1500" color="#FFD700"
+                                geometry="primitive: ring; radiusInner: 0.015; radiusOuter: 0.025"
+                                material="shader: flat; opacity: 0.8"></a-cursor>
                   </a-entity>
+                  <a-entity laser-controls="hand: left" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
+                  <a-entity laser-controls="hand: right" raycaster="objects: .clickable, [data-raycastable]"></a-entity>
               </a-cylinder>
           </a-entity>
           <a-entity position="-38.430 -0.5 0.217"
