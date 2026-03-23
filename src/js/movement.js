@@ -1,17 +1,29 @@
+  /* ── Componente que va en cada mando VR ── */
+  AFRAME.registerComponent('vr-thumbstick', {
+    init: function () {
+      this.el.addEventListener('thumbstickmoved', function (evt) {
+        var player = document.querySelector('[player-move]');
+        if (player && player.components['player-move']) {
+          player.components['player-move'].thumbstick.x = evt.detail.x;
+          player.components['player-move'].thumbstick.y = evt.detail.y;
+        }
+      });
+      this.el.addEventListener('trackpadmoved', function (evt) {
+        var player = document.querySelector('[player-move]');
+        if (player && player.components['player-move']) {
+          player.components['player-move'].thumbstick.x = evt.detail.x;
+          player.components['player-move'].thumbstick.y = evt.detail.y;
+        }
+      });
+    }
+  });
+
   AFRAME.registerComponent('player-move', {
       init() {
         this.keys = {};
         this.thumbstick = { x: 0, y: 0 };
         window.addEventListener('keydown', e => this.keys[e.code] = true);
         window.addEventListener('keyup', e => this.keys[e.code] = false);
-
-        // VR thumbstick — escuchar en la escena (bubble up desde cualquier mando)
-        this.onThumbstick = (evt) => {
-          this.thumbstick.x = evt.detail.x;
-          this.thumbstick.y = evt.detail.y;
-        };
-        this.el.sceneEl.addEventListener('thumbstickmoved', this.onThumbstick);
-        this.el.sceneEl.addEventListener('trackpadmoved', this.onThumbstick);
       },
         tick() {
             const body = this.el.body;
