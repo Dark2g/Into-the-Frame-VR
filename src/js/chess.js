@@ -231,7 +231,6 @@ function checkGameState() {
         return;
     } else {
 
-        alert('eres una mierda');
         EliminarPiezas();
 
         game = new Chess();

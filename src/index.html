@@ -242,7 +242,37 @@
     </a-entity>
 
     <!-- ══ Decoración: pilares en las esquinas ══ -->
-    <a-cylinder radius="0.4" height="5" position="8 2.5 -8"  color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
+    <a-cylinder id="columna-db" radius="0.4" height="5" position="8 2.5 -8"
+  color="#1a1a2e"
+  material="emissive: #c9a84c; emissiveIntensity: 0.1">
+
+  <!-- BOTÓN PEGADO A LA COLUMNA -->
+  <a-entity position="0 0 0.41" clear-db>
+    
+    <a-plane 
+      width="1" height="1.2"
+      color="#E91E63"
+      material="emissive: #E91E63; emissiveIntensity: 0.6"
+      class="clickable"
+    ></a-plane>
+
+    <a-text 
+      value="🗑"
+      align="center"
+      width="3"
+      position="0 0.25 0.01"
+    ></a-text>
+
+    <a-text 
+      value="LIMPIAR\nDATOS"
+      align="center"
+      width="2"
+      position="0 -0.25 0.01"
+    ></a-text>
+
+  </a-entity>
+
+</a-cylinder>
     <a-cylinder radius="0.4" height="5" position="-8 2.5 -8" color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
     <a-cylinder radius="0.4" height="5" position="8 2.5 8"   color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
     <a-cylinder radius="0.4" height="5" position="-8 2.5 8"  color="#1a1a2e" material="emissive: #c9a84c; emissiveIntensity: 0.1"></a-cylinder>
@@ -423,6 +453,25 @@
         console.warn('SW registro falló:', e);
       });
     }
+    AFRAME.registerComponent('clear-db', {
+  init: function () {
+    this.el.addEventListener('click', () => {
+      const request = indexedDB.deleteDatabase('JuegoDB');
+
+      request.onsuccess = () => {
+        console.log('DB eliminada');
+      };
+
+      request.onerror = () => {
+        console.error('Error al borrar DB');
+      };
+
+      request.onblocked = () => {
+        console.warn('DB bloqueada');
+      };
+    });
+  }
+});
   </script>
 </body>
 </html>
